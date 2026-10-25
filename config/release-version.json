@@ -1,0 +1,7 @@
+{
+  "app_version": "1.3.0",
+  "build_number": 20,
+  "macos_minimum": "14.0",
+  "ios_minimum": "17.0",
+  "status": "candidate"
+}

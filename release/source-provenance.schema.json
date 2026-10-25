@@ -1,0 +1,94 @@
+{
+  "type": "object",
+  "properties": {
+    "kind": {
+      "const": "source-candidate"
+    },
+    "release_status": {
+      "const": "candidate"
+    },
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40,64}$"
+    },
+    "tree": {
+      "type": "string",
+      "minLength": 1
+    },
+    "profile": {
+      "enum": [
+        "production",
+        "dev-tests"
+      ]
+    },
+    "dirty": {
+      "type": "boolean"
+    },
+    "version": {
+      "type": "object"
+    },
+    "input_manifest_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "git_blob": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "mode": {
+            "enum": [
+              "100644",
+              "100755"
+            ]
+          }
+        },
+        "required": [
+          "path",
+          "git_blob",
+          "sha256",
+          "size",
+          "mode"
+        ],
+        "additionalProperties": false
+      },
+      "uniqueItems": true
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "kind",
+    "release_status",
+    "commit",
+    "tree",
+    "profile",
+    "dirty",
+    "input_manifest_sha256",
+    "files",
+    "limitations"
+  ],
+  "additionalProperties": false
+}

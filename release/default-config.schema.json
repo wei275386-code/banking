@@ -1,0 +1,73 @@
+{
+  "type": "object",
+  "properties": {
+    "data_policy": {
+      "const": "empty-workspace"
+    },
+    "defaults": {
+      "type": "object",
+      "properties": {
+        "currency": {
+          "const": "CNY"
+        },
+        "locale": {
+          "const": "zh-Hans"
+        },
+        "classification_rules": {
+          "const": []
+        },
+        "account_policies": {
+          "const": []
+        },
+        "import_sources": {
+          "const": []
+        },
+        "taxonomy": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "primary": {
+                "type": "string",
+                "minLength": 1
+              },
+              "secondaries": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": [
+              "primary",
+              "secondaries"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "currency",
+        "locale",
+        "classification_rules",
+        "account_policies",
+        "import_sources",
+        "taxonomy"
+      ],
+      "additionalProperties": false
+    },
+    "personal_data": {
+      "const": false
+    }
+  },
+  "required": [
+    "data_policy",
+    "defaults",
+    "personal_data"
+  ],
+  "additionalProperties": false
+}

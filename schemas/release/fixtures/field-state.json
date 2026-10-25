@@ -1,0 +1,14 @@
+{
+  "values": {
+    "override/record-a": "{\"fact_review_status\":\"事实已确认\",\"source_evidence\":{\"note\":\"必须保留的证据备注\"},\"transaction_facts\":{\"amount\":10,\"custom\":{\"note\":\"未知metadata备注\"},\"disposition\":\"included\",\"version\":2}}",
+    "record-a/transaction_facts": "{\"amount\":10,\"version\":2}"
+  },
+  "observed": {
+    "synthetic-device-a": 1
+  },
+  "frontier": [
+    "revision-a"
+  ],
+  "conflicts": {},
+  "covered_revision_inventory": "5c1f3ad8d3af1ec310bdf0fd5f8a2527479f9cf79fff58d1200e4b1ee619bb19"
+}

@@ -1,0 +1,14 @@
+{
+  "mode": "empty",
+  "from": null,
+  "to": null,
+  "observed_from": null,
+  "observed_to": null,
+  "pending_from": null,
+  "pending_to": null,
+  "basis": {
+    "kind": "no-reliable-dates",
+    "source_ids": []
+  },
+  "revision": 0
+}

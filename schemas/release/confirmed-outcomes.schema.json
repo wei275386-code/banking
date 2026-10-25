@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "confirmed-outcomes.schema.json",
+  "type": "object",
+  "properties": {
+    "purpose": {
+      "const": "confirmed-outcomes"
+    },
+    "records": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "container": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            }
+          },
+          "signature": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "evidence_signatures": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "fields": {
+            "type": "object",
+            "properties": {
+              "account_identity_before_consolidation": {
+                "type": "object"
+              },
+              "payment_account_status": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "unallocated_credit_cents": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "additionalProperties": false
+          },
+          "components": {
+            "type": "array",
+            "maxItems": 10000,
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "fields": {
+                  "type": "object",
+                  "properties": {
+                    "primary": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "secondary": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "recurrence": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "classification_basis": {
+                      "type": "string"
+                    },
+                    "classification_evidence_basis": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "tag_basis": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "completion_confirmation": {
+                      "type": "object"
+                    },
+                    "included": {
+                      "type": "boolean"
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "override_values": {
+                  "type": "object"
+                },
+                "catalog_sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "required": [
+                "id",
+                "fields",
+                "override_values",
+                "catalog_sha256"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "id",
+          "signature",
+          "evidence_signatures",
+          "fields",
+          "components"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "to": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "mode": {
+          "enum": [
+            "empty",
+            "automatic",
+            "explicit"
+          ]
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "from",
+        "to",
+        "mode",
+        "revision"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "purpose",
+    "records",
+    "coverage"
+  ],
+  "additionalProperties": false
+}

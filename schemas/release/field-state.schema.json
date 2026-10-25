@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "field-state.schema.json",
+  "type": "object",
+  "properties": {
+    "values": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "observed": {
+      "$ref": "common.schema.json#/$defs/vector"
+    },
+    "frontier": {
+      "$ref": "common.schema.json#/$defs/revision-ids"
+    },
+    "conflicts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "revision_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "value": {
+              "type": "string"
+            },
+            "source_binding_id": {
+              "$ref": "common.schema.json#/$defs/uuid"
+            }
+          },
+          "required": [
+            "revision_id",
+            "value",
+            "source_binding_id"
+          ],
+          "additionalProperties": true
+        },
+        "minItems": 2
+      }
+    },
+    "covered_revision_inventory": {
+      "$ref": "common.schema.json#/$defs/hash"
+    },
+    "seed_values": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "values",
+    "observed",
+    "frontier",
+    "conflicts",
+    "covered_revision_inventory"
+  ],
+  "additionalProperties": false
+}

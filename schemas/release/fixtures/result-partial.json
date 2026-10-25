@@ -1,0 +1,51 @@
+{
+  "workspace_id": "c0ddc754-dfec-55be-97f9-316cabc21553",
+  "operation_id": "operation-a",
+  "request_id": "request-a",
+  "input_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "algorithm_version": "synthetic-1",
+  "phase": "committed",
+  "outcome": "partial",
+  "inputs": [
+    {
+      "input_id": "pdf-a",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "kind": "pdf",
+      "required_financial": true,
+      "retained": true,
+      "outcome": "success",
+      "completed_stages": [
+        "parse",
+        "ledger",
+        "projection"
+      ]
+    },
+    {
+      "input_id": "video-a",
+      "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "kind": "video",
+      "required_financial": false,
+      "retained": true,
+      "outcome": "pending",
+      "completed_stages": [
+        "retain"
+      ],
+      "reason": "unsupported_video_layout"
+    }
+  ],
+  "state_id": "state-a",
+  "result_digest": "c2134aeeef4b3cae07659f739c16d2bbd8eeb69ed5a0d2b517fee8da667734f4",
+  "result_generation": null,
+  "membership": [
+    {
+      "key": "record-a",
+      "kind": "record",
+      "digest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    },
+    {
+      "key": "video-a/retain",
+      "kind": "input-stage",
+      "digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "type": "object",
+  "properties": {
+    "status": {
+      "enum": [
+        "pending",
+        "locked"
+      ]
+    },
+    "native": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "enum": [
+            "pending",
+            "locked"
+          ]
+        },
+        "lock": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "lock"
+      ],
+      "additionalProperties": true
+    },
+    "python": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "enum": [
+            "pending",
+            "locked"
+          ]
+        },
+        "lock": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "lock"
+      ],
+      "additionalProperties": true
+    },
+    "node": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "enum": [
+            "pending",
+            "locked"
+          ]
+        },
+        "lock": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "lock"
+      ],
+      "additionalProperties": true
+    },
+    "pipeline": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "complete"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "status"
+        ],
+        "additionalProperties": false
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "status",
+    "native",
+    "python",
+    "node",
+    "pipeline"
+  ],
+  "additionalProperties": false
+}

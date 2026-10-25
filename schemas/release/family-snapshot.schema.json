@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "family-snapshot.schema.json",
+  "type": "object",
+  "properties": {
+    "workspace_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "binding_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "host_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "parent_generation": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "min_reader_version": {
+      "$ref": "common.schema.json#/$defs/version"
+    },
+    "min_writer_version": {
+      "$ref": "common.schema.json#/$defs/version"
+    },
+    "files": {
+      "type": "object",
+      "properties": {
+        "financial-review.json": {
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        "payment-evidence.json": {
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        "field-state.json": {
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        "family-profile.json": {
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        "account-policies.json": {
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        "state-manifest.json": {
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        "business-proof.json": {
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        "request-results.json": {
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        "asset-manifest.json": {
+          "$ref": "common.schema.json#/$defs/hash"
+        }
+      },
+      "required": [
+        "financial-review.json",
+        "payment-evidence.json",
+        "field-state.json",
+        "family-profile.json",
+        "account-policies.json",
+        "state-manifest.json",
+        "business-proof.json",
+        "request-results.json",
+        "asset-manifest.json"
+      ],
+      "additionalProperties": {
+        "$ref": "common.schema.json#/$defs/hash"
+      }
+    },
+    "revision_frontier": {
+      "$ref": "common.schema.json#/$defs/revision-ids"
+    },
+    "covered_revision_inventory": {
+      "$ref": "common.schema.json#/$defs/hash"
+    },
+    "included_requests": {
+      "$ref": "common.schema.json#/$defs/revision-ids"
+    },
+    "request_results": {
+      "$ref": "common.schema.json#/$defs/hash"
+    },
+    "asset_manifest": {
+      "$ref": "common.schema.json#/$defs/hash"
+    },
+    "state": {
+      "$ref": "common.schema.json#/$defs/state-tuple"
+    }
+  },
+  "required": [
+    "workspace_id",
+    "binding_id",
+    "host_id",
+    "sequence",
+    "parent_generation",
+    "min_reader_version",
+    "min_writer_version",
+    "files",
+    "revision_frontier",
+    "covered_revision_inventory",
+    "included_requests",
+    "request_results",
+    "asset_manifest",
+    "state"
+  ],
+  "additionalProperties": false
+}

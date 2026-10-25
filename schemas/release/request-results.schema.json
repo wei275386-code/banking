@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "request-results.schema.json",
+  "type": "object",
+  "properties": {
+    "state_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "$ref": "result.schema.json"
+      }
+    }
+  },
+  "required": [
+    "state_id",
+    "results"
+  ],
+  "additionalProperties": false
+}

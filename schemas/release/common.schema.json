@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "common.schema.json",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "uuid": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "revision-ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "vector": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "input": {
+      "type": "object",
+      "properties": {
+        "input_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        "kind": {
+          "enum": [
+            "pdf",
+            "csv",
+            "xlsx",
+            "video",
+            "review"
+          ]
+        },
+        "required_financial": {
+          "type": "boolean"
+        },
+        "retained": {
+          "const": true
+        },
+        "outcome": {
+          "enum": [
+            "unknown",
+            "success",
+            "pending",
+            "failed"
+          ]
+        },
+        "completed_stages": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "input_id",
+        "sha256",
+        "kind",
+        "required_financial",
+        "retained",
+        "outcome",
+        "completed_stages"
+      ],
+      "additionalProperties": true
+    },
+    "effect": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "record",
+            "revision",
+            "input-stage",
+            "supersedes",
+            "tombstone"
+          ]
+        },
+        "digest": {
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        "supersedes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "tombstone": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "key",
+        "kind",
+        "digest"
+      ],
+      "additionalProperties": true
+    },
+    "state-tuple": {
+      "type": "object",
+      "required": [
+        "state_id",
+        "local_revision",
+        "state_manifest_hash"
+      ],
+      "properties": {
+        "state_id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "local_revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "state_manifest_hash": {
+          "$ref": "common.schema.json#/$defs/hash"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

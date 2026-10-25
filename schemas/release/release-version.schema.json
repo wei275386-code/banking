@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "release-version.schema.json",
+  "type": "object",
+  "properties": {
+    "app_version": {
+      "$ref": "common.schema.json#/$defs/version"
+    },
+    "build_number": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "macos_minimum": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+(?:\\.[0-9]+)?$"
+    },
+    "ios_minimum": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+(?:\\.[0-9]+)?$"
+    },
+    "status": {
+      "const": "candidate"
+    }
+  },
+  "required": [
+    "app_version",
+    "build_number",
+    "macos_minimum",
+    "ios_minimum",
+    "status"
+  ],
+  "additionalProperties": false
+}

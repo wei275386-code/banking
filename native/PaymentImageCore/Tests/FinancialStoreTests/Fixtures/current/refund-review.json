@@ -1,0 +1,864 @@
+{
+  "coverage_complete": true,
+  "coverage_note": "Synthetic fixture v1. No family data.",
+  "cutoff": "2026-09-30",
+  "dataset_id": "synthetic-integration-v1",
+  "fire_parameters": {
+    "afterTaxSalary": 200000,
+    "annualContribution": 120000,
+    "annualHardCap": 100000,
+    "baseYear": 2026,
+    "birthYear": 1990,
+    "branches": {
+      "children": {
+        "annualCost": 24000,
+        "birthYear": 2028,
+        "count": 1,
+        "educationBucket": 100000,
+        "enabled": false,
+        "incomeImpact": 20000
+      },
+      "housing": {
+        "annualMaintenance": 6000,
+        "downPaymentRatio": 0.2,
+        "enabled": false,
+        "fees": 30000,
+        "loanRate": 0.035,
+        "loanYears": 30,
+        "minLiquidAssets": 0,
+        "ownerHomeCountsAsFireAsset": false,
+        "reduceRent": false,
+        "renovation": 100000,
+        "totalPrice": 2000000,
+        "year": 2026
+      }
+    },
+    "buckets": {
+      "elderCareBucket": 0,
+      "elderCareEnabled": false,
+      "includeBuckets": false,
+      "otherBuckets": 0,
+      "parentMedicalBucket": 0,
+      "safetyBucket": 0
+    },
+    "currentFireAssets": 100000,
+    "expenseBreakdown": {
+      "rent": 12000
+    },
+    "expenseModes": {
+      "normal": 70000
+    },
+    "investing": {
+      "annualReturn": 0.06,
+      "inflation": 0.025,
+      "maxDrawdown": 0.3,
+      "withdrawalRate": 0.035
+    },
+    "targetAge": 55
+  },
+  "records": [
+    {
+      "account_views": [
+        "Test account A"
+      ],
+      "components": [],
+      "date": "2026-04-01",
+      "events": [
+        {
+          "amount_cents": 300,
+          "date": "2026-04-01",
+          "id": "refund-single:event",
+          "kind": "bank_credit",
+          "source": "bank",
+          "status": "原始证据"
+        }
+      ],
+      "evidence_keys": [
+        "refund-single"
+      ],
+      "id": "refund-single",
+      "non_consumption": false,
+      "payment_account_status": "identified",
+      "payment_accounts": [
+        "Test account A"
+      ],
+      "payment_channels": [
+        "Test channel"
+      ],
+      "status": "支付成立",
+      "title": "Synthetic refund-single",
+      "trace_sources": [
+        {
+          "association": "linked",
+          "basis": "Synthetic linked refund",
+          "currency": "CNY",
+          "date": "2026-04-01 03:29",
+          "event_kind": "refund",
+          "id": "refund-network",
+          "location": "Synthetic observation",
+          "platform": "unionpay",
+          "source_evidence": {
+            "image": {
+              "path": "preview.png",
+              "sha256": "dcc7e3200fe19604ca2c15df0b920611dd8a7b90f917475fc51b878417907704"
+            },
+            "kind": "fixture"
+          },
+          "status": "refunded",
+          "title": "Fixture platform merchant"
+        }
+      ],
+      "unallocated_credit_cents": 300,
+      "user_id": "fixture-user",
+      "user_relation": "self"
+    },
+    {
+      "account_views": [
+        "Test account A"
+      ],
+      "components": [],
+      "date": "2026-04-02",
+      "events": [
+        {
+          "amount_cents": 200,
+          "date": "2026-04-02",
+          "id": "refund-group-a:event",
+          "kind": "bank_credit",
+          "source": "bank",
+          "status": "原始证据"
+        }
+      ],
+      "evidence_keys": [
+        "refund-group-a"
+      ],
+      "id": "refund-group-a",
+      "non_consumption": false,
+      "payment_account_status": "identified",
+      "payment_accounts": [
+        "Test account A"
+      ],
+      "payment_channels": [
+        "Test channel"
+      ],
+      "status": "支付成立",
+      "title": "Synthetic refund-group-a",
+      "unallocated_credit_cents": 200,
+      "user_id": "fixture-user",
+      "user_relation": "self"
+    },
+    {
+      "account_views": [
+        "Test account A"
+      ],
+      "components": [],
+      "date": "2026-04-03",
+      "events": [
+        {
+          "amount_cents": 400,
+          "date": "2026-04-03",
+          "id": "refund-group-b:event",
+          "kind": "bank_credit",
+          "source": "bank",
+          "status": "原始证据"
+        }
+      ],
+      "evidence_keys": [
+        "refund-group-b"
+      ],
+      "id": "refund-group-b",
+      "non_consumption": false,
+      "payment_account_status": "identified",
+      "payment_accounts": [
+        "Test account A"
+      ],
+      "payment_channels": [
+        "Test channel"
+      ],
+      "status": "支付成立",
+      "title": "Synthetic refund-group-b",
+      "unallocated_credit_cents": 400,
+      "user_id": "fixture-user",
+      "user_relation": "self"
+    },
+    {
+      "account_views": [
+        "Test account A"
+      ],
+      "components": [],
+      "date": "2026-04-04",
+      "events": [
+        {
+          "amount_cents": 250,
+          "date": "2026-04-04",
+          "id": "refund-multi-a:event",
+          "kind": "bank_credit",
+          "source": "bank",
+          "status": "原始证据"
+        }
+      ],
+      "evidence_keys": [
+        "refund-multi-a"
+      ],
+      "id": "refund-multi-a",
+      "non_consumption": false,
+      "payment_account_status": "identified",
+      "payment_accounts": [
+        "Test account A"
+      ],
+      "payment_channels": [
+        "Test channel"
+      ],
+      "status": "支付成立",
+      "title": "Synthetic refund-multi-a",
+      "unallocated_credit_cents": 250,
+      "user_id": "fixture-user",
+      "user_relation": "self"
+    },
+    {
+      "account_views": [
+        "Test account A"
+      ],
+      "components": [],
+      "date": "2026-04-05",
+      "events": [
+        {
+          "amount_cents": 350,
+          "date": "2026-04-05",
+          "id": "refund-multi-b:event",
+          "kind": "bank_credit",
+          "source": "bank",
+          "status": "原始证据"
+        }
+      ],
+      "evidence_keys": [
+        "refund-multi-b"
+      ],
+      "id": "refund-multi-b",
+      "non_consumption": false,
+      "payment_account_status": "identified",
+      "payment_accounts": [
+        "Test account A"
+      ],
+      "payment_channels": [
+        "Test channel"
+      ],
+      "status": "支付成立",
+      "title": "Synthetic refund-multi-b",
+      "unallocated_credit_cents": 350,
+      "user_id": "fixture-user",
+      "user_relation": "self"
+    },
+    {
+      "account_views": [
+        "Test account A"
+      ],
+      "components": [
+        {
+          "classification_basis": "规则推断",
+          "classification_keys": [
+            "purchase-single:item"
+          ],
+          "gross_cents": 2400,
+          "id": "purchase-single:item",
+          "included": true,
+          "net_cents": 2400,
+          "primary": "日常消费",
+          "reason": "",
+          "recurrence": "one_time",
+          "refund_cents": 0,
+          "secondary": "餐饮",
+          "tags": [],
+          "title": "purchase-single:item"
+        }
+      ],
+      "date": "2026-02-01",
+      "events": [
+        {
+          "amount_cents": 2400,
+          "date": "2026-02-01",
+          "id": "purchase-single:event",
+          "kind": "payment",
+          "source": "bank",
+          "status": "原始证据"
+        }
+      ],
+      "evidence_keys": [
+        "purchase-single"
+      ],
+      "id": "purchase-single",
+      "non_consumption": false,
+      "payment_account_status": "identified",
+      "payment_accounts": [
+        "Test account A"
+      ],
+      "payment_channels": [
+        "Test channel"
+      ],
+      "status": "支付成立",
+      "title": "Synthetic purchase-single",
+      "unallocated_credit_cents": 0,
+      "user_id": "fixture-user",
+      "user_relation": "self"
+    },
+    {
+      "account_views": [
+        "Test account A"
+      ],
+      "components": [
+        {
+          "classification_basis": "规则推断",
+          "classification_keys": [
+            "purchase-group:item"
+          ],
+          "gross_cents": 2400,
+          "id": "purchase-group:item",
+          "included": true,
+          "net_cents": 2300,
+          "primary": "日常消费",
+          "reason": "",
+          "recurrence": "one_time",
+          "refund_cents": 100,
+          "secondary": "餐饮",
+          "tags": [],
+          "title": "purchase-group:item"
+        }
+      ],
+      "date": "2026-02-01",
+      "events": [
+        {
+          "amount_cents": 2400,
+          "date": "2026-02-01",
+          "id": "purchase-group:event",
+          "kind": "payment",
+          "source": "bank",
+          "status": "原始证据"
+        }
+      ],
+      "evidence_keys": [
+        "purchase-group"
+      ],
+      "id": "purchase-group",
+      "non_consumption": false,
+      "payment_account_status": "identified",
+      "payment_accounts": [
+        "Test account A"
+      ],
+      "payment_channels": [
+        "Test channel"
+      ],
+      "status": "支付成立",
+      "title": "Synthetic purchase-group",
+      "unallocated_credit_cents": 0,
+      "user_id": "fixture-user",
+      "user_relation": "self"
+    },
+    {
+      "account_views": [
+        "Test account A"
+      ],
+      "components": [
+        {
+          "classification_basis": "规则推断",
+          "classification_keys": [
+            "purchase-multi-a:item"
+          ],
+          "gross_cents": 2400,
+          "id": "purchase-multi-a:item",
+          "included": true,
+          "net_cents": 2400,
+          "primary": "日常消费",
+          "reason": "",
+          "recurrence": "one_time",
+          "refund_cents": 0,
+          "secondary": "餐饮",
+          "tags": [],
+          "title": "purchase-multi-a:item"
+        }
+      ],
+      "date": "2026-02-01",
+      "events": [
+        {
+          "amount_cents": 2400,
+          "date": "2026-02-01",
+          "id": "purchase-multi-a:event",
+          "kind": "payment",
+          "source": "bank",
+          "status": "原始证据"
+        }
+      ],
+      "evidence_keys": [
+        "purchase-multi-a"
+      ],
+      "id": "purchase-multi-a",
+      "non_consumption": false,
+      "payment_account_status": "identified",
+      "payment_accounts": [
+        "Test account A"
+      ],
+      "payment_channels": [
+        "Test channel"
+      ],
+      "status": "支付成立",
+      "title": "Synthetic purchase-multi-a",
+      "unallocated_credit_cents": 0,
+      "user_id": "fixture-user",
+      "user_relation": "self"
+    },
+    {
+      "account_views": [
+        "Test account A"
+      ],
+      "components": [
+        {
+          "classification_basis": "规则推断",
+          "classification_keys": [
+            "purchase-multi-b:item"
+          ],
+          "gross_cents": 400,
+          "id": "purchase-multi-b:item",
+          "included": true,
+          "net_cents": 400,
+          "primary": "日常消费",
+          "reason": "",
+          "recurrence": "one_time",
+          "refund_cents": 0,
+          "secondary": "餐饮",
+          "tags": [],
+          "title": "purchase-multi-b:item"
+        }
+      ],
+      "date": "2026-02-01",
+      "events": [
+        {
+          "amount_cents": 2400,
+          "date": "2026-02-01",
+          "id": "purchase-multi-b:event",
+          "kind": "payment",
+          "source": "bank",
+          "status": "原始证据"
+        }
+      ],
+      "evidence_keys": [
+        "purchase-multi-b"
+      ],
+      "id": "purchase-multi-b",
+      "non_consumption": false,
+      "payment_account_status": "identified",
+      "payment_accounts": [
+        "Test account A"
+      ],
+      "payment_channels": [
+        "Test channel"
+      ],
+      "status": "支付成立",
+      "title": "Synthetic purchase-multi-b",
+      "unallocated_credit_cents": 0,
+      "user_id": "fixture-user",
+      "user_relation": "self"
+    },
+    {
+      "account_views": [
+        "Test account A"
+      ],
+      "components": [
+        {
+          "classification_basis": "规则推断",
+          "classification_keys": [
+            "trace-purchase-0:item"
+          ],
+          "gross_cents": 2400,
+          "id": "trace-purchase-0:item",
+          "included": true,
+          "net_cents": 2400,
+          "primary": "日常消费",
+          "reason": "",
+          "recurrence": "one_time",
+          "refund_cents": 0,
+          "secondary": "餐饮",
+          "tags": [],
+          "title": "trace-purchase-0:item"
+        }
+      ],
+      "date": "2025-12-23",
+      "events": [
+        {
+          "amount_cents": 2400,
+          "date": "2025-12-23",
+          "id": "trace-purchase-0:event",
+          "kind": "payment",
+          "source": "bank",
+          "status": "原始证据"
+        }
+      ],
+      "evidence_keys": [
+        "trace-purchase-0"
+      ],
+      "id": "trace-purchase-0",
+      "non_consumption": false,
+      "payment_account_status": "identified",
+      "payment_accounts": [
+        "Test account A"
+      ],
+      "payment_channels": [
+        "Test channel"
+      ],
+      "status": "支付成立",
+      "title": "Synthetic trace-purchase-0",
+      "trace_sources": [
+        {
+          "association": "linked",
+          "basis": "整组来源已确认，未指定逐笔配对",
+          "currency": "CNY",
+          "date": "2025-12-23 08:11",
+          "event_kind": "payment",
+          "id": "network-0",
+          "location": "Synthetic observation",
+          "platform": "unionpay",
+          "source_evidence": {
+            "kind": "fixture"
+          },
+          "status": "paid",
+          "title": "Fixture platform merchant"
+        },
+        {
+          "association": "linked",
+          "basis": "整组来源已确认，未指定逐笔配对",
+          "currency": "CNY",
+          "date": "2025-12-23 08:13",
+          "event_kind": "payment",
+          "id": "network-1",
+          "location": "Synthetic observation",
+          "platform": "unionpay",
+          "source_evidence": {
+            "kind": "fixture"
+          },
+          "status": "paid",
+          "title": "Fixture platform merchant"
+        },
+        {
+          "association": "linked",
+          "basis": "整组来源已确认，未指定逐笔配对",
+          "currency": "CNY",
+          "date": "2025-12-23 08:15",
+          "event_kind": "payment",
+          "id": "network-2",
+          "location": "Synthetic observation",
+          "platform": "unionpay",
+          "source_evidence": {
+            "kind": "fixture"
+          },
+          "status": "paid",
+          "title": "Fixture platform merchant"
+        }
+      ],
+      "unallocated_credit_cents": 0,
+      "user_id": "fixture-user",
+      "user_relation": "self"
+    },
+    {
+      "account_views": [
+        "Test account A"
+      ],
+      "components": [
+        {
+          "classification_basis": "规则推断",
+          "classification_keys": [
+            "trace-purchase-1:item"
+          ],
+          "gross_cents": 2400,
+          "id": "trace-purchase-1:item",
+          "included": true,
+          "net_cents": 2400,
+          "primary": "日常消费",
+          "reason": "",
+          "recurrence": "one_time",
+          "refund_cents": 0,
+          "secondary": "餐饮",
+          "tags": [],
+          "title": "trace-purchase-1:item"
+        }
+      ],
+      "date": "2025-12-23",
+      "events": [
+        {
+          "amount_cents": 2400,
+          "date": "2025-12-23",
+          "id": "trace-purchase-1:event",
+          "kind": "payment",
+          "source": "bank",
+          "status": "原始证据"
+        }
+      ],
+      "evidence_keys": [
+        "trace-purchase-1"
+      ],
+      "id": "trace-purchase-1",
+      "non_consumption": false,
+      "payment_account_status": "identified",
+      "payment_accounts": [
+        "Test account A"
+      ],
+      "payment_channels": [
+        "Test channel"
+      ],
+      "status": "支付成立",
+      "title": "Synthetic trace-purchase-1",
+      "trace_sources": [
+        {
+          "association": "linked",
+          "basis": "整组来源已确认，未指定逐笔配对",
+          "currency": "CNY",
+          "date": "2025-12-23 08:11",
+          "event_kind": "payment",
+          "id": "network-0",
+          "location": "Synthetic observation",
+          "platform": "unionpay",
+          "source_evidence": {
+            "kind": "fixture"
+          },
+          "status": "paid",
+          "title": "Fixture platform merchant"
+        },
+        {
+          "association": "linked",
+          "basis": "整组来源已确认，未指定逐笔配对",
+          "currency": "CNY",
+          "date": "2025-12-23 08:13",
+          "event_kind": "payment",
+          "id": "network-1",
+          "location": "Synthetic observation",
+          "platform": "unionpay",
+          "source_evidence": {
+            "kind": "fixture"
+          },
+          "status": "paid",
+          "title": "Fixture platform merchant"
+        },
+        {
+          "association": "linked",
+          "basis": "整组来源已确认，未指定逐笔配对",
+          "currency": "CNY",
+          "date": "2025-12-23 08:15",
+          "event_kind": "payment",
+          "id": "network-2",
+          "location": "Synthetic observation",
+          "platform": "unionpay",
+          "source_evidence": {
+            "kind": "fixture"
+          },
+          "status": "paid",
+          "title": "Fixture platform merchant"
+        }
+      ],
+      "unallocated_credit_cents": 0,
+      "user_id": "fixture-user",
+      "user_relation": "self"
+    },
+    {
+      "account_views": [
+        "Test account A"
+      ],
+      "components": [
+        {
+          "classification_basis": "规则推断",
+          "classification_keys": [
+            "trace-purchase-2:item"
+          ],
+          "gross_cents": 2400,
+          "id": "trace-purchase-2:item",
+          "included": true,
+          "net_cents": 2400,
+          "primary": "日常消费",
+          "reason": "",
+          "recurrence": "one_time",
+          "refund_cents": 0,
+          "secondary": "餐饮",
+          "tags": [],
+          "title": "trace-purchase-2:item"
+        }
+      ],
+      "date": "2025-12-23",
+      "events": [
+        {
+          "amount_cents": 2400,
+          "date": "2025-12-23",
+          "id": "trace-purchase-2:event",
+          "kind": "payment",
+          "source": "bank",
+          "status": "原始证据"
+        }
+      ],
+      "evidence_keys": [
+        "trace-purchase-2"
+      ],
+      "id": "trace-purchase-2",
+      "non_consumption": false,
+      "payment_account_status": "identified",
+      "payment_accounts": [
+        "Test account A"
+      ],
+      "payment_channels": [
+        "Test channel"
+      ],
+      "status": "支付成立",
+      "title": "Synthetic trace-purchase-2",
+      "trace_sources": [
+        {
+          "association": "linked",
+          "basis": "整组来源已确认，未指定逐笔配对",
+          "currency": "CNY",
+          "date": "2025-12-23 08:11",
+          "event_kind": "payment",
+          "id": "network-0",
+          "location": "Synthetic observation",
+          "platform": "unionpay",
+          "source_evidence": {
+            "kind": "fixture"
+          },
+          "status": "paid",
+          "title": "Fixture platform merchant"
+        },
+        {
+          "association": "linked",
+          "basis": "整组来源已确认，未指定逐笔配对",
+          "currency": "CNY",
+          "date": "2025-12-23 08:13",
+          "event_kind": "payment",
+          "id": "network-1",
+          "location": "Synthetic observation",
+          "platform": "unionpay",
+          "source_evidence": {
+            "kind": "fixture"
+          },
+          "status": "paid",
+          "title": "Fixture platform merchant"
+        },
+        {
+          "association": "linked",
+          "basis": "整组来源已确认，未指定逐笔配对",
+          "currency": "CNY",
+          "date": "2025-12-23 08:15",
+          "event_kind": "payment",
+          "id": "network-2",
+          "location": "Synthetic observation",
+          "platform": "unionpay",
+          "source_evidence": {
+            "kind": "fixture"
+          },
+          "status": "paid",
+          "title": "Fixture platform merchant"
+        }
+      ],
+      "unallocated_credit_cents": 0,
+      "user_id": "fixture-user",
+      "user_relation": "self"
+    }
+  ],
+  "refund_candidates": [
+    {
+      "basis": "Synthetic complete allocation v1",
+      "competing": true,
+      "confidence": "high",
+      "grouped": false,
+      "id": "single",
+      "source_ids": [
+        "refund-single"
+      ],
+      "targets": [
+        {
+          "component_id": "purchase-single:item",
+          "record_id": "purchase-single",
+          "refund_cents": 300
+        }
+      ]
+    },
+    {
+      "basis": "Synthetic complete allocation v1",
+      "competing": false,
+      "confidence": "high",
+      "grouped": true,
+      "id": "group-one",
+      "source_ids": [
+        "refund-group-a",
+        "refund-group-b"
+      ],
+      "targets": [
+        {
+          "component_id": "purchase-group:item",
+          "record_id": "purchase-group",
+          "refund_cents": 600
+        }
+      ]
+    },
+    {
+      "basis": "Synthetic complete allocation v1",
+      "competing": false,
+      "confidence": "high",
+      "grouped": true,
+      "id": "group-two",
+      "source_ids": [
+        "refund-multi-a",
+        "refund-multi-b"
+      ],
+      "targets": [
+        {
+          "component_id": "purchase-multi-a:item",
+          "record_id": "purchase-multi-a",
+          "refund_cents": 200
+        },
+        {
+          "component_id": "purchase-multi-b:item",
+          "record_id": "purchase-multi-b",
+          "refund_cents": 400
+        }
+      ]
+    },
+    {
+      "basis": "Synthetic complete allocation v1",
+      "competing": true,
+      "confidence": "high",
+      "grouped": false,
+      "id": "single-alternative",
+      "source_ids": [
+        "refund-single"
+      ],
+      "targets": [
+        {
+          "component_id": "purchase-group:item",
+          "record_id": "purchase-group",
+          "refund_cents": 300
+        }
+      ]
+    }
+  ],
+  "source_record_set_candidates": [],
+  "source_record_sets": [],
+  "taxonomy": [
+    {
+      "primary": "待分类",
+      "secondaries": [
+        "待分类"
+      ]
+    },
+    {
+      "primary": "日常消费",
+      "secondaries": [
+        "餐饮",
+        "咖啡茶饮",
+        "交通出行"
+      ]
+    },
+    {
+      "primary": "生产力工具",
+      "secondaries": [
+        "设备"
+      ]
+    },
+    {
+      "primary": "亲友代付",
+      "secondaries": [
+        "代购"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "type": "object",
+  "properties": {
+    "version_config": {
+      "const": "config/release-version.json"
+    },
+    "defaults": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "path",
+          "schema"
+        ],
+        "additionalProperties": false
+      },
+      "uniqueItems": true
+    },
+    "profiles": {
+      "type": "object",
+      "properties": {
+        "production": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "dev-tests": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "production",
+        "dev-tests"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "version_config",
+    "defaults",
+    "profiles"
+  ],
+  "additionalProperties": false
+}

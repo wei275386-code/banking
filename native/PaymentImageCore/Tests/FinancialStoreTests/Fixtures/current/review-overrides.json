@@ -1,0 +1,14 @@
+{
+  "classified-meal:item": {
+    "fixture_metadata": {},
+    "primary": "日常消费",
+    "recurrence": "one_time",
+    "secondary": "餐饮",
+    "tags": []
+  },
+  "preserved-unrelated": {
+    "fixture_metadata": {},
+    "primary": "待分类",
+    "secondary": "待分类"
+  }
+}

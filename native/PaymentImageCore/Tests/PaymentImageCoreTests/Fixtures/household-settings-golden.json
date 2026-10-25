@@ -1,0 +1,4094 @@
+{
+  "profile": {
+    "household_name": "Mock household",
+    "members": [
+      {
+        "id": "member-a",
+        "display_name": "Mock member A",
+        "status": "active"
+      },
+      {
+        "id": "member-b",
+        "display_name": "Mock member B",
+        "status": "active"
+      }
+    ]
+  },
+  "policies": {
+    "accounts": [
+      {
+        "id": "account-a",
+        "display_name": "account-a",
+        "owner_member_id": "member-a",
+        "currency": "CNY",
+        "status": "active"
+      },
+      {
+        "id": "account-b",
+        "display_name": "account-b",
+        "owner_member_id": "member-b",
+        "currency": "USD",
+        "status": "active"
+      },
+      {
+        "id": "account-inactive",
+        "display_name": "account-inactive",
+        "owner_member_id": null,
+        "currency": "CNY",
+        "status": "inactive"
+      }
+    ],
+    "source_owners": {
+      "source-a": "member-a",
+      "source-b": "member-b"
+    },
+    "unknown_account_policy": {
+      "mode": "needs_review",
+      "exclusion_member_ids": [
+        "member-b"
+      ]
+    },
+    "routes": [
+      {
+        "id": "route-a",
+        "source_selector": {
+          "platform": "platform-a",
+          "source_account_name": "Mock card"
+        },
+        "target_account_id": "account-a",
+        "confirmed": true,
+        "basis": "Synthetic explicit evidence"
+      },
+      {
+        "id": "route-b",
+        "source_selector": {
+          "platform": "platform-b",
+          "source_account_name": "Mock card"
+        },
+        "target_account_id": "account-b",
+        "confirmed": true,
+        "basis": "Synthetic explicit evidence"
+      },
+      {
+        "id": "route-balance",
+        "source_selector": {
+          "platform": "platform-a",
+          "source_id": "source-a",
+          "payment_channel": "Mock balance"
+        },
+        "target_account_id": "account-a",
+        "confirmed": true,
+        "basis": "Synthetic explicit evidence"
+      },
+      {
+        "id": "route-id",
+        "source_selector": {
+          "platform": "platform-a",
+          "source_account_id": "exact-id"
+        },
+        "target_account_id": "account-b",
+        "confirmed": true,
+        "basis": "Synthetic explicit evidence"
+      },
+      {
+        "id": "route-overlap-name",
+        "source_selector": {
+          "platform": "platform-a",
+          "source_account_name": "Overlap"
+        },
+        "target_account_id": "account-a",
+        "confirmed": true,
+        "basis": "Synthetic explicit evidence"
+      },
+      {
+        "id": "route-overlap-channel",
+        "source_selector": {
+          "platform": "platform-a",
+          "payment_channel": "Overlap channel"
+        },
+        "target_account_id": "account-b",
+        "confirmed": true,
+        "basis": "Synthetic explicit evidence"
+      }
+    ],
+    "aliases": [
+      {
+        "id": "alias-nonfunding",
+        "source_selector": {
+          "platform": "platform-a",
+          "payment_channel": "Mock wallet"
+        },
+        "target_account_id": null,
+        "confirmed": true,
+        "basis": "Synthetic explicit evidence"
+      },
+      {
+        "id": "alias-only",
+        "source_selector": {
+          "platform": "platform-a",
+          "source_account_name": "Alias only"
+        },
+        "target_account_id": "account-b",
+        "confirmed": true,
+        "basis": "Synthetic explicit evidence"
+      },
+      {
+        "id": "alias-overridden",
+        "source_selector": {
+          "platform": "platform-a",
+          "source_account_name": "Mock card"
+        },
+        "target_account_id": "account-b",
+        "confirmed": true,
+        "basis": "Synthetic explicit evidence"
+      },
+      {
+        "id": "alias-suggested",
+        "source_selector": {
+          "platform": "platform-a",
+          "source_account_name": "Suggested"
+        },
+        "target_account_id": "account-a",
+        "confirmed": false,
+        "basis": "Synthetic explicit evidence"
+      },
+      {
+        "id": "alias-inactive",
+        "source_selector": {
+          "platform": "platform-a",
+          "source_account_name": "Inactive"
+        },
+        "target_account_id": "account-inactive",
+        "confirmed": true,
+        "basis": "Synthetic explicit evidence"
+      },
+      {
+        "id": "alias-nfc",
+        "source_selector": {
+          "platform": "platform-a",
+          "source_account_name": "Café"
+        },
+        "target_account_id": "account-a",
+        "confirmed": true,
+        "basis": "Synthetic explicit evidence"
+      }
+    ]
+  },
+  "context": {
+    "registered_source_ids": [
+      "source-a",
+      "source-b"
+    ],
+    "currency_codes": [
+      "CNY",
+      "USD"
+    ],
+    "referenced_member_ids": [
+      "member-a"
+    ],
+    "referenced_account_ids": [
+      "account-a"
+    ]
+  },
+  "cases": [
+    {
+      "name": "platform-a-specific",
+      "input": {
+        "platform": "platform-a",
+        "source_account_name": "Mock card"
+      },
+      "expected": {
+        "status": "resolved",
+        "account_id": "account-a",
+        "matched_rule_ids": [
+          "route-a"
+        ],
+        "candidate_account_ids": [
+          "account-a"
+        ],
+        "reason": "matched_route"
+      }
+    },
+    {
+      "name": "same-name-other-platform",
+      "input": {
+        "platform": "platform-b",
+        "source_account_name": "Mock card"
+      },
+      "expected": {
+        "status": "resolved",
+        "account_id": "account-b",
+        "matched_rule_ids": [
+          "route-b"
+        ],
+        "candidate_account_ids": [
+          "account-b"
+        ],
+        "reason": "matched_route"
+      }
+    },
+    {
+      "name": "explicit-source-balance",
+      "input": {
+        "platform": "platform-a",
+        "source_id": "source-a",
+        "payment_channel": "Mock balance"
+      },
+      "expected": {
+        "status": "resolved",
+        "account_id": "account-a",
+        "matched_rule_ids": [
+          "route-balance"
+        ],
+        "candidate_account_ids": [
+          "account-a"
+        ],
+        "reason": "matched_route"
+      }
+    },
+    {
+      "name": "wrong-source-remains-unknown",
+      "input": {
+        "platform": "platform-a",
+        "source_id": "source-b",
+        "payment_channel": "Mock balance"
+      },
+      "expected": {
+        "status": "needs_review",
+        "account_id": null,
+        "matched_rule_ids": [],
+        "candidate_account_ids": [],
+        "reason": "unmatched"
+      }
+    },
+    {
+      "name": "no-source-does-not-supply-source",
+      "input": {
+        "platform": "platform-a",
+        "payment_channel": "Mock balance"
+      },
+      "expected": {
+        "status": "needs_review",
+        "account_id": null,
+        "matched_rule_ids": [],
+        "candidate_account_ids": [],
+        "reason": "unmatched"
+      }
+    },
+    {
+      "name": "opaque-account-id-exact",
+      "input": {
+        "platform": "platform-a",
+        "source_account_id": "exact-id"
+      },
+      "expected": {
+        "status": "resolved",
+        "account_id": "account-b",
+        "matched_rule_ids": [
+          "route-id"
+        ],
+        "candidate_account_ids": [
+          "account-b"
+        ],
+        "reason": "matched_route"
+      }
+    },
+    {
+      "name": "opaque-id-no-trimming",
+      "input": {
+        "platform": "platform-a",
+        "source_account_id": " exact-id "
+      },
+      "expected": {
+        "status": "needs_review",
+        "account_id": null,
+        "matched_rule_ids": [],
+        "candidate_account_ids": [],
+        "reason": "unmatched"
+      }
+    },
+    {
+      "name": "overlap-does-not-use-first-rule",
+      "input": {
+        "platform": "platform-a",
+        "source_account_name": "Overlap",
+        "payment_channel": "Overlap channel"
+      },
+      "expected": {
+        "status": "needs_review",
+        "account_id": null,
+        "matched_rule_ids": [
+          "route-overlap-channel",
+          "route-overlap-name"
+        ],
+        "candidate_account_ids": [
+          "account-a",
+          "account-b"
+        ],
+        "reason": "conflicting_rules"
+      }
+    },
+    {
+      "name": "all-supplied-conditions-required",
+      "input": {
+        "platform": "platform-a",
+        "source_account_name": "Overlap"
+      },
+      "expected": {
+        "status": "resolved",
+        "account_id": "account-a",
+        "matched_rule_ids": [
+          "route-overlap-name"
+        ],
+        "candidate_account_ids": [
+          "account-a"
+        ],
+        "reason": "matched_route"
+      }
+    },
+    {
+      "name": "null-alias-is-channel",
+      "input": {
+        "platform": "platform-a",
+        "payment_channel": "Mock wallet"
+      },
+      "expected": {
+        "status": "non_funding",
+        "account_id": null,
+        "matched_rule_ids": [
+          "alias-nonfunding"
+        ],
+        "candidate_account_ids": [],
+        "reason": "non_funding_channel"
+      }
+    },
+    {
+      "name": "null-and-account-alias-conflict",
+      "input": {
+        "platform": "platform-a",
+        "payment_channel": "Mock wallet",
+        "source_account_name": "Alias only"
+      },
+      "expected": {
+        "status": "needs_review",
+        "account_id": null,
+        "matched_rule_ids": [
+          "alias-nonfunding",
+          "alias-only"
+        ],
+        "candidate_account_ids": [
+          "account-b"
+        ],
+        "reason": "conflicting_rules"
+      }
+    },
+    {
+      "name": "explicit-alias",
+      "input": {
+        "platform": "platform-a",
+        "source_account_name": "Alias only"
+      },
+      "expected": {
+        "status": "resolved",
+        "account_id": "account-b",
+        "matched_rule_ids": [
+          "alias-only"
+        ],
+        "candidate_account_ids": [
+          "account-b"
+        ],
+        "reason": "matched_alias"
+      }
+    },
+    {
+      "name": "suggestion-does-not-route",
+      "input": {
+        "platform": "platform-a",
+        "source_account_name": "Suggested"
+      },
+      "expected": {
+        "status": "needs_review",
+        "account_id": null,
+        "matched_rule_ids": [],
+        "candidate_account_ids": [],
+        "reason": "unmatched"
+      }
+    },
+    {
+      "name": "inactive-account-not-reassigned",
+      "input": {
+        "platform": "platform-a",
+        "source_account_name": "Inactive"
+      },
+      "expected": {
+        "status": "needs_review",
+        "account_id": null,
+        "matched_rule_ids": [
+          "alias-inactive"
+        ],
+        "candidate_account_ids": [
+          "account-inactive"
+        ],
+        "reason": "inactive_account"
+      }
+    },
+    {
+      "name": "labels-nfc-and-boundary-whitespace-only",
+      "input": {
+        "platform": "platform-a",
+        "source_account_name": " Café\t"
+      },
+      "expected": {
+        "status": "resolved",
+        "account_id": "account-a",
+        "matched_rule_ids": [
+          "alias-nfc"
+        ],
+        "candidate_account_ids": [
+          "account-a"
+        ],
+        "reason": "matched_alias"
+      }
+    },
+    {
+      "name": "label-case-is-not-folded",
+      "input": {
+        "platform": "platform-a",
+        "source_account_name": "mock card"
+      },
+      "expected": {
+        "status": "needs_review",
+        "account_id": null,
+        "matched_rule_ids": [],
+        "candidate_account_ids": [],
+        "reason": "unmatched"
+      }
+    },
+    {
+      "name": "unknown-owner-no-default",
+      "input": {
+        "platform": "platform-a",
+        "source_account_name": "Unmapped"
+      },
+      "expected": {
+        "status": "needs_review",
+        "account_id": null,
+        "matched_rule_ids": [],
+        "candidate_account_ids": [],
+        "reason": "unmatched"
+      }
+    },
+    {
+      "name": "no-platform-is-unknown",
+      "input": {
+        "source_account_name": "Mock card"
+      },
+      "expected": {
+        "status": "needs_review",
+        "account_id": null,
+        "matched_rule_ids": [],
+        "candidate_account_ids": [],
+        "reason": "missing_funding_input"
+      }
+    },
+    {
+      "name": "no-funding-selector-is-unknown",
+      "input": {
+        "platform": "platform-a",
+        "source_id": "source-a"
+      },
+      "expected": {
+        "status": "needs_review",
+        "account_id": null,
+        "matched_rule_ids": [],
+        "candidate_account_ids": [],
+        "reason": "missing_funding_input"
+      }
+    },
+    {
+      "name": "blank-label-is-missing",
+      "input": {
+        "platform": "platform-a",
+        "source_account_name": " \t "
+      },
+      "expected": {
+        "status": "needs_review",
+        "account_id": null,
+        "matched_rule_ids": [],
+        "candidate_account_ids": [],
+        "reason": "missing_funding_input"
+      }
+    },
+    {
+      "name": "prefix-is-not-stripped",
+      "input": {
+        "platform": "platform-a",
+        "source_account_name": "Mock member · Mock card"
+      },
+      "expected": {
+        "status": "needs_review",
+        "reason": "unmatched",
+        "account_id": null,
+        "matched_rule_ids": [],
+        "candidate_account_ids": []
+      }
+    },
+    {
+      "name": "combined-funding-is-not-split",
+      "input": {
+        "platform": "platform-a",
+        "source_account_name": "Mock card & Mock balance"
+      },
+      "expected": {
+        "status": "needs_review",
+        "reason": "unmatched",
+        "account_id": null,
+        "matched_rule_ids": [],
+        "candidate_account_ids": []
+      }
+    },
+    {
+      "name": "platform-identifier-is-not-trimmed",
+      "input": {
+        "platform": " platform-a ",
+        "source_account_name": "Mock card"
+      },
+      "expected": {
+        "status": "needs_review",
+        "reason": "unmatched",
+        "account_id": null,
+        "matched_rule_ids": [],
+        "candidate_account_ids": []
+      }
+    }
+  ],
+  "invalid_cases": [
+    {
+      "name": "duplicate-member",
+      "profile": {
+        "household_name": "Mock household",
+        "members": [
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          },
+          {
+            "id": "member-b",
+            "display_name": "Mock member B",
+            "status": "active"
+          },
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          }
+        ]
+      },
+      "policies": {
+        "accounts": [
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "member-a",
+            "currency": "CNY",
+            "status": "active"
+          },
+          {
+            "id": "account-b",
+            "display_name": "account-b",
+            "owner_member_id": "member-b",
+            "currency": "USD",
+            "status": "active"
+          },
+          {
+            "id": "account-inactive",
+            "display_name": "account-inactive",
+            "owner_member_id": null,
+            "currency": "CNY",
+            "status": "inactive"
+          }
+        ],
+        "source_owners": {
+          "source-a": "member-a",
+          "source-b": "member-b"
+        },
+        "unknown_account_policy": {
+          "mode": "needs_review",
+          "exclusion_member_ids": [
+            "member-b"
+          ]
+        },
+        "routes": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-b",
+            "source_selector": {
+              "platform": "platform-b",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-balance",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_id": "source-a",
+              "payment_channel": "Mock balance"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-id",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_id": "exact-id"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-name",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Overlap"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-channel",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Overlap channel"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ],
+        "aliases": [
+          {
+            "id": "alias-nonfunding",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Mock wallet"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-only",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Alias only"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-overridden",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-suggested",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Suggested"
+            },
+            "target_account_id": "account-a",
+            "confirmed": false,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-inactive",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Inactive"
+            },
+            "target_account_id": "account-inactive",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-nfc",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Café"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ]
+      }
+    },
+    {
+      "name": "duplicate-account",
+      "profile": {
+        "household_name": "Mock household",
+        "members": [
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          },
+          {
+            "id": "member-b",
+            "display_name": "Mock member B",
+            "status": "active"
+          }
+        ]
+      },
+      "policies": {
+        "accounts": [
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "member-a",
+            "currency": "CNY",
+            "status": "active"
+          },
+          {
+            "id": "account-b",
+            "display_name": "account-b",
+            "owner_member_id": "member-b",
+            "currency": "USD",
+            "status": "active"
+          },
+          {
+            "id": "account-inactive",
+            "display_name": "account-inactive",
+            "owner_member_id": null,
+            "currency": "CNY",
+            "status": "inactive"
+          },
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "member-a",
+            "currency": "CNY",
+            "status": "active"
+          }
+        ],
+        "source_owners": {
+          "source-a": "member-a",
+          "source-b": "member-b"
+        },
+        "unknown_account_policy": {
+          "mode": "needs_review",
+          "exclusion_member_ids": [
+            "member-b"
+          ]
+        },
+        "routes": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-b",
+            "source_selector": {
+              "platform": "platform-b",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-balance",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_id": "source-a",
+              "payment_channel": "Mock balance"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-id",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_id": "exact-id"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-name",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Overlap"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-channel",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Overlap channel"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ],
+        "aliases": [
+          {
+            "id": "alias-nonfunding",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Mock wallet"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-only",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Alias only"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-overridden",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-suggested",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Suggested"
+            },
+            "target_account_id": "account-a",
+            "confirmed": false,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-inactive",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Inactive"
+            },
+            "target_account_id": "account-inactive",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-nfc",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Café"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ]
+      }
+    },
+    {
+      "name": "dangling-owner",
+      "profile": {
+        "household_name": "Mock household",
+        "members": [
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          },
+          {
+            "id": "member-b",
+            "display_name": "Mock member B",
+            "status": "active"
+          }
+        ]
+      },
+      "policies": {
+        "accounts": [
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "missing-member",
+            "currency": "CNY",
+            "status": "active"
+          },
+          {
+            "id": "account-b",
+            "display_name": "account-b",
+            "owner_member_id": "member-b",
+            "currency": "USD",
+            "status": "active"
+          },
+          {
+            "id": "account-inactive",
+            "display_name": "account-inactive",
+            "owner_member_id": null,
+            "currency": "CNY",
+            "status": "inactive"
+          }
+        ],
+        "source_owners": {
+          "source-a": "member-a",
+          "source-b": "member-b"
+        },
+        "unknown_account_policy": {
+          "mode": "needs_review",
+          "exclusion_member_ids": [
+            "member-b"
+          ]
+        },
+        "routes": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-b",
+            "source_selector": {
+              "platform": "platform-b",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-balance",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_id": "source-a",
+              "payment_channel": "Mock balance"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-id",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_id": "exact-id"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-name",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Overlap"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-channel",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Overlap channel"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ],
+        "aliases": [
+          {
+            "id": "alias-nonfunding",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Mock wallet"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-only",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Alias only"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-overridden",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-suggested",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Suggested"
+            },
+            "target_account_id": "account-a",
+            "confirmed": false,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-inactive",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Inactive"
+            },
+            "target_account_id": "account-inactive",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-nfc",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Café"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unsupported-currency",
+      "profile": {
+        "household_name": "Mock household",
+        "members": [
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          },
+          {
+            "id": "member-b",
+            "display_name": "Mock member B",
+            "status": "active"
+          }
+        ]
+      },
+      "policies": {
+        "accounts": [
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "member-a",
+            "currency": "ZZQ",
+            "status": "active"
+          },
+          {
+            "id": "account-b",
+            "display_name": "account-b",
+            "owner_member_id": "member-b",
+            "currency": "USD",
+            "status": "active"
+          },
+          {
+            "id": "account-inactive",
+            "display_name": "account-inactive",
+            "owner_member_id": null,
+            "currency": "CNY",
+            "status": "inactive"
+          }
+        ],
+        "source_owners": {
+          "source-a": "member-a",
+          "source-b": "member-b"
+        },
+        "unknown_account_policy": {
+          "mode": "needs_review",
+          "exclusion_member_ids": [
+            "member-b"
+          ]
+        },
+        "routes": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-b",
+            "source_selector": {
+              "platform": "platform-b",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-balance",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_id": "source-a",
+              "payment_channel": "Mock balance"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-id",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_id": "exact-id"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-name",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Overlap"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-channel",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Overlap channel"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ],
+        "aliases": [
+          {
+            "id": "alias-nonfunding",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Mock wallet"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-only",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Alias only"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-overridden",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-suggested",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Suggested"
+            },
+            "target_account_id": "account-a",
+            "confirmed": false,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-inactive",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Inactive"
+            },
+            "target_account_id": "account-inactive",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-nfc",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Café"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ]
+      }
+    },
+    {
+      "name": "dangling-source",
+      "profile": {
+        "household_name": "Mock household",
+        "members": [
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          },
+          {
+            "id": "member-b",
+            "display_name": "Mock member B",
+            "status": "active"
+          }
+        ]
+      },
+      "policies": {
+        "accounts": [
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "member-a",
+            "currency": "CNY",
+            "status": "active"
+          },
+          {
+            "id": "account-b",
+            "display_name": "account-b",
+            "owner_member_id": "member-b",
+            "currency": "USD",
+            "status": "active"
+          },
+          {
+            "id": "account-inactive",
+            "display_name": "account-inactive",
+            "owner_member_id": null,
+            "currency": "CNY",
+            "status": "inactive"
+          }
+        ],
+        "source_owners": {
+          "source-a": "member-a",
+          "source-b": "member-b",
+          "missing-source": "member-a"
+        },
+        "unknown_account_policy": {
+          "mode": "needs_review",
+          "exclusion_member_ids": [
+            "member-b"
+          ]
+        },
+        "routes": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-b",
+            "source_selector": {
+              "platform": "platform-b",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-balance",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_id": "source-a",
+              "payment_channel": "Mock balance"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-id",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_id": "exact-id"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-name",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Overlap"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-channel",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Overlap channel"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ],
+        "aliases": [
+          {
+            "id": "alias-nonfunding",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Mock wallet"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-only",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Alias only"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-overridden",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-suggested",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Suggested"
+            },
+            "target_account_id": "account-a",
+            "confirmed": false,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-inactive",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Inactive"
+            },
+            "target_account_id": "account-inactive",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-nfc",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Café"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ]
+      }
+    },
+    {
+      "name": "dangling-source-member",
+      "profile": {
+        "household_name": "Mock household",
+        "members": [
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          },
+          {
+            "id": "member-b",
+            "display_name": "Mock member B",
+            "status": "active"
+          }
+        ]
+      },
+      "policies": {
+        "accounts": [
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "member-a",
+            "currency": "CNY",
+            "status": "active"
+          },
+          {
+            "id": "account-b",
+            "display_name": "account-b",
+            "owner_member_id": "member-b",
+            "currency": "USD",
+            "status": "active"
+          },
+          {
+            "id": "account-inactive",
+            "display_name": "account-inactive",
+            "owner_member_id": null,
+            "currency": "CNY",
+            "status": "inactive"
+          }
+        ],
+        "source_owners": {
+          "source-a": "missing-member",
+          "source-b": "member-b"
+        },
+        "unknown_account_policy": {
+          "mode": "needs_review",
+          "exclusion_member_ids": [
+            "member-b"
+          ]
+        },
+        "routes": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-b",
+            "source_selector": {
+              "platform": "platform-b",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-balance",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_id": "source-a",
+              "payment_channel": "Mock balance"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-id",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_id": "exact-id"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-name",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Overlap"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-channel",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Overlap channel"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ],
+        "aliases": [
+          {
+            "id": "alias-nonfunding",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Mock wallet"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-only",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Alias only"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-overridden",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-suggested",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Suggested"
+            },
+            "target_account_id": "account-a",
+            "confirmed": false,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-inactive",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Inactive"
+            },
+            "target_account_id": "account-inactive",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-nfc",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Café"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ]
+      }
+    },
+    {
+      "name": "dangling-rule-source",
+      "profile": {
+        "household_name": "Mock household",
+        "members": [
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          },
+          {
+            "id": "member-b",
+            "display_name": "Mock member B",
+            "status": "active"
+          }
+        ]
+      },
+      "policies": {
+        "accounts": [
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "member-a",
+            "currency": "CNY",
+            "status": "active"
+          },
+          {
+            "id": "account-b",
+            "display_name": "account-b",
+            "owner_member_id": "member-b",
+            "currency": "USD",
+            "status": "active"
+          },
+          {
+            "id": "account-inactive",
+            "display_name": "account-inactive",
+            "owner_member_id": null,
+            "currency": "CNY",
+            "status": "inactive"
+          }
+        ],
+        "source_owners": {
+          "source-a": "member-a",
+          "source-b": "member-b"
+        },
+        "unknown_account_policy": {
+          "mode": "needs_review",
+          "exclusion_member_ids": [
+            "member-b"
+          ]
+        },
+        "routes": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card",
+              "source_id": "missing-source"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-b",
+            "source_selector": {
+              "platform": "platform-b",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-balance",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_id": "source-a",
+              "payment_channel": "Mock balance"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-id",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_id": "exact-id"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-name",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Overlap"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-channel",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Overlap channel"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ],
+        "aliases": [
+          {
+            "id": "alias-nonfunding",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Mock wallet"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-only",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Alias only"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-overridden",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-suggested",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Suggested"
+            },
+            "target_account_id": "account-a",
+            "confirmed": false,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-inactive",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Inactive"
+            },
+            "target_account_id": "account-inactive",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-nfc",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Café"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ]
+      }
+    },
+    {
+      "name": "dangling-target",
+      "profile": {
+        "household_name": "Mock household",
+        "members": [
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          },
+          {
+            "id": "member-b",
+            "display_name": "Mock member B",
+            "status": "active"
+          }
+        ]
+      },
+      "policies": {
+        "accounts": [
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "member-a",
+            "currency": "CNY",
+            "status": "active"
+          },
+          {
+            "id": "account-b",
+            "display_name": "account-b",
+            "owner_member_id": "member-b",
+            "currency": "USD",
+            "status": "active"
+          },
+          {
+            "id": "account-inactive",
+            "display_name": "account-inactive",
+            "owner_member_id": null,
+            "currency": "CNY",
+            "status": "inactive"
+          }
+        ],
+        "source_owners": {
+          "source-a": "member-a",
+          "source-b": "member-b"
+        },
+        "unknown_account_policy": {
+          "mode": "needs_review",
+          "exclusion_member_ids": [
+            "member-b"
+          ]
+        },
+        "routes": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "missing-account",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-b",
+            "source_selector": {
+              "platform": "platform-b",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-balance",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_id": "source-a",
+              "payment_channel": "Mock balance"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-id",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_id": "exact-id"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-name",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Overlap"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-channel",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Overlap channel"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ],
+        "aliases": [
+          {
+            "id": "alias-nonfunding",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Mock wallet"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-only",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Alias only"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-overridden",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-suggested",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Suggested"
+            },
+            "target_account_id": "account-a",
+            "confirmed": false,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-inactive",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Inactive"
+            },
+            "target_account_id": "account-inactive",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-nfc",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Café"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ]
+      }
+    },
+    {
+      "name": "duplicate-rule-across-tiers",
+      "profile": {
+        "household_name": "Mock household",
+        "members": [
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          },
+          {
+            "id": "member-b",
+            "display_name": "Mock member B",
+            "status": "active"
+          }
+        ]
+      },
+      "policies": {
+        "accounts": [
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "member-a",
+            "currency": "CNY",
+            "status": "active"
+          },
+          {
+            "id": "account-b",
+            "display_name": "account-b",
+            "owner_member_id": "member-b",
+            "currency": "USD",
+            "status": "active"
+          },
+          {
+            "id": "account-inactive",
+            "display_name": "account-inactive",
+            "owner_member_id": null,
+            "currency": "CNY",
+            "status": "inactive"
+          }
+        ],
+        "source_owners": {
+          "source-a": "member-a",
+          "source-b": "member-b"
+        },
+        "unknown_account_policy": {
+          "mode": "needs_review",
+          "exclusion_member_ids": [
+            "member-b"
+          ]
+        },
+        "routes": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-b",
+            "source_selector": {
+              "platform": "platform-b",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-balance",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_id": "source-a",
+              "payment_channel": "Mock balance"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-id",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_id": "exact-id"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-name",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Overlap"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-channel",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Overlap channel"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ],
+        "aliases": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Mock wallet"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-only",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Alias only"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-overridden",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-suggested",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Suggested"
+            },
+            "target_account_id": "account-a",
+            "confirmed": false,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-inactive",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Inactive"
+            },
+            "target_account_id": "account-inactive",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-nfc",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Café"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ]
+      }
+    },
+    {
+      "name": "null-route-target",
+      "profile": {
+        "household_name": "Mock household",
+        "members": [
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          },
+          {
+            "id": "member-b",
+            "display_name": "Mock member B",
+            "status": "active"
+          }
+        ]
+      },
+      "policies": {
+        "accounts": [
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "member-a",
+            "currency": "CNY",
+            "status": "active"
+          },
+          {
+            "id": "account-b",
+            "display_name": "account-b",
+            "owner_member_id": "member-b",
+            "currency": "USD",
+            "status": "active"
+          },
+          {
+            "id": "account-inactive",
+            "display_name": "account-inactive",
+            "owner_member_id": null,
+            "currency": "CNY",
+            "status": "inactive"
+          }
+        ],
+        "source_owners": {
+          "source-a": "member-a",
+          "source-b": "member-b"
+        },
+        "unknown_account_policy": {
+          "mode": "needs_review",
+          "exclusion_member_ids": [
+            "member-b"
+          ]
+        },
+        "routes": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-b",
+            "source_selector": {
+              "platform": "platform-b",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-balance",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_id": "source-a",
+              "payment_channel": "Mock balance"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-id",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_id": "exact-id"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-name",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Overlap"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-channel",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Overlap channel"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ],
+        "aliases": [
+          {
+            "id": "alias-nonfunding",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Mock wallet"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-only",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Alias only"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-overridden",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-suggested",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Suggested"
+            },
+            "target_account_id": "account-a",
+            "confirmed": false,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-inactive",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Inactive"
+            },
+            "target_account_id": "account-inactive",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-nfc",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Café"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing-basis",
+      "profile": {
+        "household_name": "Mock household",
+        "members": [
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          },
+          {
+            "id": "member-b",
+            "display_name": "Mock member B",
+            "status": "active"
+          }
+        ]
+      },
+      "policies": {
+        "accounts": [
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "member-a",
+            "currency": "CNY",
+            "status": "active"
+          },
+          {
+            "id": "account-b",
+            "display_name": "account-b",
+            "owner_member_id": "member-b",
+            "currency": "USD",
+            "status": "active"
+          },
+          {
+            "id": "account-inactive",
+            "display_name": "account-inactive",
+            "owner_member_id": null,
+            "currency": "CNY",
+            "status": "inactive"
+          }
+        ],
+        "source_owners": {
+          "source-a": "member-a",
+          "source-b": "member-b"
+        },
+        "unknown_account_policy": {
+          "mode": "needs_review",
+          "exclusion_member_ids": [
+            "member-b"
+          ]
+        },
+        "routes": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true
+          },
+          {
+            "id": "route-b",
+            "source_selector": {
+              "platform": "platform-b",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-balance",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_id": "source-a",
+              "payment_channel": "Mock balance"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-id",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_id": "exact-id"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-name",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Overlap"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-channel",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Overlap channel"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ],
+        "aliases": [
+          {
+            "id": "alias-nonfunding",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Mock wallet"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-only",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Alias only"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-overridden",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-suggested",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Suggested"
+            },
+            "target_account_id": "account-a",
+            "confirmed": false,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-inactive",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Inactive"
+            },
+            "target_account_id": "account-inactive",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-nfc",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Café"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ]
+      }
+    },
+    {
+      "name": "blank-basis",
+      "profile": {
+        "household_name": "Mock household",
+        "members": [
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          },
+          {
+            "id": "member-b",
+            "display_name": "Mock member B",
+            "status": "active"
+          }
+        ]
+      },
+      "policies": {
+        "accounts": [
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "member-a",
+            "currency": "CNY",
+            "status": "active"
+          },
+          {
+            "id": "account-b",
+            "display_name": "account-b",
+            "owner_member_id": "member-b",
+            "currency": "USD",
+            "status": "active"
+          },
+          {
+            "id": "account-inactive",
+            "display_name": "account-inactive",
+            "owner_member_id": null,
+            "currency": "CNY",
+            "status": "inactive"
+          }
+        ],
+        "source_owners": {
+          "source-a": "member-a",
+          "source-b": "member-b"
+        },
+        "unknown_account_policy": {
+          "mode": "needs_review",
+          "exclusion_member_ids": [
+            "member-b"
+          ]
+        },
+        "routes": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": " \t"
+          },
+          {
+            "id": "route-b",
+            "source_selector": {
+              "platform": "platform-b",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-balance",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_id": "source-a",
+              "payment_channel": "Mock balance"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-id",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_id": "exact-id"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-name",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Overlap"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-channel",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Overlap channel"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ],
+        "aliases": [
+          {
+            "id": "alias-nonfunding",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Mock wallet"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-only",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Alias only"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-overridden",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-suggested",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Suggested"
+            },
+            "target_account_id": "account-a",
+            "confirmed": false,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-inactive",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Inactive"
+            },
+            "target_account_id": "account-inactive",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-nfc",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Café"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ]
+      }
+    },
+    {
+      "name": "platform-alone-is-not-funding",
+      "profile": {
+        "household_name": "Mock household",
+        "members": [
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          },
+          {
+            "id": "member-b",
+            "display_name": "Mock member B",
+            "status": "active"
+          }
+        ]
+      },
+      "policies": {
+        "accounts": [
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "member-a",
+            "currency": "CNY",
+            "status": "active"
+          },
+          {
+            "id": "account-b",
+            "display_name": "account-b",
+            "owner_member_id": "member-b",
+            "currency": "USD",
+            "status": "active"
+          },
+          {
+            "id": "account-inactive",
+            "display_name": "account-inactive",
+            "owner_member_id": null,
+            "currency": "CNY",
+            "status": "inactive"
+          }
+        ],
+        "source_owners": {
+          "source-a": "member-a",
+          "source-b": "member-b"
+        },
+        "unknown_account_policy": {
+          "mode": "needs_review",
+          "exclusion_member_ids": [
+            "member-b"
+          ]
+        },
+        "routes": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-b",
+            "source_selector": {
+              "platform": "platform-b",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-balance",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_id": "source-a",
+              "payment_channel": "Mock balance"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-id",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_id": "exact-id"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-name",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Overlap"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-channel",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Overlap channel"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ],
+        "aliases": [
+          {
+            "id": "alias-nonfunding",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Mock wallet"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-only",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Alias only"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-overridden",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-suggested",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Suggested"
+            },
+            "target_account_id": "account-a",
+            "confirmed": false,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-inactive",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Inactive"
+            },
+            "target_account_id": "account-inactive",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-nfc",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Café"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unknown-key",
+      "profile": {
+        "household_name": "Mock household",
+        "members": [
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          },
+          {
+            "id": "member-b",
+            "display_name": "Mock member B",
+            "status": "active"
+          }
+        ],
+        "default_owner": "member-a"
+      },
+      "policies": {
+        "accounts": [
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "member-a",
+            "currency": "CNY",
+            "status": "active"
+          },
+          {
+            "id": "account-b",
+            "display_name": "account-b",
+            "owner_member_id": "member-b",
+            "currency": "USD",
+            "status": "active"
+          },
+          {
+            "id": "account-inactive",
+            "display_name": "account-inactive",
+            "owner_member_id": null,
+            "currency": "CNY",
+            "status": "inactive"
+          }
+        ],
+        "source_owners": {
+          "source-a": "member-a",
+          "source-b": "member-b"
+        },
+        "unknown_account_policy": {
+          "mode": "needs_review",
+          "exclusion_member_ids": [
+            "member-b"
+          ]
+        },
+        "routes": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-b",
+            "source_selector": {
+              "platform": "platform-b",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-balance",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_id": "source-a",
+              "payment_channel": "Mock balance"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-id",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_id": "exact-id"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-name",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Overlap"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-channel",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Overlap channel"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ],
+        "aliases": [
+          {
+            "id": "alias-nonfunding",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Mock wallet"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-only",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Alias only"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-overridden",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-suggested",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Suggested"
+            },
+            "target_account_id": "account-a",
+            "confirmed": false,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-inactive",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Inactive"
+            },
+            "target_account_id": "account-inactive",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-nfc",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Café"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unknown-policy-mode",
+      "profile": {
+        "household_name": "Mock household",
+        "members": [
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          },
+          {
+            "id": "member-b",
+            "display_name": "Mock member B",
+            "status": "active"
+          }
+        ]
+      },
+      "policies": {
+        "accounts": [
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "member-a",
+            "currency": "CNY",
+            "status": "active"
+          },
+          {
+            "id": "account-b",
+            "display_name": "account-b",
+            "owner_member_id": "member-b",
+            "currency": "USD",
+            "status": "active"
+          },
+          {
+            "id": "account-inactive",
+            "display_name": "account-inactive",
+            "owner_member_id": null,
+            "currency": "CNY",
+            "status": "inactive"
+          }
+        ],
+        "source_owners": {
+          "source-a": "member-a",
+          "source-b": "member-b"
+        },
+        "unknown_account_policy": {
+          "mode": "assign_operator",
+          "exclusion_member_ids": [
+            "member-b"
+          ]
+        },
+        "routes": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-b",
+            "source_selector": {
+              "platform": "platform-b",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-balance",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_id": "source-a",
+              "payment_channel": "Mock balance"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-id",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_id": "exact-id"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-name",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Overlap"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-channel",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Overlap channel"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ],
+        "aliases": [
+          {
+            "id": "alias-nonfunding",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Mock wallet"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-only",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Alias only"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-overridden",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-suggested",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Suggested"
+            },
+            "target_account_id": "account-a",
+            "confirmed": false,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-inactive",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Inactive"
+            },
+            "target_account_id": "account-inactive",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-nfc",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Café"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ]
+      }
+    },
+    {
+      "name": "dangling-exclusion",
+      "profile": {
+        "household_name": "Mock household",
+        "members": [
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          },
+          {
+            "id": "member-b",
+            "display_name": "Mock member B",
+            "status": "active"
+          }
+        ]
+      },
+      "policies": {
+        "accounts": [
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "member-a",
+            "currency": "CNY",
+            "status": "active"
+          },
+          {
+            "id": "account-b",
+            "display_name": "account-b",
+            "owner_member_id": "member-b",
+            "currency": "USD",
+            "status": "active"
+          },
+          {
+            "id": "account-inactive",
+            "display_name": "account-inactive",
+            "owner_member_id": null,
+            "currency": "CNY",
+            "status": "inactive"
+          }
+        ],
+        "source_owners": {
+          "source-a": "member-a",
+          "source-b": "member-b"
+        },
+        "unknown_account_policy": {
+          "mode": "needs_review",
+          "exclusion_member_ids": [
+            "member-b",
+            "missing-member"
+          ]
+        },
+        "routes": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-b",
+            "source_selector": {
+              "platform": "platform-b",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-balance",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_id": "source-a",
+              "payment_channel": "Mock balance"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-id",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_id": "exact-id"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-name",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Overlap"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-channel",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Overlap channel"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ],
+        "aliases": [
+          {
+            "id": "alias-nonfunding",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Mock wallet"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-only",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Alias only"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-overridden",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-suggested",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Suggested"
+            },
+            "target_account_id": "account-a",
+            "confirmed": false,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-inactive",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Inactive"
+            },
+            "target_account_id": "account-inactive",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-nfc",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Café"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ]
+      }
+    },
+    {
+      "name": "normalized-identical-selector-conflict",
+      "profile": {
+        "household_name": "Mock household",
+        "members": [
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          },
+          {
+            "id": "member-b",
+            "display_name": "Mock member B",
+            "status": "active"
+          }
+        ]
+      },
+      "policies": {
+        "accounts": [
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "member-a",
+            "currency": "CNY",
+            "status": "active"
+          },
+          {
+            "id": "account-b",
+            "display_name": "account-b",
+            "owner_member_id": "member-b",
+            "currency": "USD",
+            "status": "active"
+          },
+          {
+            "id": "account-inactive",
+            "display_name": "account-inactive",
+            "owner_member_id": null,
+            "currency": "CNY",
+            "status": "inactive"
+          }
+        ],
+        "source_owners": {
+          "source-a": "member-a",
+          "source-b": "member-b"
+        },
+        "unknown_account_policy": {
+          "mode": "needs_review",
+          "exclusion_member_ids": [
+            "member-b"
+          ]
+        },
+        "routes": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-b",
+            "source_selector": {
+              "platform": "platform-b",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-balance",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_id": "source-a",
+              "payment_channel": "Mock balance"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-id",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_id": "exact-id"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-name",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Overlap"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-channel",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Overlap channel"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ],
+        "aliases": [
+          {
+            "id": "alias-nonfunding",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Mock wallet"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-only",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Alias only"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-overridden",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-suggested",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Suggested"
+            },
+            "target_account_id": "account-a",
+            "confirmed": false,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-inactive",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Inactive"
+            },
+            "target_account_id": "account-inactive",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-nfc",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Café"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-duplicate",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": " Café "
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ]
+      }
+    },
+    {
+      "name": "household-name-limit",
+      "profile": {
+        "household_name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "members": [
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          },
+          {
+            "id": "member-b",
+            "display_name": "Mock member B",
+            "status": "active"
+          }
+        ]
+      },
+      "policies": {
+        "accounts": [
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "member-a",
+            "currency": "CNY",
+            "status": "active"
+          },
+          {
+            "id": "account-b",
+            "display_name": "account-b",
+            "owner_member_id": "member-b",
+            "currency": "USD",
+            "status": "active"
+          },
+          {
+            "id": "account-inactive",
+            "display_name": "account-inactive",
+            "owner_member_id": null,
+            "currency": "CNY",
+            "status": "inactive"
+          }
+        ],
+        "source_owners": {
+          "source-a": "member-a",
+          "source-b": "member-b"
+        },
+        "unknown_account_policy": {
+          "mode": "needs_review",
+          "exclusion_member_ids": [
+            "member-b"
+          ]
+        },
+        "routes": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-b",
+            "source_selector": {
+              "platform": "platform-b",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-balance",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_id": "source-a",
+              "payment_channel": "Mock balance"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-id",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_id": "exact-id"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-name",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Overlap"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-channel",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Overlap channel"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ],
+        "aliases": [
+          {
+            "id": "alias-nonfunding",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Mock wallet"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-only",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Alias only"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-overridden",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-suggested",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Suggested"
+            },
+            "target_account_id": "account-a",
+            "confirmed": false,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-inactive",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Inactive"
+            },
+            "target_account_id": "account-inactive",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-nfc",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Café"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ]
+      }
+    },
+    {
+      "name": "wrong-household-name-kind",
+      "profile": {
+        "household_name": 4,
+        "members": [
+          {
+            "id": "member-a",
+            "display_name": "Mock member A",
+            "status": "active"
+          },
+          {
+            "id": "member-b",
+            "display_name": "Mock member B",
+            "status": "active"
+          }
+        ]
+      },
+      "policies": {
+        "accounts": [
+          {
+            "id": "account-a",
+            "display_name": "account-a",
+            "owner_member_id": "member-a",
+            "currency": "CNY",
+            "status": "active"
+          },
+          {
+            "id": "account-b",
+            "display_name": "account-b",
+            "owner_member_id": "member-b",
+            "currency": "USD",
+            "status": "active"
+          },
+          {
+            "id": "account-inactive",
+            "display_name": "account-inactive",
+            "owner_member_id": null,
+            "currency": "CNY",
+            "status": "inactive"
+          }
+        ],
+        "source_owners": {
+          "source-a": "member-a",
+          "source-b": "member-b"
+        },
+        "unknown_account_policy": {
+          "mode": "needs_review",
+          "exclusion_member_ids": [
+            "member-b"
+          ]
+        },
+        "routes": [
+          {
+            "id": "route-a",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-b",
+            "source_selector": {
+              "platform": "platform-b",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-balance",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_id": "source-a",
+              "payment_channel": "Mock balance"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-id",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_id": "exact-id"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-name",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Overlap"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "route-overlap-channel",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Overlap channel"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ],
+        "aliases": [
+          {
+            "id": "alias-nonfunding",
+            "source_selector": {
+              "platform": "platform-a",
+              "payment_channel": "Mock wallet"
+            },
+            "target_account_id": null,
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-only",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Alias only"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-overridden",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Mock card"
+            },
+            "target_account_id": "account-b",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-suggested",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Suggested"
+            },
+            "target_account_id": "account-a",
+            "confirmed": false,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-inactive",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Inactive"
+            },
+            "target_account_id": "account-inactive",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          },
+          {
+            "id": "alias-nfc",
+            "source_selector": {
+              "platform": "platform-a",
+              "source_account_name": "Café"
+            },
+            "target_account_id": "account-a",
+            "confirmed": true,
+            "basis": "Synthetic explicit evidence"
+          }
+        ]
+      }
+    }
+  ],
+  "unicode": {
+    "profile": {
+      "household_name": "Unicode mock",
+      "members": [
+        {
+          "id": "member-é",
+          "display_name": "Mock 0",
+          "status": "active"
+        },
+        {
+          "id": "member-é",
+          "display_name": "Mock 1",
+          "status": "active"
+        }
+      ]
+    },
+    "policies": {
+      "accounts": [
+        {
+          "id": "account-é",
+          "display_name": "Mock 0",
+          "owner_member_id": "member-é",
+          "currency": "CNY",
+          "status": "active"
+        },
+        {
+          "id": "account-é",
+          "display_name": "Mock 1",
+          "owner_member_id": "member-é",
+          "currency": "CNY",
+          "status": "active"
+        }
+      ],
+      "routes": [
+        {
+          "id": "unicode-route-0",
+          "source_selector": {
+            "platform": "platform-a",
+            "source_account_id": "id-é"
+          },
+          "target_account_id": "account-é",
+          "confirmed": true,
+          "basis": "Synthetic explicit evidence"
+        },
+        {
+          "id": "unicode-route-1",
+          "source_selector": {
+            "platform": "platform-a",
+            "source_account_id": "id-é"
+          },
+          "target_account_id": "account-é",
+          "confirmed": true,
+          "basis": "Synthetic explicit evidence"
+        }
+      ],
+      "aliases": [],
+      "source_owners": {
+        "source-é": "member-é",
+        "source-é": "member-é"
+      },
+      "unknown_account_policy": {
+        "mode": "needs_review",
+        "exclusion_member_ids": []
+      }
+    },
+    "context": {
+      "registered_source_ids": [
+        "source-é",
+        "source-é"
+      ],
+      "currency_codes": [
+        "CNY"
+      ],
+      "referenced_member_ids": [
+        "member-é",
+        "member-é"
+      ],
+      "referenced_account_ids": [
+        "account-é",
+        "account-é"
+      ]
+    },
+    "cases": [
+      {
+        "name": "opaque-byte-identity-0",
+        "input": {
+          "platform": "platform-a",
+          "source_account_id": "id-é"
+        },
+        "expected": {
+          "status": "resolved",
+          "account_id": "account-é",
+          "matched_rule_ids": [
+            "unicode-route-0"
+          ],
+          "candidate_account_ids": [
+            "account-é"
+          ],
+          "reason": "matched_route"
+        }
+      },
+      {
+        "name": "opaque-byte-identity-1",
+        "input": {
+          "platform": "platform-a",
+          "source_account_id": "id-é"
+        },
+        "expected": {
+          "status": "resolved",
+          "account_id": "account-é",
+          "matched_rule_ids": [
+            "unicode-route-1"
+          ],
+          "candidate_account_ids": [
+            "account-é"
+          ],
+          "reason": "matched_route"
+        }
+      }
+    ]
+  }
+}

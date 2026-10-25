@@ -1,0 +1,144 @@
+{
+  "coverage_complete": true,
+  "coverage_note": "Synthetic fixture v1. No family data.",
+  "cutoff": "2026-09-30",
+  "dataset_id": "synthetic-integration-v1",
+  "fire_parameters": {
+    "afterTaxSalary": 200000,
+    "annualContribution": 120000,
+    "annualHardCap": 100000,
+    "baseYear": 2026,
+    "birthYear": 1990,
+    "branches": {
+      "children": {
+        "annualCost": 24000,
+        "birthYear": 2028,
+        "count": 1,
+        "educationBucket": 100000,
+        "enabled": false,
+        "incomeImpact": 20000
+      },
+      "housing": {
+        "annualMaintenance": 6000,
+        "downPaymentRatio": 0.2,
+        "enabled": false,
+        "fees": 30000,
+        "loanRate": 0.035,
+        "loanYears": 30,
+        "minLiquidAssets": 0,
+        "ownerHomeCountsAsFireAsset": false,
+        "reduceRent": false,
+        "renovation": 100000,
+        "totalPrice": 2000000,
+        "year": 2026
+      }
+    },
+    "buckets": {
+      "elderCareBucket": 0,
+      "elderCareEnabled": false,
+      "includeBuckets": false,
+      "otherBuckets": 0,
+      "parentMedicalBucket": 0,
+      "safetyBucket": 0
+    },
+    "currentFireAssets": 100000,
+    "expenseBreakdown": {
+      "rent": 12000
+    },
+    "expenseModes": {
+      "normal": 70000
+    },
+    "investing": {
+      "annualReturn": 0.06,
+      "inflation": 0.025,
+      "maxDrawdown": 0.3,
+      "withdrawalRate": 0.035
+    },
+    "targetAge": 55
+  },
+  "records": [
+    {
+      "account_views": [
+        "Test account A"
+      ],
+      "components": [
+        {
+          "classification_basis": "规则推断",
+          "classification_keys": [
+            "pending-category:item"
+          ],
+          "gross_cents": 2400,
+          "id": "pending-category:item",
+          "included": true,
+          "net_cents": 2400,
+          "primary": "待分类",
+          "reason": "",
+          "recurrence": "one_time",
+          "refund_cents": 0,
+          "secondary": "待分类",
+          "tags": [],
+          "title": "pending-category:item"
+        }
+      ],
+      "date": "2026-02-01",
+      "events": [
+        {
+          "amount_cents": 2400,
+          "date": "2026-02-01",
+          "id": "pending-category:event",
+          "kind": "payment",
+          "source": "bank",
+          "status": "原始证据"
+        }
+      ],
+      "evidence_keys": [
+        "pending-category"
+      ],
+      "id": "pending-category",
+      "non_consumption": false,
+      "payment_account_status": "identified",
+      "payment_accounts": [
+        "Test account A"
+      ],
+      "payment_channels": [
+        "Test channel"
+      ],
+      "status": "支付成立",
+      "title": "Synthetic pending-category",
+      "unallocated_credit_cents": 0,
+      "user_id": "fixture-user",
+      "user_relation": "self"
+    }
+  ],
+  "refund_candidates": [],
+  "source_record_set_candidates": [],
+  "source_record_sets": [],
+  "taxonomy": [
+    {
+      "primary": "待分类",
+      "secondaries": [
+        "待分类"
+      ]
+    },
+    {
+      "primary": "日常消费",
+      "secondaries": [
+        "餐饮",
+        "咖啡茶饮",
+        "交通出行"
+      ]
+    },
+    {
+      "primary": "生产力工具",
+      "secondaries": [
+        "设备"
+      ]
+    },
+    {
+      "primary": "亲友代付",
+      "secondaries": [
+        "代购"
+      ]
+    }
+  ]
+}

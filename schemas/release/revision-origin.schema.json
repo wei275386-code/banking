@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "revision-origin.schema.json",
+  "type": "object",
+  "properties": {
+    "source_binding_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "revision_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "payload_hash": {
+      "$ref": "common.schema.json#/$defs/hash"
+    },
+    "parents": {
+      "$ref": "common.schema.json#/$defs/revision-ids"
+    }
+  },
+  "required": [
+    "source_binding_id",
+    "revision_id",
+    "payload_hash",
+    "parents"
+  ],
+  "additionalProperties": false
+}

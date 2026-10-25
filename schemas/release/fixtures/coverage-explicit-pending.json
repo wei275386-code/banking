@@ -1,0 +1,14 @@
+{
+  "mode": "explicit",
+  "from": "2026-01-01",
+  "to": "2026-09-13",
+  "observed_from": "2026-01-01",
+  "observed_to": "2026-10-01",
+  "pending_from": "2026-01-01",
+  "pending_to": "2026-10-01",
+  "basis": {
+    "kind": "user-confirmed",
+    "source_ids": []
+  },
+  "revision": 2
+}

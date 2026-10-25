@@ -1,0 +1,89 @@
+{
+  "backfill_cutoff_date": "2026-09-30",
+  "bank_records": [
+    {
+      "amount_cents": 5000,
+      "date": "2026-02-01",
+      "description": "Synthetic debit",
+      "id": 1,
+      "is_credit": 0,
+      "source_evidence": {
+        "kind": "fixture"
+      }
+    },
+    {
+      "amount_cents": -500,
+      "date": "2026-02-02",
+      "description": "Synthetic credit",
+      "id": 2,
+      "is_credit": 1,
+      "source_evidence": {
+        "kind": "fixture"
+      }
+    }
+  ],
+  "candidates": [
+    {
+      "association_status": "candidate",
+      "bank_ids": [
+        "bank:1"
+      ],
+      "candidate_id": "link-high",
+      "kind": "payment",
+      "record_ids": [
+        "wallet-high"
+      ],
+      "review_required": true
+    },
+    {
+      "association_status": "candidate",
+      "bank_ids": [
+        "bank:2"
+      ],
+      "candidate_id": "link-low",
+      "kind": "payment",
+      "record_ids": [
+        "wallet-unknown"
+      ],
+      "review_required": true
+    }
+  ],
+  "clusters": [
+    {
+      "cluster_id": "wallet-high",
+      "representative": {
+        "merchant": "Fixture coffee",
+        "platform": "alipay",
+        "platform_reported_amount_cents": 2400,
+        "raw_status": "paid",
+        "source_evidence": {
+          "image": {
+            "path": "preview.png",
+            "sha256": "dcc7e3200fe19604ca2c15df0b920611dd8a7b90f917475fc51b878417907704"
+          },
+          "kind": "fixture"
+        },
+        "title": "Synthetic purchase",
+        "transaction_time": "2026-02-01"
+      }
+    },
+    {
+      "cluster_id": "wallet-unknown",
+      "representative": {
+        "merchant": "Fixture unknown",
+        "platform": "wechat",
+        "raw_status": "pending",
+        "source_evidence": {
+          "kind": "fixture"
+        },
+        "title": "Amount pending",
+        "transaction_time": ""
+      }
+    }
+  ],
+  "dataset_id": "synthetic-integration-v1",
+  "ocr_probe": {
+    "samples": []
+  },
+  "review_summary": {}
+}

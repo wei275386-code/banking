@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "state-manifest.schema.json",
+  "type": "object",
+  "required": [
+    "workspace_id",
+    "state_id",
+    "local_revision",
+    "files"
+  ],
+  "properties": {
+    "parent_pointer": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "active-state.schema.json"
+        }
+      ]
+    },
+    "workspace_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "state_id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "local_revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "files": {
+      "type": "object",
+      "required": [
+        "banking.sqlite3",
+        "config/review-import-sources.json",
+        "review/financial-review.json",
+        "review/payment-evidence.json",
+        "review/coverage.json",
+        "operation-results.json"
+      ],
+      "properties": {
+        "banking.sqlite3": {
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        "config/review-import-sources.json": {
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        "review/financial-review.json": {
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        "review/payment-evidence.json": {
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        "review/coverage.json": {
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        "operation-results.json": {
+          "$ref": "common.schema.json#/$defs/hash"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "common.schema.json#/$defs/hash"
+      }
+    }
+  },
+  "additionalProperties": false
+}

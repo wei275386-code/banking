@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "coverage.schema.json",
+  "type": "object",
+  "properties": {
+    "mode": {
+      "enum": [
+        "empty",
+        "automatic",
+        "explicit"
+      ]
+    },
+    "from": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/date"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "to": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/date"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "observed_from": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/date"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "observed_to": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/date"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "pending_from": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/date"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "pending_to": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/date"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "basis": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "no-reliable-dates",
+            "reliable-observations",
+            "user-confirmed"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "kind",
+        "source_ids"
+      ],
+      "additionalProperties": true
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "mode",
+    "from",
+    "to",
+    "observed_from",
+    "observed_to",
+    "pending_from",
+    "pending_to",
+    "basis",
+    "revision"
+  ],
+  "additionalProperties": true
+}

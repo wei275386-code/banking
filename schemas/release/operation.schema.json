@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "operation.schema.json",
+  "type": "object",
+  "properties": {
+    "workspace_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "operation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "request_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "input_hash": {
+      "$ref": "common.schema.json#/$defs/hash"
+    },
+    "algorithm_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "phase": {
+      "enum": [
+        "queued",
+        "processing",
+        "prepared",
+        "committed",
+        "published",
+        "cancelled",
+        "failed",
+        "needsReview"
+      ]
+    },
+    "outcome": {
+      "enum": [
+        null,
+        "success",
+        "partial",
+        "cancelled",
+        "failed",
+        "unknown"
+      ]
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/input"
+      }
+    },
+    "state_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "result_digest": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "result_generation": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/hash"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "recovery_attempt_id": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "updated_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    }
+  },
+  "required": [
+    "workspace_id",
+    "operation_id",
+    "request_id",
+    "input_hash",
+    "algorithm_version",
+    "phase",
+    "outcome",
+    "inputs",
+    "state_id",
+    "result_digest",
+    "result_generation",
+    "created_at",
+    "updated_at"
+  ],
+  "additionalProperties": true
+}

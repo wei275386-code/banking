@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "workspace.schema.json",
+  "type": "object",
+  "properties": {
+    "workspace_id": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "created_at": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "access": {
+      "enum": [
+        "writable",
+        "viewing"
+      ]
+    },
+    "min_reader_version": {
+      "$ref": "common.schema.json#/$defs/version"
+    },
+    "min_writer_version": {
+      "$ref": "common.schema.json#/$defs/version"
+    }
+  },
+  "required": [
+    "workspace_id",
+    "created_at"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "revision-inventory.schema.json",
+  "type": "object",
+  "properties": {
+    "entries": {
+      "type": "array",
+      "items": {
+        "$ref": "revision-origin.schema.json"
+      }
+    }
+  },
+  "required": [
+    "entries"
+  ],
+  "additionalProperties": false
+}

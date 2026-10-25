@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "account-policies.schema.json",
+  "title": "Workspace account policies, structural contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "accounts",
+    "aliases",
+    "routes",
+    "source_owners",
+    "unknown_account_policy"
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "funding-selector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "platform"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "source_account_id"
+          ]
+        },
+        {
+          "required": [
+            "source_account_name"
+          ]
+        },
+        {
+          "required": [
+            "payment_channel"
+          ]
+        }
+      ],
+      "properties": {
+        "platform": {
+          "$ref": "#/$defs/id"
+        },
+        "source_id": {
+          "$ref": "#/$defs/id"
+        },
+        "source_account_id": {
+          "$ref": "#/$defs/id"
+        },
+        "source_account_name": {
+          "$ref": "#/$defs/text"
+        },
+        "payment_channel": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    }
+  },
+  "properties": {
+    "accounts": {
+      "type": "array",
+      "maxItems": 10000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "display_name",
+          "owner_member_id",
+          "currency",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "display_name": {
+            "$ref": "#/$defs/text"
+          },
+          "owner_member_id": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          }
+        }
+      }
+    },
+    "aliases": {
+      "type": "array",
+      "maxItems": 20000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "source_selector",
+          "target_account_id",
+          "confirmed",
+          "basis"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "source_selector": {
+            "$ref": "#/$defs/funding-selector"
+          },
+          "target_account_id": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "confirmed": {
+            "type": "boolean"
+          },
+          "basis": {
+            "$ref": "#/$defs/text"
+          }
+        }
+      }
+    },
+    "routes": {
+      "type": "array",
+      "maxItems": 10000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "source_selector",
+          "target_account_id",
+          "confirmed",
+          "basis"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "source_selector": {
+            "$ref": "#/$defs/funding-selector"
+          },
+          "target_account_id": {
+            "$ref": "#/$defs/id"
+          },
+          "confirmed": {
+            "type": "boolean"
+          },
+          "basis": {
+            "$ref": "#/$defs/text"
+          }
+        }
+      }
+    },
+    "source_owners": {
+      "type": "object",
+      "maxProperties": 100000,
+      "propertyNames": {
+        "$ref": "#/$defs/id"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "unknown_account_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "exclusion_member_ids"
+      ],
+      "properties": {
+        "mode": {
+          "const": "needs_review"
+        },
+        "exclusion_member_ids": {
+          "type": "array",
+          "maxItems": 1000,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        }
+      }
+    }
+  }
+}

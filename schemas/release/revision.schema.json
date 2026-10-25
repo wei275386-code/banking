@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "revision.schema.json",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "device": {
+      "type": "string",
+      "minLength": 1
+    },
+    "clock": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "values": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "bases": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "observed": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/vector"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "parents": {
+      "anyOf": [
+        {
+          "$ref": "common.schema.json#/$defs/revision-ids"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "device",
+    "clock",
+    "values",
+    "bases"
+  ],
+  "additionalProperties": false
+}

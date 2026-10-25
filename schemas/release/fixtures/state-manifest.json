@@ -1,0 +1,13 @@
+{
+  "workspace_id": "c0ddc754-dfec-55be-97f9-316cabc21553",
+  "state_id": "state-a",
+  "local_revision": 1,
+  "files": {
+    "banking.sqlite3": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "config/review-import-sources.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "review/financial-review.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "review/payment-evidence.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "review/coverage.json": "6e1a28df137c9732066b6a6d7fe7e7475cf651adb9907653b6d8b9ce55d5c6d1",
+    "operation-results.json": "b56312380d43c54216b84592c27c1d48d2851f223e57847bcd1e1efd9e411b08"
+  }
+}

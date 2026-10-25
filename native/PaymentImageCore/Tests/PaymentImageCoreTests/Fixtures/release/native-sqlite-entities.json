@@ -1,0 +1,11 @@
+{
+  "database:samples.sqlite3:generated_sample:441f4fb2ff51ae5c85ca1b36433feabc6087ea4201f79f09d60bf6d9aca8afb9": "b91860744be3de23ab55dc43cc97162835b509bbdbe0413c9016b6026e705d42",
+  "database:samples.sqlite3:sample:79b2a602ceb42ef0c50814dc8e90274ab9c06e8fc8fab32355703f1dd6ccb452": "a97e1635e70b4cfafce06c738bd7a41b8ff6eb2ace86833cf3b339da9b8d5c71",
+  "database:samples.sqlite3:sample:a51bf407cf906c96744d14fda32b470587666cfcf7cdd2d0677aa70c93811766": "67ebc3e9b9ba23239f383ad1b16ca0fd4b30fe8519c1a00619a7807396359dca",
+  "database:samples.sqlite3:sample:d35d2ec012d6b2595a5a72b306bf4c8edac10fca98222bdf36df419d831fcbec": "496ccec0d2657c2f4d0ab357d6ace785ae0afbc119ff63945697f9d5468feec4",
+  "database:samples.sqlite3:text_sample:6c7accfe4beda7ac50b2228fb8e847f3900c2ed65b1b8b729a5d5f88c753d066": "6deb1934bd81166b6aef94c34d711508ee7375997a87f10b8b7f5001930b2366",
+  "database:samples.sqlite3:text_sample:bac0adda0ae3621d345302b751904960841539ebc4e9b2a0e3662556b43187d2": "82fbcd2e12c51f7f32f6366f17c2cf7e3ca195089a1c0dbd074088695a961a3f",
+  "table-schema:samples.sqlite3:generated_sample": "5e83abd761beb4aa76deac4a3e8cdcca49d988ea2a26bbc7987864b5d087fbee",
+  "table-schema:samples.sqlite3:sample": "1d1301d87ef0cc86c74d43803eb3a76e63690a414459e42c4e45f22b9436cd0e",
+  "table-schema:samples.sqlite3:text_sample": "0beb288570f3518ce870fcb662f2fbef4e41082b8560bb63c460dc946f8ff4f7"
+}

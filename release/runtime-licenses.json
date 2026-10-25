@@ -1,0 +1,578 @@
+{
+  "runtime_lock_sha256": "88c26adc9685dc482ef931a0c2828a8fff71b1111d6bcba47d4f596ed8fa5f4c",
+  "distribution_ready": false,
+  "interpretation": "Raw artifact metadata and actual bundled notice files only; no inferred license compatibility or complete third-party component coverage.",
+  "artifacts": [
+    {
+      "name": "cpython-python-build-standalone",
+      "version": "3.13.9",
+      "artifact": "cpython-3.13.9+20251014-aarch64-apple-darwin-install_only_stripped.tar.gz",
+      "artifact_sha256": "52721745b0fa3196e4d0381fa5c06dda1d54343b90d49d90c3bba52d1171bd98",
+      "artifact_source": "https://github.com/astral-sh/python-build-standalone/releases/download/20251014/cpython-3.13.9%2B20251014-aarch64-apple-darwin-install_only_stripped.tar.gz",
+      "metadata_source": "https://api.github.com/repos/astral-sh/python-build-standalone/releases/tags/20251014",
+      "metadata": {
+        "license": null,
+        "license_expression": null,
+        "license_files": [],
+        "name": null,
+        "version": null
+      },
+      "license_files": [
+        {
+          "archive_path": "python/lib/python3.13/LICENSE.txt",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/LICENSE.txt",
+          "size": 13809,
+          "sha256": "78b12c3a81360b357002334f0e70ea0e92eebf7a9b358805c03c48484945f3bb"
+        },
+        {
+          "archive_path": "python/lib/tk8.6/demos/license.terms",
+          "path": "Contents/Resources/ProcessorRuntime/lib/tk8.6/demos/license.terms",
+          "size": 2267,
+          "sha256": "2cde822b93ca16ae535c954b7dfe658b4ad10df2a193628d1b358f1765e8b198"
+        }
+      ],
+      "status": "needs_review",
+      "gaps": [
+        "This install-only archive has no distribution METADATA license headers; recorded notice files do not establish a complete native-component license inventory."
+      ]
+    },
+    {
+      "name": "cffi",
+      "version": "2.1.1",
+      "artifact": "cffi-2.1.1-cp313-cp313-macosx_11_0_arm64.whl",
+      "artifact_sha256": "19ee6127ee34de7d83ce3d371ebc5ed91addbdcc39f9ab15ce4eb35a4e534971",
+      "artifact_source": "https://files.pythonhosted.org/packages/55/41/4c7042f317b9217502988f0873af87e16ad606dc20f84e546e3e6ce9764c/cffi-2.1.1-cp313-cp313-macosx_11_0_arm64.whl",
+      "metadata_source": "https://pypi.org/pypi/cffi/2.1.1/json",
+      "metadata_file": {
+        "archive_path": "cffi-2.1.1.dist-info/METADATA",
+        "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/cffi-2.1.1.dist-info/METADATA",
+        "size": 2527,
+        "sha256": "558bafb9093a8e790175d9ecff9688382981d744877dad86fd6770db0f4dc918"
+      },
+      "metadata": {
+        "license": null,
+        "license_expression": "MIT-0",
+        "license_files": [
+          "LICENSE"
+        ],
+        "name": "cffi",
+        "version": "2.1.1"
+      },
+      "declared_file_mapping": [
+        {
+          "declared_path": "LICENSE",
+          "archive_path": "cffi-2.1.1.dist-info/licenses/LICENSE",
+          "mapping": "declared_relative_path"
+        }
+      ],
+      "license_files": [
+        {
+          "archive_path": "cffi-2.1.1.dist-info/licenses/LICENSE",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/cffi-2.1.1.dist-info/licenses/LICENSE",
+          "size": 1123,
+          "sha256": "5ba24ddc57067f9249add644c3afc41a5d6dc37e23433ef759d95df370b0af63"
+        }
+      ],
+      "status": "metadata_and_files_recorded",
+      "gaps": []
+    },
+    {
+      "name": "charset-normalizer",
+      "version": "3.5.2",
+      "artifact": "charset_normalizer-3.5.2-py3-none-any.whl",
+      "artifact_sha256": "b6b751274acb69d77b3323d6b7dbaa3c7fdfc1eb829b7eb61d262f32e1af9685",
+      "artifact_source": "https://files.pythonhosted.org/packages/fc/ad/d07d7862a62ffa6d79d68074d14823243dd235a77c45262acbf6adeb28bf/charset_normalizer-3.5.2-py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/charset-normalizer/3.5.2/json",
+      "metadata_file": {
+        "archive_path": "charset_normalizer-3.5.2.dist-info/METADATA",
+        "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/charset_normalizer-3.5.2.dist-info/METADATA",
+        "size": 46395,
+        "sha256": "89ce6362bb7be88558f4be99a98f5d1b4da93d19cd0323e5ee0bac05cf883dfb"
+      },
+      "metadata": {
+        "license": "MIT",
+        "license_expression": null,
+        "license_files": [
+          "LICENSE"
+        ],
+        "name": "charset-normalizer",
+        "version": "3.5.2"
+      },
+      "declared_file_mapping": [
+        {
+          "declared_path": "LICENSE",
+          "archive_path": "charset_normalizer-3.5.2.dist-info/licenses/LICENSE",
+          "mapping": "declared_relative_path"
+        }
+      ],
+      "license_files": [
+        {
+          "archive_path": "charset_normalizer-3.5.2.dist-info/licenses/LICENSE",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/charset_normalizer-3.5.2.dist-info/licenses/LICENSE",
+          "size": 1071,
+          "sha256": "6d0d41bfe170ac6c7dc248c9a63e254d0fb45a60d50a8257d0af92c6e249b887"
+        }
+      ],
+      "status": "metadata_and_files_recorded",
+      "gaps": []
+    },
+    {
+      "name": "cryptography",
+      "version": "50.0.2",
+      "artifact": "cryptography-50.0.2-cp311-abi3-macosx_11_0_arm64.whl",
+      "artifact_sha256": "fa8f5efb344d6908a1ce62f4a24e2e5780f825d6f53f5f50ec5ffacac72936cb",
+      "artifact_source": "https://files.pythonhosted.org/packages/e5/56/d194340cc4a57535e82e1bee9e89667ac4b7c13b5d3f59686deae3094dd5/cryptography-50.0.2-cp311-abi3-macosx_11_0_arm64.whl",
+      "metadata_source": "https://pypi.org/pypi/cryptography/50.0.2/json",
+      "metadata_file": {
+        "archive_path": "cryptography-50.0.2.dist-info/METADATA",
+        "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/cryptography-50.0.2.dist-info/METADATA",
+        "size": 4394,
+        "sha256": "047cfc71226409de4318b360aef15c63a2adf609731e3dcf7fe932f14ea042ee"
+      },
+      "metadata": {
+        "license": null,
+        "license_expression": "Apache-2.0 OR BSD-3-Clause",
+        "license_files": [
+          "LICENSE",
+          "LICENSE.APACHE",
+          "LICENSE.BSD"
+        ],
+        "name": "cryptography",
+        "version": "50.0.2"
+      },
+      "declared_file_mapping": [
+        {
+          "declared_path": "LICENSE",
+          "archive_path": "cryptography-50.0.2.dist-info/licenses/LICENSE",
+          "mapping": "declared_relative_path"
+        },
+        {
+          "declared_path": "LICENSE.APACHE",
+          "archive_path": "cryptography-50.0.2.dist-info/licenses/LICENSE.APACHE",
+          "mapping": "declared_relative_path"
+        },
+        {
+          "declared_path": "LICENSE.BSD",
+          "archive_path": "cryptography-50.0.2.dist-info/licenses/LICENSE.BSD",
+          "mapping": "declared_relative_path"
+        }
+      ],
+      "license_files": [
+        {
+          "archive_path": "cryptography-50.0.2.dist-info/licenses/LICENSE",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/cryptography-50.0.2.dist-info/licenses/LICENSE",
+          "size": 197,
+          "sha256": "3e0c7c091a948b82533ba98fd7cbb40432d6f1a9acbf85f5922d2f99a93ae6bb"
+        },
+        {
+          "archive_path": "cryptography-50.0.2.dist-info/licenses/LICENSE.APACHE",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/cryptography-50.0.2.dist-info/licenses/LICENSE.APACHE",
+          "size": 11360,
+          "sha256": "aac73b3148f6d1d7111dbca32099f68d26c644c6813ae1e4f05f6579aa2663fe"
+        },
+        {
+          "archive_path": "cryptography-50.0.2.dist-info/licenses/LICENSE.BSD",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/cryptography-50.0.2.dist-info/licenses/LICENSE.BSD",
+          "size": 1532,
+          "sha256": "602c4c7482de6479dd2e9793cda275e5e63d773dacd1eca689232ab7008fb4fb"
+        }
+      ],
+      "status": "metadata_and_files_recorded",
+      "gaps": []
+    },
+    {
+      "name": "et-xmlfile",
+      "version": "2.0.0",
+      "artifact": "et_xmlfile-2.0.0-py3-none-any.whl",
+      "artifact_sha256": "7a91720bc756843502c3b7504c77b8fe44217c85c537d85037f0f536151b2caa",
+      "artifact_source": "https://files.pythonhosted.org/packages/c1/8b/5fe2cc11fee489817272089c4203e679c63b570a5aaeb18d852ae3cbba6a/et_xmlfile-2.0.0-py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/et-xmlfile/2.0.0/json",
+      "metadata_file": {
+        "archive_path": "et_xmlfile-2.0.0.dist-info/METADATA",
+        "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/et_xmlfile-2.0.0.dist-info/METADATA",
+        "size": 2711,
+        "sha256": "0e97d7ea909ed0fbe03d88bc8b6f58677cee1b07bd3353ce361cd2405915204e"
+      },
+      "metadata": {
+        "license": "MIT",
+        "license_expression": null,
+        "license_files": [
+          "LICENCE.python",
+          "LICENCE.rst",
+          "AUTHORS.txt"
+        ],
+        "name": "et_xmlfile",
+        "version": "2.0.0"
+      },
+      "declared_file_mapping": [
+        {
+          "declared_path": "LICENCE.python",
+          "archive_path": "et_xmlfile-2.0.0.dist-info/LICENCE.python",
+          "mapping": "declared_relative_path"
+        },
+        {
+          "declared_path": "LICENCE.rst",
+          "archive_path": "et_xmlfile-2.0.0.dist-info/LICENCE.rst",
+          "mapping": "declared_relative_path"
+        },
+        {
+          "declared_path": "AUTHORS.txt",
+          "archive_path": "et_xmlfile-2.0.0.dist-info/AUTHORS.txt",
+          "mapping": "declared_relative_path"
+        }
+      ],
+      "license_files": [
+        {
+          "archive_path": "et_xmlfile-2.0.0.dist-info/AUTHORS.txt",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/et_xmlfile-2.0.0.dist-info/AUTHORS.txt",
+          "size": 82,
+          "sha256": "7f038029ea5463605dd2278d300099a381bce9e90dda83ccab2042346b6c8107"
+        },
+        {
+          "archive_path": "et_xmlfile-2.0.0.dist-info/LICENCE.python",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/et_xmlfile-2.0.0.dist-info/LICENCE.python",
+          "size": 14688,
+          "sha256": "4ccdaaebc0f44b83720ec0399bb7ab329adce067dd62f73c5535a2dc05628ab2"
+        },
+        {
+          "archive_path": "et_xmlfile-2.0.0.dist-info/LICENCE.rst",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/et_xmlfile-2.0.0.dist-info/LICENCE.rst",
+          "size": 1131,
+          "sha256": "0c84bb42f5d367e5ebf9fc2dde35b16141df5ee0fdc189250858bc6c5560f69e"
+        }
+      ],
+      "status": "metadata_and_files_recorded",
+      "gaps": []
+    },
+    {
+      "name": "openpyxl",
+      "version": "3.1.5",
+      "artifact": "openpyxl-3.1.5-py2.py3-none-any.whl",
+      "artifact_sha256": "5282c12b107bffeef825f4617dc029afaf41d0ea60823bbb665ef3079dc79de2",
+      "artifact_source": "https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/openpyxl/3.1.5/json",
+      "metadata_file": {
+        "archive_path": "openpyxl-3.1.5.dist-info/METADATA",
+        "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/openpyxl-3.1.5.dist-info/METADATA",
+        "size": 2510,
+        "sha256": "23f80ca9830dd89435da1710f26deda8f81e5409287e74540210c72627a4ad96"
+      },
+      "metadata": {
+        "license": "MIT",
+        "license_expression": null,
+        "license_files": [
+          "LICENCE.rst"
+        ],
+        "name": "openpyxl",
+        "version": "3.1.5"
+      },
+      "declared_file_mapping": [
+        {
+          "declared_path": "LICENCE.rst",
+          "archive_path": "openpyxl-3.1.5.dist-info/LICENCE.rst",
+          "mapping": "declared_relative_path"
+        }
+      ],
+      "license_files": [
+        {
+          "archive_path": "openpyxl-3.1.5.dist-info/LICENCE.rst",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/openpyxl-3.1.5.dist-info/LICENCE.rst",
+          "size": 1131,
+          "sha256": "0c84bb42f5d367e5ebf9fc2dde35b16141df5ee0fdc189250858bc6c5560f69e"
+        }
+      ],
+      "status": "metadata_and_files_recorded",
+      "gaps": []
+    },
+    {
+      "name": "pdfminer.six",
+      "version": "20250506",
+      "artifact": "pdfminer_six-20250506-py3-none-any.whl",
+      "artifact_sha256": "d81ad173f62e5f841b53a8ba63af1a4a355933cfc0ffabd608e568b9193909e3",
+      "artifact_source": "https://files.pythonhosted.org/packages/73/16/7a432c0101fa87457e75cb12c879e1749c5870a786525e2e0f42871d6462/pdfminer_six-20250506-py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/pdfminer.six/20250506/json",
+      "metadata_file": {
+        "archive_path": "pdfminer_six-20250506.dist-info/METADATA",
+        "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/pdfminer_six-20250506.dist-info/METADATA",
+        "size": 4155,
+        "sha256": "63e2d5605052bae235c945cff1af704a5b9bcceedcc62dd253c233c6d68f3d95"
+      },
+      "metadata": {
+        "license": null,
+        "license_expression": "MIT",
+        "license_files": [
+          "LICENSE"
+        ],
+        "name": "pdfminer.six",
+        "version": "20250506"
+      },
+      "declared_file_mapping": [
+        {
+          "declared_path": "LICENSE",
+          "archive_path": "pdfminer_six-20250506.dist-info/licenses/LICENSE",
+          "mapping": "declared_relative_path"
+        }
+      ],
+      "license_files": [
+        {
+          "archive_path": "pdfminer_six-20250506.dist-info/licenses/LICENSE",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/pdfminer_six-20250506.dist-info/licenses/LICENSE",
+          "size": 1093,
+          "sha256": "f01e5d699a33766b5caf4a5099f2856aba4f3f75ea1df05dc0572b34b4bea8f2"
+        }
+      ],
+      "status": "metadata_and_files_recorded",
+      "gaps": []
+    },
+    {
+      "name": "pdfplumber",
+      "version": "0.11.7",
+      "artifact": "pdfplumber-0.11.7-py3-none-any.whl",
+      "artifact_sha256": "edd2195cca68bd770da479cf528a737e362968ec2351e62a6c0b71ff612ac25e",
+      "artifact_source": "https://files.pythonhosted.org/packages/db/e0/52b67d4f00e09e497aec4f71bc44d395605e8ebcea52543242ed34c25ef9/pdfplumber-0.11.7-py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/pdfplumber/0.11.7/json",
+      "metadata_file": {
+        "archive_path": "pdfplumber-0.11.7.dist-info/METADATA",
+        "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/pdfplumber-0.11.7.dist-info/METADATA",
+        "size": 42753,
+        "sha256": "eecea413f79031b37ddb860ac585021aa8210267b2619b66e239493df5bd1b9c"
+      },
+      "metadata": {
+        "license": null,
+        "license_expression": null,
+        "license_files": [
+          "LICENSE.txt"
+        ],
+        "name": "pdfplumber",
+        "version": "0.11.7"
+      },
+      "declared_file_mapping": [
+        {
+          "declared_path": "LICENSE.txt",
+          "archive_path": "pdfplumber-0.11.7.dist-info/licenses/LICENSE.txt",
+          "mapping": "declared_relative_path"
+        }
+      ],
+      "license_files": [
+        {
+          "archive_path": "pdfplumber-0.11.7.dist-info/licenses/LICENSE.txt",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/pdfplumber-0.11.7.dist-info/licenses/LICENSE.txt",
+          "size": 1086,
+          "sha256": "0d48994da4d1321e395b5e64a724ed4dec63fb96b88ac5b88fc014771e690821"
+        }
+      ],
+      "status": "needs_review",
+      "gaps": [
+        "No License or License-Expression header in artifact METADATA."
+      ]
+    },
+    {
+      "name": "pillow",
+      "version": "12.3.0",
+      "artifact": "pillow-12.3.0-cp313-cp313-macosx_11_0_arm64.whl",
+      "artifact_sha256": "d69141514cc30b774ceea5e3ed3a6635c8d8a96edf664689b890f4089111fb35",
+      "artifact_source": "https://files.pythonhosted.org/packages/10/76/8803c13605b763d33d156c4678fc77f8443389c0c51c8aef707bb02015f4/pillow-12.3.0-cp313-cp313-macosx_11_0_arm64.whl",
+      "metadata_source": "https://pypi.org/pypi/pillow/12.3.0/json",
+      "metadata_file": {
+        "archive_path": "pillow-12.3.0.dist-info/METADATA",
+        "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/pillow-12.3.0.dist-info/METADATA",
+        "size": 9093,
+        "sha256": "8fc07146cab33ef7582361dab6eac596d340b03ec648f18217da7894f73838c8"
+      },
+      "metadata": {
+        "license": null,
+        "license_expression": "MIT-CMU",
+        "license_files": [
+          "LICENSE"
+        ],
+        "name": "pillow",
+        "version": "12.3.0"
+      },
+      "declared_file_mapping": [
+        {
+          "declared_path": "LICENSE",
+          "archive_path": "pillow-12.3.0.dist-info/licenses/LICENSE",
+          "mapping": "declared_relative_path"
+        }
+      ],
+      "license_files": [
+        {
+          "archive_path": "pillow-12.3.0.dist-info/licenses/LICENSE",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/pillow-12.3.0.dist-info/licenses/LICENSE",
+          "size": 70307,
+          "sha256": "dda12a98c1979cf3d94df1cff45d27a4cb3f04a60c76f76902ac54cac03ec0ce"
+        }
+      ],
+      "status": "metadata_and_files_recorded",
+      "gaps": []
+    },
+    {
+      "name": "pycparser",
+      "version": "3.11",
+      "artifact": "pycparser-3.11-py3-none-any.whl",
+      "artifact_sha256": "51d5a8ba2be0bbe440b99d2112604c95bbbc3c2748a64260186c541e1729cd80",
+      "artifact_source": "https://files.pythonhosted.org/packages/90/11/0e6f11117525ff0eec40ebac3d313376f102df93ca44ad9e893ee85e4f89/pycparser-3.11-py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/pycparser/3.11/json",
+      "metadata_file": {
+        "archive_path": "pycparser-3.11.dist-info/METADATA",
+        "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/pycparser-3.11.dist-info/METADATA",
+        "size": 8238,
+        "sha256": "e3a74c846648bb55f4f907284b745e2003b87b96d9c9d17a8a50cf37804541c9"
+      },
+      "metadata": {
+        "license": null,
+        "license_expression": "BSD-3-Clause",
+        "license_files": [
+          "LICENSE"
+        ],
+        "name": "pycparser",
+        "version": "3.11"
+      },
+      "declared_file_mapping": [
+        {
+          "declared_path": "LICENSE",
+          "archive_path": "pycparser-3.11.dist-info/licenses/LICENSE",
+          "mapping": "declared_relative_path"
+        }
+      ],
+      "license_files": [
+        {
+          "archive_path": "pycparser-3.11.dist-info/licenses/LICENSE",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/pycparser-3.11.dist-info/licenses/LICENSE",
+          "size": 1543,
+          "sha256": "0a9e78156ae8b96caf1b4f11ac2df424b83de29736f9e757630548a6272fdf90"
+        }
+      ],
+      "status": "metadata_and_files_recorded",
+      "gaps": []
+    },
+    {
+      "name": "pypdf",
+      "version": "6.1.1",
+      "artifact": "pypdf-6.1.1-py3-none-any.whl",
+      "artifact_sha256": "7781f99493208a37a7d4275601d883e19af24e62a525c25844d22157c2e4cde7",
+      "artifact_source": "https://files.pythonhosted.org/packages/07/ed/adae13756d9dabdddee483fc7712905bb5585fbf6e922b1a19aca3a29cd1/pypdf-6.1.1-py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/pypdf/6.1.1/json",
+      "metadata_file": {
+        "archive_path": "pypdf-6.1.1.dist-info/METADATA",
+        "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/pypdf-6.1.1.dist-info/METADATA",
+        "size": 7149,
+        "sha256": "049e2eb4f14aa5f07ac2354c3a9282db43b7c845fcbeace8aa3d693b5ebe980a"
+      },
+      "metadata": {
+        "license": null,
+        "license_expression": "BSD-3-Clause",
+        "license_files": [
+          "LICENSE"
+        ],
+        "name": "pypdf",
+        "version": "6.1.1"
+      },
+      "declared_file_mapping": [
+        {
+          "declared_path": "LICENSE",
+          "archive_path": "pypdf-6.1.1.dist-info/licenses/LICENSE",
+          "mapping": "declared_relative_path"
+        }
+      ],
+      "license_files": [
+        {
+          "archive_path": "pypdf-6.1.1.dist-info/licenses/LICENSE",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/pypdf-6.1.1.dist-info/licenses/LICENSE",
+          "size": 1605,
+          "sha256": "a97ac230e5f33ef10a5367a850eb01f91f1a0b064e34742c7794d2294557f524"
+        }
+      ],
+      "status": "metadata_and_files_recorded",
+      "gaps": []
+    },
+    {
+      "name": "pypdfium2",
+      "version": "4.30.0",
+      "artifact": "pypdfium2-4.30.0-py3-none-macosx_11_0_arm64.whl",
+      "artifact_sha256": "4e55689f4b06e2d2406203e771f78789bd4f190731b5d57383d05cf611d829de",
+      "artifact_source": "https://files.pythonhosted.org/packages/21/8b/27d4d5409f3c76b985f4ee4afe147b606594411e15ac4dc1c3363c9a9810/pypdfium2-4.30.0-py3-none-macosx_11_0_arm64.whl",
+      "metadata_source": "https://pypi.org/pypi/pypdfium2/4.30.0/json",
+      "metadata_file": {
+        "archive_path": "pypdfium2-4.30.0.dist-info/METADATA",
+        "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/pypdfium2-4.30.0.dist-info/METADATA",
+        "size": 48513,
+        "sha256": "c5acbb31f5d78c2d5480b92866605f6246f2a011ad8314b4a7ad83dffc309229"
+      },
+      "metadata": {
+        "license": "(Apache-2.0 OR BSD-3-Clause) AND LicenseRef-PdfiumThirdParty",
+        "license_expression": null,
+        "license_files": [
+          "LICENSES/Apache-2.0.txt",
+          "LICENSES/BSD-3-Clause.txt",
+          "LICENSES/CC-BY-4.0.txt",
+          "LICENSES/LicenseRef-PdfiumThirdParty.txt",
+          ".reuse/dep5-wheel"
+        ],
+        "name": "pypdfium2",
+        "version": "4.30.0"
+      },
+      "declared_file_mapping": [
+        {
+          "declared_path": "LICENSES/Apache-2.0.txt",
+          "archive_path": "pypdfium2-4.30.0.dist-info/Apache-2.0.txt",
+          "mapping": "unique_archive_basename"
+        },
+        {
+          "declared_path": "LICENSES/BSD-3-Clause.txt",
+          "archive_path": "pypdfium2-4.30.0.dist-info/BSD-3-Clause.txt",
+          "mapping": "unique_archive_basename"
+        },
+        {
+          "declared_path": "LICENSES/CC-BY-4.0.txt",
+          "archive_path": "pypdfium2-4.30.0.dist-info/CC-BY-4.0.txt",
+          "mapping": "unique_archive_basename"
+        },
+        {
+          "declared_path": "LICENSES/LicenseRef-PdfiumThirdParty.txt",
+          "archive_path": "pypdfium2-4.30.0.dist-info/LicenseRef-PdfiumThirdParty.txt",
+          "mapping": "unique_archive_basename"
+        },
+        {
+          "declared_path": ".reuse/dep5-wheel",
+          "archive_path": "pypdfium2-4.30.0.dist-info/dep5-wheel",
+          "mapping": "unique_archive_basename"
+        }
+      ],
+      "license_files": [
+        {
+          "archive_path": "pypdfium2-4.30.0.dist-info/Apache-2.0.txt",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/pypdfium2-4.30.0.dist-info/Apache-2.0.txt",
+          "size": 11358,
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "archive_path": "pypdfium2-4.30.0.dist-info/BSD-3-Clause.txt",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/pypdfium2-4.30.0.dist-info/BSD-3-Clause.txt",
+          "size": 1459,
+          "sha256": "a6d11f0694c0137e9b02924b9d33a159f6c72f220fa4655bb2e1ea3654377d39"
+        },
+        {
+          "archive_path": "pypdfium2-4.30.0.dist-info/CC-BY-4.0.txt",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/pypdfium2-4.30.0.dist-info/CC-BY-4.0.txt",
+          "size": 14527,
+          "sha256": "419896aea50c15d6e40c5b4baf4bd346f78223b9a354c7357ad00262afdc08ec"
+        },
+        {
+          "archive_path": "pypdfium2-4.30.0.dist-info/LicenseRef-PdfiumThirdParty.txt",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/pypdfium2-4.30.0.dist-info/LicenseRef-PdfiumThirdParty.txt",
+          "size": 43950,
+          "sha256": "c2fdbc1aeb250d596d1ef3d9817c9bf31df712b197583c0811677ee5d9206eeb"
+        },
+        {
+          "archive_path": "pypdfium2-4.30.0.dist-info/dep5-wheel",
+          "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/pypdfium2-4.30.0.dist-info/dep5-wheel",
+          "size": 1033,
+          "sha256": "2ad991f72de474d553af7ded7ecb7b0314c5da8eb4469c392e138dfa20bae1cb"
+        }
+      ],
+      "status": "metadata_and_files_recorded",
+      "gaps": []
+    }
+  ]
+}

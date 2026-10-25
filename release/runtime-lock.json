@@ -1,0 +1,273 @@
+{
+  "runtime_version": "cpython-3.13.9-pbs-20251014-lock1",
+  "architecture": "arm64",
+  "minimum_macos": "14.0",
+  "target": "aarch64-apple-darwin",
+  "python": {
+    "version": "3.13.9",
+    "release": "20251014",
+    "filename": "cpython-3.13.9+20251014-aarch64-apple-darwin-install_only_stripped.tar.gz",
+    "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20251014/cpython-3.13.9%2B20251014-aarch64-apple-darwin-install_only_stripped.tar.gz",
+    "sha256": "52721745b0fa3196e4d0381fa5c06dda1d54343b90d49d90c3bba52d1171bd98",
+    "size": 16456948,
+    "metadata_source": "https://api.github.com/repos/astral-sh/python-build-standalone/releases/tags/20251014",
+    "documentation_source": "https://gregoryszorc.com/docs/python-build-standalone/main/distributions.html"
+  },
+  "direct_dependencies": [
+    "pypdf",
+    "openpyxl",
+    "pdfplumber",
+    "pypdfium2"
+  ],
+  "wheels": [
+    {
+      "name": "cffi",
+      "version": "2.1.1",
+      "filename": "cffi-2.1.1-cp313-cp313-macosx_11_0_arm64.whl",
+      "url": "https://files.pythonhosted.org/packages/55/41/4c7042f317b9217502988f0873af87e16ad606dc20f84e546e3e6ce9764c/cffi-2.1.1-cp313-cp313-macosx_11_0_arm64.whl",
+      "sha256": "19ee6127ee34de7d83ce3d371ebc5ed91addbdcc39f9ab15ce4eb35a4e534971",
+      "size": 184764,
+      "metadata_source": "https://pypi.org/pypi/cffi/2.1.1/json",
+      "requires_dist": [
+        "pycparser; implementation_name != \"PyPy\""
+      ]
+    },
+    {
+      "name": "charset-normalizer",
+      "version": "3.5.2",
+      "filename": "charset_normalizer-3.5.2-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/fc/ad/d07d7862a62ffa6d79d68074d14823243dd235a77c45262acbf6adeb28bf/charset_normalizer-3.5.2-py3-none-any.whl",
+      "sha256": "b6b751274acb69d77b3323d6b7dbaa3c7fdfc1eb829b7eb61d262f32e1af9685",
+      "size": 68872,
+      "metadata_source": "https://pypi.org/pypi/charset-normalizer/3.5.2/json",
+      "requires_dist": []
+    },
+    {
+      "name": "cryptography",
+      "version": "50.0.2",
+      "filename": "cryptography-50.0.2-cp311-abi3-macosx_11_0_arm64.whl",
+      "url": "https://files.pythonhosted.org/packages/e5/56/d194340cc4a57535e82e1bee9e89667ac4b7c13b5d3f59686deae3094dd5/cryptography-50.0.2-cp311-abi3-macosx_11_0_arm64.whl",
+      "sha256": "fa8f5efb344d6908a1ce62f4a24e2e5780f825d6f53f5f50ec5ffacac72936cb",
+      "size": 3914904,
+      "metadata_source": "https://pypi.org/pypi/cryptography/50.0.2/json",
+      "requires_dist": [
+        "cffi>=2.0.0; platform_python_implementation != \"PyPy\"",
+        "typing-extensions>=4.13.2; python_full_version < \"3.11\"",
+        "bcrypt>=3.1.5; extra == \"ssh\""
+      ]
+    },
+    {
+      "name": "et-xmlfile",
+      "version": "2.0.0",
+      "filename": "et_xmlfile-2.0.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/c1/8b/5fe2cc11fee489817272089c4203e679c63b570a5aaeb18d852ae3cbba6a/et_xmlfile-2.0.0-py3-none-any.whl",
+      "sha256": "7a91720bc756843502c3b7504c77b8fe44217c85c537d85037f0f536151b2caa",
+      "size": 18059,
+      "metadata_source": "https://pypi.org/pypi/et-xmlfile/2.0.0/json",
+      "requires_dist": []
+    },
+    {
+      "name": "openpyxl",
+      "version": "3.1.5",
+      "filename": "openpyxl-3.1.5-py2.py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl",
+      "sha256": "5282c12b107bffeef825f4617dc029afaf41d0ea60823bbb665ef3079dc79de2",
+      "size": 250910,
+      "metadata_source": "https://pypi.org/pypi/openpyxl/3.1.5/json",
+      "requires_dist": [
+        "et-xmlfile"
+      ]
+    },
+    {
+      "name": "pdfminer.six",
+      "version": "20250506",
+      "filename": "pdfminer_six-20250506-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/73/16/7a432c0101fa87457e75cb12c879e1749c5870a786525e2e0f42871d6462/pdfminer_six-20250506-py3-none-any.whl",
+      "sha256": "d81ad173f62e5f841b53a8ba63af1a4a355933cfc0ffabd608e568b9193909e3",
+      "size": 5620187,
+      "metadata_source": "https://pypi.org/pypi/pdfminer.six/20250506/json",
+      "requires_dist": [
+        "charset-normalizer>=2.0.0",
+        "cryptography>=36.0.0",
+        "atheris; python_version < \"3.12\" and extra == \"dev\"",
+        "black; extra == \"dev\"",
+        "mypy==0.931; extra == \"dev\"",
+        "nox; extra == \"dev\"",
+        "pytest; extra == \"dev\"",
+        "sphinx; extra == \"docs\"",
+        "sphinx-argparse; extra == \"docs\"",
+        "Pillow; extra == \"image\""
+      ]
+    },
+    {
+      "name": "pdfplumber",
+      "version": "0.11.7",
+      "filename": "pdfplumber-0.11.7-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/db/e0/52b67d4f00e09e497aec4f71bc44d395605e8ebcea52543242ed34c25ef9/pdfplumber-0.11.7-py3-none-any.whl",
+      "sha256": "edd2195cca68bd770da479cf528a737e362968ec2351e62a6c0b71ff612ac25e",
+      "size": 60029,
+      "metadata_source": "https://pypi.org/pypi/pdfplumber/0.11.7/json",
+      "requires_dist": [
+        "pdfminer.six==20250506",
+        "Pillow>=9.1",
+        "pypdfium2>=4.18.0"
+      ]
+    },
+    {
+      "name": "pillow",
+      "version": "12.3.0",
+      "filename": "pillow-12.3.0-cp313-cp313-macosx_11_0_arm64.whl",
+      "url": "https://files.pythonhosted.org/packages/10/76/8803c13605b763d33d156c4678fc77f8443389c0c51c8aef707bb02015f4/pillow-12.3.0-cp313-cp313-macosx_11_0_arm64.whl",
+      "sha256": "d69141514cc30b774ceea5e3ed3a6635c8d8a96edf664689b890f4089111fb35",
+      "size": 4780109,
+      "metadata_source": "https://pypi.org/pypi/pillow/12.3.0/json",
+      "requires_dist": [
+        "furo; extra == \"docs\"",
+        "olefile; extra == \"docs\"",
+        "sphinx>=8.2; extra == \"docs\"",
+        "sphinx-autobuild; extra == \"docs\"",
+        "sphinx-copybutton; extra == \"docs\"",
+        "sphinx-inline-tabs; extra == \"docs\"",
+        "sphinxext-opengraph; extra == \"docs\"",
+        "olefile; extra == \"fpx\"",
+        "olefile; extra == \"mic\"",
+        "arro3-compute; extra == \"test-arrow\"",
+        "arro3-core; extra == \"test-arrow\"",
+        "nanoarrow; extra == \"test-arrow\"",
+        "pyarrow; extra == \"test-arrow\"",
+        "coverage>=7.4.2; extra == \"tests\"",
+        "defusedxml; extra == \"tests\"",
+        "markdown2; extra == \"tests\"",
+        "olefile; extra == \"tests\"",
+        "packaging; extra == \"tests\"",
+        "pytest; extra == \"tests\"",
+        "pytest-cov; extra == \"tests\"",
+        "pytest-timeout; extra == \"tests\"",
+        "pytest-xdist; extra == \"tests\"",
+        "setuptools; extra == \"tests\"",
+        "trove-classifiers>=2024.10.12; extra == \"tests\"",
+        "defusedxml; extra == \"xmp\""
+      ]
+    },
+    {
+      "name": "pycparser",
+      "version": "3.11",
+      "filename": "pycparser-3.11-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/90/11/0e6f11117525ff0eec40ebac3d313376f102df93ca44ad9e893ee85e4f89/pycparser-3.11-py3-none-any.whl",
+      "sha256": "51d5a8ba2be0bbe440b99d2112604c95bbbc3c2748a64260186c541e1729cd80",
+      "size": 51178,
+      "metadata_source": "https://pypi.org/pypi/pycparser/3.11/json",
+      "requires_dist": []
+    },
+    {
+      "name": "pypdf",
+      "version": "6.1.1",
+      "filename": "pypdf-6.1.1-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/07/ed/adae13756d9dabdddee483fc7712905bb5585fbf6e922b1a19aca3a29cd1/pypdf-6.1.1-py3-none-any.whl",
+      "sha256": "7781f99493208a37a7d4275601d883e19af24e62a525c25844d22157c2e4cde7",
+      "size": 323455,
+      "metadata_source": "https://pypi.org/pypi/pypdf/6.1.1/json",
+      "requires_dist": [
+        "typing_extensions>=4.0; python_version < \"3.11\"",
+        "cryptography; extra == \"crypto\"",
+        "PyCryptodome; extra == \"cryptodome\"",
+        "black; extra == \"dev\"",
+        "flit; extra == \"dev\"",
+        "pip-tools; extra == \"dev\"",
+        "pre-commit; extra == \"dev\"",
+        "pytest-cov; extra == \"dev\"",
+        "pytest-socket; extra == \"dev\"",
+        "pytest-timeout; extra == \"dev\"",
+        "pytest-xdist; extra == \"dev\"",
+        "wheel; extra == \"dev\"",
+        "myst_parser; extra == \"docs\"",
+        "sphinx; extra == \"docs\"",
+        "sphinx_rtd_theme; extra == \"docs\"",
+        "cryptography; extra == \"full\"",
+        "Pillow>=8.0.0; extra == \"full\"",
+        "Pillow>=8.0.0; extra == \"image\""
+      ]
+    },
+    {
+      "name": "pypdfium2",
+      "version": "4.30.0",
+      "filename": "pypdfium2-4.30.0-py3-none-macosx_11_0_arm64.whl",
+      "url": "https://files.pythonhosted.org/packages/21/8b/27d4d5409f3c76b985f4ee4afe147b606594411e15ac4dc1c3363c9a9810/pypdfium2-4.30.0-py3-none-macosx_11_0_arm64.whl",
+      "sha256": "4e55689f4b06e2d2406203e771f78789bd4f190731b5d57383d05cf611d829de",
+      "size": 2707624,
+      "metadata_source": "https://pypi.org/pypi/pypdfium2/4.30.0/json",
+      "requires_dist": []
+    }
+  ],
+  "validation_status": "candidate_not_yet_independently_validated",
+  "native_relocations": [
+    {
+      "path": "Contents/Resources/ProcessorRuntime/lib/python3.13/site-packages/PIL/.dylibs/libjpeg.62.4.0.dylib",
+      "operation": "delete_rpath",
+      "old_rpath_sha256": "e090999f47726b5d284111ee608703db42a8a1604cc58cacd651b3b64aa111e6",
+      "source_sha256": "cf7c4e5c2d2c007fc51afcb95b649415cfe0bc4d7137ace897a6eff6550fa967",
+      "reason": "Remove unused upstream build-directory LC_RPATH; this library loads only system libSystem and needs no rpath."
+    }
+  ],
+  "processor_scripts": [
+    "scripts/account_consolidation.py",
+    "scripts/app_review.py",
+    "scripts/audit_source_record_sets.py",
+    "scripts/category_catalog.py",
+    "scripts/confirmed_transaction_corrections.py",
+    "scripts/coverage_policy.py",
+    "scripts/financial_review.py",
+    "scripts/financial_review_inputs.py",
+    "scripts/household_settings.py",
+    "scripts/household_settings_state.py",
+    "scripts/import_pulse_statements.py",
+    "scripts/import_review_materials.py",
+    "scripts/import_wechat_alipay.py",
+    "scripts/inferred_associations.py",
+    "scripts/confirmed_outcomes.py",
+    "scripts/material_associations.py",
+    "scripts/order_evidence.py",
+    "scripts/payment_evidence.py",
+    "scripts/payment_feedback.py",
+    "scripts/payment_materials.py",
+    "scripts/platform_order_enrichment.py",
+    "scripts/probe_payment_evidence.py",
+    "scripts/processor_bootstrap.py",
+    "scripts/processor_result.py",
+    "scripts/refund_candidates.py",
+    "scripts/reimbursement_links.py",
+    "scripts/release_contracts.py",
+    "scripts/review_annotations.py",
+    "scripts/runtime_doctor.py",
+    "scripts/settings_snapshot.py",
+    "scripts/source_reconciliation.py",
+    "scripts/source_record_set_pipeline.py",
+    "scripts/source_record_sets.py",
+    "scripts/tool_locations.py",
+    "scripts/transaction_dedup.py",
+    "scripts/transaction_trace.py",
+    "scripts/video_evidence.py",
+    "scripts/workspace_cli.py",
+    "scripts/workspace_effects.py",
+    "scripts/workspace_initialization.py",
+    "scripts/workspace_repair.py",
+    "scripts/workspace_state.py",
+    "scripts/workspace_validation.py"
+  ],
+  "wheel_script_omissions": {
+    "pdfminer_six-20250506-py3-none-any.whl": [
+      {
+        "path": "pdfminer_six-20250506.data/scripts/dumppdf.py",
+        "size": 14320,
+        "sha256": "fa976d3cc7d519aada031ab8f89045ea7ff5ee1b451a7846082ba69e360ba2ab",
+        "reason": "CLI not used by embedded processor"
+      },
+      {
+        "path": "pdfminer_six-20250506.data/scripts/pdf2txt.py",
+        "size": 9831,
+        "sha256": "ef2db7b2babf9204c7beb647825eb167de498c7ee937d428d30dd0f30a4f2422",
+        "reason": "CLI not used by embedded processor"
+      }
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "name": "number-kind",
+    "raw": "{\"a\":1.0,\"b\":-0.0,\"c\":1e+3,\"d\":9007199254740993,\"e\":9007199254740993.0,\"f\":1.2500e-7}",
+    "canonical_utf8": "{\"a\":1.0,\"b\":-0.0,\"c\":1000.0,\"d\":9007199254740993,\"e\":9007199254740993.0,\"f\":1.25e-7}",
+    "canonical_payload_hash": "5e7f4e40151f92a643e97b010f4eb823f7db9a64aac2c844de702ae262f37bd9"
+  },
+  {
+    "name": "lossless-decimal",
+    "raw": "{\"amount\":0.1234567890123456789012345678901}",
+    "canonical_utf8": "{\"amount\":0.1234567890123456789012345678901}",
+    "canonical_payload_hash": "2716eb624c2c42d56f2761f4be1a6ffc03b1af1bf4df65eac7c61760148f0606"
+  },
+  {
+    "name": "bounded-exponent",
+    "raw": "{\"a\":1e999999}",
+    "canonical_utf8": "{\"a\":1.0e999999}",
+    "canonical_payload_hash": "c73fbe4a1c90f9e0319e1988c93e065f260a352014f8ccf7252be4402c44d29a"
+  },
+  {
+    "name": "unicode-scalar-keys",
+    "raw": "{\"𐀀\":1,\"\":2,\"a\":3}",
+    "canonical_utf8": "{\"a\":3,\"\":2,\"𐀀\":1}",
+    "canonical_payload_hash": "73a68e40c2a545f203ea0f3011f941ed3a9bcf0b742a487aad12132e7e2c51d6"
+  },
+  {
+    "name": "nested-decimal-version",
+    "raw": "{\"nested_metadata\":{\"count\":1.0,\"note\":\"gone\"},\"metadata\":{\"flag\":true}}",
+    "canonical_utf8": "{\"metadata\":{\"flag\":true},\"nested_metadata\":{\"count\":1.0,\"note\":\"gone\"}}",
+    "canonical_payload_hash": "8d122199c154a420449721939437ddec4afcb395932747a9b30402e4459d9c84"
+  },
+  {
+    "name": "nested-bool-version",
+    "raw": "{\"nested_metadata\":{\"count\":true,\"note\":\"gone\"},\"metadata\":{\"flag\":true}}",
+    "canonical_utf8": "{\"metadata\":{\"flag\":true},\"nested_metadata\":{\"count\":true,\"note\":\"gone\"}}",
+    "canonical_payload_hash": "cdf33c6c7c0915831dbd46afa44b0ba8c19b8a4e983a823efe5b635c90fe9d8d"
+  }
+]

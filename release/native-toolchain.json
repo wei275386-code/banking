@@ -1,0 +1,52 @@
+{
+  "status": "locked_inventory",
+  "architecture": "arm64",
+  "xcode_build": "17C529",
+  "tools": {
+    "xcodebuild": {
+      "version": "26.3",
+      "sha256": "b28f48612c07b3e9eb6182b24b1b51d937c610b671273cc997f06996b1e1f4d8",
+      "hash_kind": "resolved_executable_bytes"
+    },
+    "swift": {
+      "version": "6.2.4",
+      "sha256": "f9402d39a420f9b064140293a428feb5642e168a2911ce5116f5e74e684fcb85",
+      "hash_kind": "resolved_executable_bytes"
+    },
+    "xcodegen": {
+      "version": "2.46.0",
+      "sha256": "5b5d393779d405bbe78a2de8130f0bfaa4f90f7295cd3c8436d620b04aaee49a",
+      "hash_kind": "resolved_executable_bytes"
+    }
+  },
+  "sdks": [
+    {
+      "platform": "MacOSX",
+      "version": "26.2",
+      "settings_sha256": "03cb7d21a91023f6dff9ea019a3710061e2eb570bdb260faf4daa74151abf15d",
+      "hash_kind": "SDKSettings.plist_bytes"
+    },
+    {
+      "platform": "iPhoneOS",
+      "version": "26.2",
+      "settings_sha256": "21fb5f32a9e0b3dc92020d59dd77487640c6b0cda11e734716c441dca9304394",
+      "hash_kind": "SDKSettings.plist_bytes"
+    }
+  ],
+  "build_orchestrator": {
+    "name": "XcodeBuildMCP",
+    "version": "2.7.0",
+    "scope": "developer_only",
+    "role": "local_command_adapter_not_runtime_or_Apple_toolchain"
+  },
+  "validation": {
+    "native_build": "pending_independent_QA",
+    "clean_build": "pending",
+    "minimum_system": "pending",
+    "notarization": "pending"
+  },
+  "installation": "Select the licensed Xcode 26.3 build 17C529 and XcodeGen 2.46.0 on the build host. The App runtime does not require these tools.",
+  "build_only_swift_rpaths": [
+    "Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-6.2/macosx"
+  ]
+}

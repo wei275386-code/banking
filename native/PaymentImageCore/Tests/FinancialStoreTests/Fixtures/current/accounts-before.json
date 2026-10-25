@@ -1,0 +1,330 @@
+{
+  "coverage_complete": true,
+  "coverage_note": "Synthetic fixture v1. No family data.",
+  "cutoff": "2026-09-30",
+  "dataset_id": "synthetic-integration-v1",
+  "fire_parameters": {
+    "afterTaxSalary": 200000,
+    "annualContribution": 120000,
+    "annualHardCap": 100000,
+    "baseYear": 2026,
+    "birthYear": 1990,
+    "branches": {
+      "children": {
+        "annualCost": 24000,
+        "birthYear": 2028,
+        "count": 1,
+        "educationBucket": 100000,
+        "enabled": false,
+        "incomeImpact": 20000
+      },
+      "housing": {
+        "annualMaintenance": 6000,
+        "downPaymentRatio": 0.2,
+        "enabled": false,
+        "fees": 30000,
+        "loanRate": 0.035,
+        "loanYears": 30,
+        "minLiquidAssets": 0,
+        "ownerHomeCountsAsFireAsset": false,
+        "reduceRent": false,
+        "renovation": 100000,
+        "totalPrice": 2000000,
+        "year": 2026
+      }
+    },
+    "buckets": {
+      "elderCareBucket": 0,
+      "elderCareEnabled": false,
+      "includeBuckets": false,
+      "otherBuckets": 0,
+      "parentMedicalBucket": 0,
+      "safetyBucket": 0
+    },
+    "currentFireAssets": 100000,
+    "expenseBreakdown": {
+      "rent": 12000
+    },
+    "expenseModes": {
+      "normal": 70000
+    },
+    "investing": {
+      "annualReturn": 0.06,
+      "inflation": 0.025,
+      "maxDrawdown": 0.3,
+      "withdrawalRate": 0.035
+    },
+    "targetAge": 55
+  },
+  "records": [
+    {
+      "account_views": [
+        "9001（银联7001）"
+      ],
+      "components": [
+        {
+          "classification_basis": "规则推断",
+          "classification_keys": [
+            "account-0:item"
+          ],
+          "gross_cents": 2400,
+          "id": "account-0:item",
+          "included": true,
+          "net_cents": 1900,
+          "primary": "日常消费",
+          "reason": "",
+          "recurrence": "one_time",
+          "refund_cents": 500,
+          "secondary": "餐饮",
+          "tags": [],
+          "title": "account-0:item"
+        }
+      ],
+      "date": "2026-02-01",
+      "events": [
+        {
+          "amount_cents": 2400,
+          "date": "2026-02-01",
+          "id": "account-0:event",
+          "kind": "payment",
+          "source": "bank",
+          "status": "原始证据"
+        }
+      ],
+      "evidence_keys": [
+        "account-0"
+      ],
+      "id": "account-0",
+      "non_consumption": false,
+      "payment_account_status": "identified",
+      "payment_accounts": [
+        "9001（银联7001）"
+      ],
+      "payment_channels": [
+        "微信支付"
+      ],
+      "status": "支付成立",
+      "title": "Synthetic account-0",
+      "unallocated_credit_cents": 0,
+      "user_id": "fixture-owner-a",
+      "user_relation": "self"
+    },
+    {
+      "account_views": [
+        "微信支付"
+      ],
+      "components": [
+        {
+          "classification_basis": "规则推断",
+          "classification_keys": [
+            "account-1:item"
+          ],
+          "gross_cents": 2400,
+          "id": "account-1:item",
+          "included": false,
+          "net_cents": 2400,
+          "primary": "日常消费",
+          "reason": "来源关联待确认",
+          "recurrence": "one_time",
+          "refund_cents": 0,
+          "secondary": "餐饮",
+          "tags": [],
+          "title": "account-1:item"
+        }
+      ],
+      "date": "2026-02-01",
+      "events": [
+        {
+          "amount_cents": 2400,
+          "date": "2026-02-01",
+          "id": "account-1:event",
+          "kind": "payment",
+          "source": "bank",
+          "status": "原始证据"
+        }
+      ],
+      "evidence_keys": [
+        "account-1"
+      ],
+      "id": "account-1",
+      "non_consumption": false,
+      "payment_account_status": "unresolved",
+      "payment_accounts": [],
+      "payment_channels": [
+        "微信支付"
+      ],
+      "status": "支付成立",
+      "title": "Synthetic account-1",
+      "unallocated_credit_cents": 0,
+      "user_id": "fixture-user",
+      "user_relation": "self"
+    },
+    {
+      "account_views": [
+        "9001（银联7001）"
+      ],
+      "components": [
+        {
+          "classification_basis": "规则推断",
+          "classification_keys": [
+            "account-2:item"
+          ],
+          "gross_cents": 2400,
+          "id": "account-2:item",
+          "included": true,
+          "net_cents": 2400,
+          "primary": "日常消费",
+          "reason": "",
+          "recurrence": "one_time",
+          "refund_cents": 0,
+          "secondary": "餐饮",
+          "tags": [],
+          "title": "account-2:item"
+        }
+      ],
+      "date": "2026-02-01",
+      "events": [
+        {
+          "amount_cents": 2400,
+          "date": "2026-02-01",
+          "id": "account-2:event",
+          "kind": "payment",
+          "source": "bank",
+          "status": "原始证据"
+        }
+      ],
+      "evidence_keys": [
+        "account-2"
+      ],
+      "id": "account-2",
+      "non_consumption": false,
+      "payment_account_status": "identified",
+      "payment_accounts": [
+        "9001（银联7001）"
+      ],
+      "payment_channels": [
+        "ApplePay"
+      ],
+      "status": "支付成立",
+      "title": "Synthetic account-2",
+      "unallocated_credit_cents": 0,
+      "user_id": "fixture-user",
+      "user_relation": "self"
+    },
+    {
+      "account_views": [
+        "ApplePay"
+      ],
+      "components": [],
+      "date": "2026-02-01",
+      "events": [
+        {
+          "amount_cents": 200,
+          "date": "2026-02-01",
+          "id": "account-3:event",
+          "kind": "bank_credit",
+          "source": "bank",
+          "status": "原始证据"
+        }
+      ],
+      "evidence_keys": [
+        "account-3"
+      ],
+      "id": "account-3",
+      "non_consumption": false,
+      "payment_account_status": "unresolved",
+      "payment_accounts": [],
+      "payment_channels": [
+        "ApplePay"
+      ],
+      "status": "支付成立",
+      "title": "Synthetic account-3",
+      "unallocated_credit_cents": 200,
+      "user_id": "fixture-user",
+      "user_relation": "self"
+    },
+    {
+      "account_views": [
+        "Frozen account"
+      ],
+      "components": [
+        {
+          "classification_basis": "规则推断",
+          "classification_keys": [
+            "account-frozen:item"
+          ],
+          "gross_cents": 2400,
+          "id": "account-frozen:item",
+          "included": true,
+          "net_cents": 2400,
+          "primary": "日常消费",
+          "reason": "",
+          "recurrence": "one_time",
+          "refund_cents": 0,
+          "secondary": "餐饮",
+          "tags": [],
+          "title": "account-frozen:item"
+        }
+      ],
+      "date": "2026-02-01",
+      "events": [
+        {
+          "amount_cents": 2400,
+          "date": "2026-02-01",
+          "id": "account-frozen:event",
+          "kind": "payment",
+          "source": "bank",
+          "status": "原始证据"
+        }
+      ],
+      "evidence_keys": [
+        "account-frozen"
+      ],
+      "id": "account-frozen",
+      "non_consumption": false,
+      "payment_account_status": "identified",
+      "payment_accounts": [
+        "Frozen account"
+      ],
+      "payment_channels": [
+        "Test channel"
+      ],
+      "status": "支付成立",
+      "title": "Synthetic account-frozen",
+      "unallocated_credit_cents": 0,
+      "user_id": "fixture-other",
+      "user_relation": "other_user"
+    }
+  ],
+  "refund_candidates": [],
+  "source_record_set_candidates": [],
+  "source_record_sets": [],
+  "taxonomy": [
+    {
+      "primary": "待分类",
+      "secondaries": [
+        "待分类"
+      ]
+    },
+    {
+      "primary": "日常消费",
+      "secondaries": [
+        "餐饮",
+        "咖啡茶饮",
+        "交通出行"
+      ]
+    },
+    {
+      "primary": "生产力工具",
+      "secondaries": [
+        "设备"
+      ]
+    },
+    {
+      "primary": "亲友代付",
+      "secondaries": [
+        "代购"
+      ]
+    }
+  ]
+}

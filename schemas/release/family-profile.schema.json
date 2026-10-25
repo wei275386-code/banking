@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "family-profile.schema.json",
+  "title": "Workspace family profile, structural contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "household_name",
+    "members"
+  ],
+  "properties": {
+    "household_name": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "members": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "display_name",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "display_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "status": {
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

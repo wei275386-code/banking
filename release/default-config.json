@@ -1,0 +1,84 @@
+{
+  "data_policy": "empty-workspace",
+  "defaults": {
+    "currency": "CNY",
+    "locale": "zh-Hans",
+    "classification_rules": [],
+    "account_policies": [],
+    "import_sources": [],
+    "taxonomy": [
+      {
+        "primary": "住房相关",
+        "secondaries": [
+          "房租",
+          "水电物业",
+          "通信宽带"
+        ]
+      },
+      {
+        "primary": "日常消费",
+        "secondaries": [
+          "餐饮",
+          "咖啡茶饮",
+          "商超食品",
+          "衣物日用",
+          "交通出行",
+          "住宿",
+          "个人护理",
+          "首饰配饰",
+          "网购",
+          "购物",
+          "休闲娱乐"
+        ]
+      },
+      {
+        "primary": "旅行",
+        "secondaries": [
+          "交通住宿",
+          "旅行活动"
+        ]
+      },
+      {
+        "primary": "生产力工具",
+        "secondaries": [
+          "AI与软件订阅",
+          "设备",
+          "知识付费"
+        ]
+      },
+      {
+        "primary": "医疗健康",
+        "secondaries": [
+          "医疗药品",
+          "保险",
+          "医美"
+        ]
+      },
+      {
+        "primary": "亲友支持",
+        "secondaries": [
+          "亲友支持"
+        ]
+      },
+      {
+        "primary": "亲友代付",
+        "secondaries": [
+          "亲友代付"
+        ]
+      },
+      {
+        "primary": "杂项冗余",
+        "secondaries": [
+          "其他可选消费"
+        ]
+      },
+      {
+        "primary": "待分类",
+        "secondaries": [
+          "待分类"
+        ]
+      }
+    ]
+  },
+  "personal_data": false
+}

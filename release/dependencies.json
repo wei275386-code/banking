@@ -1,0 +1,62 @@
+{
+  "status": "locked",
+  "native": {
+    "status": "locked",
+    "lock": "release/native-toolchain.json",
+    "required_tools": [
+      "xcodebuild",
+      "swift",
+      "xcodegen"
+    ],
+    "note": "Recorded native binary and SDKSettings inventory; preflight compares exact local versions and byte hashes. Clean builds, minimum-system testing and notarization remain pending."
+  },
+  "python": {
+    "status": "locked",
+    "lock": "release/runtime-lock.json",
+    "runtime": "python-build-standalone candidate; relocation and notarization unverified",
+    "direct_dependencies": [
+      "pypdf",
+      "openpyxl",
+      "pdfplumber",
+      "pypdfium2",
+      "pillow"
+    ],
+    "note": "Candidate CPython runtime and wheels have immutable URL, SHA256 and size metadata. Artifact verification, relocation, license inventory, minimum-system and notarization acceptance remain separate pipeline gates."
+  },
+  "node": {
+    "status": "locked",
+    "lock": "package-lock.json",
+    "scope": "development-only",
+    "note": "Retired web tooling; excluded from production source and runtime. Its lock applies only to the original development checkout."
+  },
+  "pipeline": [
+    {
+      "id": "bootstrap-empty-workspace",
+      "status": "pending"
+    },
+    {
+      "id": "distribution-qa-separation",
+      "status": "pending"
+    },
+    {
+      "id": "self-contained-runtime",
+      "status": "pending"
+    },
+    {
+      "id": "mac-developer-id-notarization-dmg",
+      "status": "pending"
+    },
+    {
+      "id": "ios-archive-channel-export",
+      "status": "pending"
+    },
+    {
+      "id": "clean-build-evidence",
+      "status": "pending"
+    },
+    {
+      "id": "release-validation-T01-T25",
+      "status": "pending"
+    }
+  ]
+}

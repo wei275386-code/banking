@@ -1,0 +1,17 @@
+{
+  "account-0:item": {
+    "completion_confirmation": {
+      "draft": {
+        "primary": "日常消费",
+        "recurrence": "one_time",
+        "secondary": "餐饮",
+        "tags": []
+      },
+      "origin": "manual"
+    },
+    "primary": "日常消费",
+    "recurrence": "one_time",
+    "secondary": "餐饮",
+    "tags": []
+  }
+}

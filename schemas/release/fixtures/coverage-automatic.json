@@ -1,0 +1,17 @@
+{
+  "mode": "automatic",
+  "from": "2025-11-10",
+  "to": "2025-12-20",
+  "observed_from": "2025-11-10",
+  "observed_to": "2025-12-20",
+  "pending_from": null,
+  "pending_to": null,
+  "basis": {
+    "kind": "reliable-observations",
+    "source_ids": [
+      "P1",
+      "P2"
+    ]
+  },
+  "revision": 2
+}

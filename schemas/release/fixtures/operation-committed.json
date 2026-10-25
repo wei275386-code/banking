@@ -1,0 +1,41 @@
+{
+  "workspace_id": "c0ddc754-dfec-55be-97f9-316cabc21553",
+  "operation_id": "operation-a",
+  "request_id": "request-a",
+  "input_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "algorithm_version": "synthetic-1",
+  "phase": "committed",
+  "outcome": "partial",
+  "inputs": [
+    {
+      "input_id": "pdf-a",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "kind": "pdf",
+      "required_financial": true,
+      "retained": true,
+      "outcome": "success",
+      "completed_stages": [
+        "parse",
+        "ledger",
+        "projection"
+      ]
+    },
+    {
+      "input_id": "video-a",
+      "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "kind": "video",
+      "required_financial": false,
+      "retained": true,
+      "outcome": "pending",
+      "completed_stages": [
+        "retain"
+      ],
+      "reason": "unsupported_video_layout"
+    }
+  ],
+  "state_id": "state-a",
+  "result_digest": "8d5135933e4fa1d09a1725593ad9a5435abdaad8825ca21909ad78b69d6e290a",
+  "result_generation": null,
+  "created_at": "2026-10-14T00:00:00Z",
+  "updated_at": "2026-10-14T00:01:00Z"
+}

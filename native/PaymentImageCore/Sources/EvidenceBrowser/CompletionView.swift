@@ -55,22 +55,29 @@ import PaymentImageCore
             evidenceGeneration = evidence.previewGeneration
         }
     }
-    func resetContext(folder: URL?, datasetID: String) {
-        if root != folder || dataset != datasetID {
+    func resetContext(folder: URL?, datasetID: String, reload: Bool = false) {
+        let changed = root != folder || dataset != datasetID
+        if changed {
             root = folder; dataset = datasetID; key = ""; entries = []; visible = []; evidenceIndex = [:]; candidateIndex = [:]; candidateOrder = [:]; evidenceGeneration = nil; drafts = [:]; draftBases = [:]; saved = []; deferred = []; undo = nil; automaticExcluded = []; message = ""; selected = nil
             workflowError = nil; refundCandidateRecordIDs = []
             sourceVersion = "missing"
-            if let root {
-                let file = root.appendingPathComponent("completion-workflow.json")
-                if FileManager.default.fileExists(atPath: file.path) {
-                    do {
-                        let bytes = try Data(contentsOf: file)
-                        let value = try CompletionWorkflow.decode(bytes)
-                        deferred = value.datasetID == datasetID ? Set(value.deferred) : []
-                        sourceVersion = ReviewFileVersion.of(bytes)
-                    } catch { workflowError = "暂放文件无法读取，已保留原文件：" + error.localizedDescription }
-                }
-            }
+        }
+        if changed || reload { try? reloadWorkflow() }
+    }
+    func reloadWorkflow() throws {
+        guard let root else { return }
+        do {
+            let file = root.appendingPathComponent("completion-workflow.json")
+            if FileManager.default.fileExists(atPath: file.path) {
+                let bytes = try Data(contentsOf: file)
+                let value = try CompletionWorkflow.decode(bytes)
+                deferred = value.datasetID == dataset ? Set(value.deferred) : []
+                sourceVersion = ReviewFileVersion.of(bytes)
+            } else { deferred = []; sourceVersion = "missing" }
+            workflowError = nil
+        } catch {
+            workflowError = "暂放文件无法读取，已保留原文件：" + error.localizedDescription
+            throw error
         }
     }
     func filter() {
@@ -116,7 +123,7 @@ import PaymentImageCore
             }
     }
     func setDeferred(_ id: String, value: Bool, store suppliedStore: FinancialStore? = nil) async {
-        guard let root, !persisting, workflowError == nil else { return }
+        guard let root, !persisting, workflowError == nil, !id.isEmpty else { return }
         let expectedDataset = dataset
         let store = suppliedStore ?? owner
         guard store?.editingAvailable != false else {
@@ -163,15 +170,6 @@ import PaymentImageCore
             if let handle = updated.3 { store?.adoptFamilyClientEdit(handle) }
             deferred = updated.0; sourceVersion = updated.1; filter(); message = value ? "已暂放；统计和已保存字段保持原值。" : "已放回处理队列。"
         } catch { if self.root == root && dataset == expectedDataset { message = "暂放状态未保存：" + error.localizedDescription } }
-    }
-}
-struct CompletionWorkflow: Codable, Sendable {
-    let datasetID: String
-    let deferred: [String]
-    static func decode(_ raw: Data) throws -> Self {
-        let keys = Set(try ReleaseCanonicalJSON.canonicalObjectKeys(raw: raw))
-        guard keys.isSuperset(of: ["datasetID", "deferred"]), keys.isSubset(of: ["datasetID", "deferred", "extra", "metadata"]) else { throw CocoaError(.coderReadCorrupt) }
-        return try JSONDecoder().decode(Self.self, from: raw)
     }
 }
 struct CompletionUndo: Sendable {

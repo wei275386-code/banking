@@ -11,7 +11,7 @@ final class ReviewCausalFieldsTests: XCTestCase {
         let rows = (0..<400).map { "\"synthetic-\($0)\":{\"primary\":\"food\",\"secondary\":\"meal\",\"ignored\":null,\"unknown\":\(metadata)}" }
         try Data(("{" + rows.joined(separator: ",") + "}").utf8).write(to: root.appendingPathComponent("review-overrides.json"))
         try Data("{\"nested\":{\"exact\":1.0000000000000000000000001,\"unset\":null,\"empty\":{}}}".utf8).write(to: root.appendingPathComponent("fire-parameters-user.json"))
-        try Data("{\"deferred\":[\"synthetic-0\"]}".utf8).write(to: root.appendingPathComponent("completion-workflow.json"))
+        try Data("{\"datasetID\":\"synthetic-dataset\",\"deferred\":[\"synthetic-0\"]}".utf8).write(to: root.appendingPathComponent("completion-workflow.json"))
         let before = try Dictionary(uniqueKeysWithValues: WorkspaceIO.regularFiles(root).map { ($0, try WorkspaceIO.hash(root.appendingPathComponent($0))) })
         let fields = try ReviewFieldDocuments.capture(review: root)
         XCTAssertEqual(fields.count, 804)

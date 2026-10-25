@@ -52,10 +52,10 @@ public enum ReviewFieldDocuments {
             }
         }
         try flatten(read("fire-parameters-user.json"), path: "parameter")
-        let workflow = try WorkspaceIO.object(read("completion-workflow.json"))
-        if let deferred = workflow["deferred"] {
-            guard let ids = deferred as? [String], Set(ids).count == ids.count, ids.allSatisfy({ !$0.isEmpty }) else { throw WorkspaceError.invalid("deferred workflow") }
-            for id in ids { values["deferred/" + id] = "true" }
+        let workflowFile = try WorkspaceIO.safeChild(review, "completion-workflow.json")
+        if FileManager.default.fileExists(atPath: workflowFile.path) {
+            let workflow = try CompletionWorkflow.decode(WorkspaceIO.read(workflowFile))
+            for id in workflow.deferred { values["deferred/" + id] = "true" }
         }
         return values
     }

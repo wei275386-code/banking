@@ -70,6 +70,23 @@ import Darwin
         try WorkspaceIO.atomicWrite(WorkspaceIO.canonical(pointer.document), to: paths.activeState)
         return paths
     }
+    func testBusinessValidatorSharesWorkflowContractWithEditorAndSync() throws {
+        let paths = try emptyWorkspace()
+        defer { try? FileManager.default.removeItem(at: paths.workspace) }
+        let state = try paths.readState()
+        let file = state.review.appendingPathComponent("completion-workflow.json")
+        let valid = Data(#"{"datasetID":"audit","deferred":["one"],"schemaVersion":1}"#.utf8)
+        try valid.write(to: file)
+        XCTAssertNoThrow(try WorkspaceBusinessValidator.validate(state.root))
+        for raw in [#"{"datasetID":"audit","deferred":["one","one"]}"#,
+                    #"{"datasetID":"audit","deferred":[""]}"#,
+                    #"{"datasetID":"audit","deferred":[],"schemaVersion":2}"#, "{}"] {
+            let bytes = Data(raw.utf8)
+            try bytes.write(to: file)
+            XCTAssertThrowsError(try WorkspaceBusinessValidator.validate(state.root), raw)
+            XCTAssertEqual(try Data(contentsOf: file), bytes)
+        }
+    }
     func testFamilyClientStoreSavesSettingsParametersAndCategoryThroughOriginTransaction() async throws {
         let host = try emptyWorkspace()
         let remote = host.workspace.deletingLastPathComponent().appendingPathComponent("family-store-provider-" + UUID().uuidString.lowercased())

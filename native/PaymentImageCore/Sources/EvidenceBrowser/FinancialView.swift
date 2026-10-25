@@ -231,7 +231,7 @@ import UniformTypeIdentifiers
             if previousCatalog != loaded.9 { rebaseCategoryDrafts(using: loaded.9, previous: previousCatalog) }
             rebasePrimaryFilter(using: loaded.9, previous: previousCatalog)
             completion.owner = self
-            completion.resetContext(folder: folder, datasetID: loaded.0.dataset_id)
+            completion.resetContext(folder: folder, datasetID: loaded.0.dataset_id, reload: true)
             cachedAccounts = loaded.3; searchText = loaded.4; recordRevision += 1
             cachedTags = Array(Set(loaded.0.records.flatMap(\.components).flatMap(\.tags))).sorted()
             updateCategoryUsage(); snapshotCache = nil; visibleCache = nil; error = nil
@@ -608,7 +608,7 @@ extension FinancialStore {
             var applied = sourceVersions
             applied["payment-evidence.json"] = evidence.sourceVersion
             applied["completion-workflow.json"] = completion.sourceVersion
-            if applied == versions, evidence.root == folder { return true }
+            if applied == versions, evidence.root == folder, completion.workflowError == nil { return true }
             // Only a real external edit reaches the guarded reload, never a mere touch
             // or a save whose values are already displayed by this process.
             let current = report?.fire_parameters
@@ -620,13 +620,7 @@ extension FinancialStore {
                 guard error == nil else { return false }
                 await evidence.load(folder, finance: report)
                 guard evidence.error == nil else { return false }
-                let workflowURL = folder.appendingPathComponent("completion-workflow.json")
-                if FileManager.default.fileExists(atPath: workflowURL.path) {
-                    let bytes = try Data(contentsOf: workflowURL)
-                    let workflow = try CompletionWorkflow.decode(bytes)
-                    completion.deferred = workflow.datasetID == report?.dataset_id ? Set(workflow.deferred) : []
-                    completion.sourceVersion = ReviewFileVersion.of(bytes)
-                } else { completion.deferred = []; completion.sourceVersion = "missing" }
+                try completion.reloadWorkflow()
                 if current != persisted, let current, let persisted, let updated = report?.fire_parameters {
                     let encoder = JSONEncoder()
                     let rebased = try ParameterDocument.rebasing(original: encoder.encode(persisted), draft: encoder.encode(current), onto: encoder.encode(updated))

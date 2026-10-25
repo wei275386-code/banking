@@ -121,9 +121,14 @@ public enum WorkspaceBusinessValidator {
             guard keys.allSatisfy({ !$0.isEmpty }), Set(keys).count == keys.count else { throw WorkspaceError.invalid("override key identity") }
             _ = try decoder.decode([String: CategoryOverride].self, from: bytes)
         }
-        for name in ["fire-parameters-user.json", "completion-workflow.json"] {
-            let file = review.appendingPathComponent(name)
-            if FileManager.default.fileExists(atPath: file.path) { _ = try WorkspaceIO.object(WorkspaceIO.read(file)); _ = try ReleaseCanonicalJSON.canonicalize(raw: WorkspaceIO.read(file)) }
+        let workflow = review.appendingPathComponent("completion-workflow.json")
+        if FileManager.default.fileExists(atPath: workflow.path) {
+            _ = try CompletionWorkflow.decode(WorkspaceIO.read(workflow))
+        }
+        let parameters = review.appendingPathComponent("fire-parameters-user.json")
+        if FileManager.default.fileExists(atPath: parameters.path) {
+            _ = try WorkspaceIO.object(WorkspaceIO.read(parameters))
+            _ = try ReleaseCanonicalJSON.canonicalize(raw: WorkspaceIO.read(parameters))
         }
         _ = try CategoryCatalogFile.read(root: review, taxonomy: financial.taxonomy, records: financial.records)
         var evidenceKeys = Set(evidence.clusters.map(\.cluster_id))

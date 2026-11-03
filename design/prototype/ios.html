@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>家庭财务复盘 · iPhone 原型</title>
+<style>
+:root{--bg:#F2F2F7;--card:#fff;--label:#000;--l2:rgba(60,60,67,.62);--l3:rgba(60,60,67,.3);--sep:rgba(60,60,67,.16);--fill:rgba(120,120,128,.12);--fill2:rgba(120,120,128,.22);
+--tint:#30B0C7;--orange:#FF9F0A;--red:#FF453A;--blue:#0A84FF;--green:#30D158;--purple:#BF5AF2;--gray:#8E8E93;
+--mat:rgba(249,249,249,.84);--segon:#fff;--onbtn:#fff;--bblend:#000;--desk:#d9dbe0;--panel:#fff;--panelt:#1c1c1e;
+--sf:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC",sans-serif;}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#000;--card:#1C1C1E;--label:#fff;--l2:rgba(235,235,245,.62);--l3:rgba(235,235,245,.3);--sep:rgba(84,84,88,.6);--fill:rgba(120,120,128,.24);--fill2:rgba(120,120,128,.36);--tint:#40C8E0;--mat:rgba(30,30,32,.82);--segon:#636366;--onbtn:#00222a;--bblend:#fff;--desk:#1a1b1e;--panel:#2c2c2e;--panelt:#f2f2f7}}
+:root[data-theme=dark]{--bg:#000;--card:#1C1C1E;--label:#fff;--l2:rgba(235,235,245,.62);--l3:rgba(235,235,245,.3);--sep:rgba(84,84,88,.6);--fill:rgba(120,120,128,.24);--fill2:rgba(120,120,128,.36);--tint:#40C8E0;--mat:rgba(30,30,32,.82);--segon:#636366;--onbtn:#00222a;--bblend:#fff;--desk:#1a1b1e;--panel:#2c2c2e;--panelt:#f2f2f7}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:var(--sf);background:var(--desk);color:var(--label);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+input,select{font:inherit;color:inherit}
+.stage{min-height:100%;display:flex;align-items:center;justify-content:center;gap:48px;padding:24px}
+.device{position:relative;width:417px;height:876px;flex:none;border-radius:68px;background:#0b0b0c;padding:12px;box-shadow:0 0 0 1.5px #55565a inset,0 0 0 4px #1a1a1c,0 30px 80px rgba(0,0,0,.35)}
+.screen{position:relative;width:393px;height:852px;border-radius:56px;overflow:hidden;background:var(--bg);transform:translateZ(0);isolation:isolate}
+.island{position:absolute;top:11px;left:50%;width:124px;height:36px;margin-left:-62px;border-radius:20px;background:#000;z-index:120;pointer-events:none}
+.status{position:absolute;top:0;left:0;right:0;height:54px;z-index:110;display:flex;justify-content:space-between;align-items:center;padding:6px 34px 0 50px;font-size:16px;font-weight:600;pointer-events:none}
+.status .ic{display:flex;gap:6px;align-items:center}
+.home{position:absolute;bottom:8px;left:50%;width:136px;height:5px;margin-left:-68px;border-radius:3px;background:var(--label);z-index:120;pointer-events:none}
+body.bare{background:var(--bg)}body.bare .stage{padding:0;align-items:flex-start;justify-content:flex-start}body.bare .device{padding:0;border-radius:0;box-shadow:none;background:none}body.bare .screen{border-radius:0}body.bare .panel{display:none}
+.panel{width:290px;background:var(--panel);color:var(--panelt);border-radius:16px;padding:18px 18px 14px;font-size:13px;line-height:1.55;box-shadow:0 8px 30px rgba(0,0,0,.08)}
+.panel h2{font-size:15px;margin-bottom:8px}.panel ol{padding-left:18px;display:flex;flex-direction:column;gap:5px}.panel p{margin-top:10px;opacity:.6;font-size:12px}
+.panel button{margin-top:10px;height:30px;padding:0 12px;border-radius:8px;background:var(--fill);font-size:13px}
+@media (max-width:820px){.panel{display:none}}
+/* tabs & pages */
+.tabview{position:absolute;inset:0;display:none;overflow:hidden}.tabview.on{display:block}
+.page{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;transition:transform .38s cubic-bezier(.22,.8,.24,1);will-change:transform}
+.page.enter,.page.leave{transform:translateX(100%);box-shadow:-10px 0 28px rgba(0,0,0,.18)}
+.page.under{transform:translateX(-28%)}.page.under::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.12);z-index:50}
+.page.hid{display:none}
+.nav{flex:none;height:98px;padding:54px 6px 0;position:relative;display:flex;align-items:center;background:var(--bg);z-index:5}
+.nav::after{content:"";position:absolute;left:0;right:0;bottom:0;height:.5px;background:var(--sep);opacity:0;transition:opacity .2s}
+.page.scrolled .nav::after,.page.small .nav::after{opacity:1}
+.nav .t{position:absolute;left:96px;right:96px;bottom:0;height:44px;line-height:44px;text-align:center;font-weight:600;font-size:17px;opacity:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity .2s;pointer-events:none}
+.page.scrolled .nav .t,.page.small .nav .t{opacity:1}
+.nav .l,.nav .r{display:flex;align-items:center;z-index:1}.nav .r{margin-left:auto}
+.nbtn{height:44px;min-width:40px;padding:0 8px;color:var(--tint);font-size:17px;display:flex;align-items:center;justify-content:center;gap:2px;white-space:nowrap}
+.nbtn:active{opacity:.4}.nbtn svg{width:24px;height:24px}.nbtn.dis{opacity:.3;pointer-events:none}
+.nbtn .dot{position:absolute;margin:-14px -14px 0 0;width:8px;height:8px;border-radius:50%;background:var(--orange)}
+.scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding-bottom:104px;scrollbar-width:none;overscroll-behavior:contain}
+.scroll::-webkit-scrollbar{display:none}
+.page.hasfoot .scroll{padding-bottom:128px}
+.lt{font-size:34px;font-weight:700;letter-spacing:.35px;padding:0 16px 8px;line-height:1.2}
+.foot{position:absolute;left:0;right:0;bottom:0;padding:10px 16px 34px;display:flex;gap:12px;background:var(--mat);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border-top:.5px solid var(--sep);z-index:10}
+.foot .btn.sec{flex:0 0 100px}.foot .btn.main{flex:1}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:83px;display:flex;padding:6px 8px 0;background:var(--mat);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border-top:.5px solid var(--sep);z-index:30;transition:transform .32s cubic-bezier(.22,.8,.24,1)}
+.screen.notab .tabbar{transform:translateY(100%)}
+.tab{flex:1;height:49px;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--l2);font-size:10px;font-weight:500;position:relative}
+.tab svg{width:27px;height:27px;stroke-width:1.7}.tab.on{color:var(--tint)}.tab.on svg{stroke-width:2}
+.tab .bd{position:absolute;top:-2px;left:calc(50% + 8px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--red);color:#fff;font-size:12px;line-height:18px;font-weight:600;text-align:center}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+/* lists */
+.sec-h{font-size:13px;color:var(--l2);padding:20px 32px 7px;display:flex;align-items:center}
+.sec-f{font-size:13px;color:var(--l2);padding:7px 32px 0;line-height:1.4}
+.group{margin:0 16px;background:var(--card);border-radius:12px;overflow:hidden}
+.row{position:relative;display:flex;align-items:center;gap:12px;min-height:44px;padding:0 16px;font-size:17px;cursor:pointer;background:var(--card)}
+.group>.row:not(:first-child)::before,.group>.sw:not(:first-child) .row::before{content:"";position:absolute;top:0;left:16px;right:0;height:.5px;background:var(--sep)}
+.row:active{background:var(--fill)}
+.row.nc{cursor:default}.row.nc:active{background:var(--card)}
+.row .k{flex:none;white-space:nowrap}.row .v{margin-left:auto;color:var(--l2);text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .main{flex:1;min-width:0;padding:8px 0}.row .ttl{font-size:16px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .sub{font-size:13px;color:var(--l2);line-height:1.35;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.row .amt{flex:none;text-align:right;font-size:16px;font-weight:500;white-space:nowrap}.row .amt small{display:block;font-size:12px;font-weight:400;color:var(--green)}
+.row.red .k{color:var(--red)}.row.tint .k{color:var(--tint)}
+.chev{width:8px;height:14px;flex:none;stroke:var(--l3);stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.ricon{width:29px;height:29px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;flex:none}.ricon svg{width:18px;height:18px}
+.pill{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:10px;background:var(--fill);font-size:12px;color:var(--l2);white-space:nowrap}
+.badge{display:inline-flex;align-items:center;height:18px;padding:0 7px;border-radius:9px;font-size:11px;font-weight:600;white-space:nowrap;flex:none;background:color-mix(in srgb,var(--c) 16%,transparent);color:color-mix(in srgb,var(--c) 78%,var(--bblend))}
+.cnt{min-width:22px;height:22px;border-radius:11px;background:var(--red);color:#fff;font-size:13px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;padding:0 6px}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.sw-t{position:relative;width:51px;height:31px;border-radius:16px;background:var(--fill2);flex:none;transition:background .2s;margin-left:auto}
+.sw-t::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.25);transition:transform .2s}
+.sw-t.on{background:var(--green)}.sw-t.on::after{transform:translateX(20px)}
+/* cards */
+.card{margin:14px 16px 0;background:var(--card);border-radius:12px;padding:14px 16px}
+.card .ch{display:flex;align-items:center;gap:6px;margin-bottom:10px}.card .ch h3{font-size:15px;font-weight:600}.card .ch .r{margin-left:auto;font-size:13px;color:var(--l2)}
+.info{width:22px;height:22px;color:var(--l2);display:inline-flex;align-items:center;justify-content:center}.info svg{width:17px;height:17px}
+.big{font-size:42px;font-weight:700;letter-spacing:-.6px;line-height:1.1}
+.l2{color:var(--l2)}.f13{font-size:13px}.up{color:var(--orange)}.dn{color:var(--green)}
+.seg{display:flex;background:var(--fill);border-radius:9px;padding:2px}
+.seg button{flex:1;height:28px;border-radius:7px;font-size:13px;font-weight:500;white-space:nowrap;transition:background .15s}
+.seg button.on{background:var(--segon);box-shadow:0 3px 8px rgba(0,0,0,.12),0 1px 1px rgba(0,0,0,.08);font-weight:600}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 16px 10px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chips.wrap{flex-wrap:wrap;overflow:visible}
+.chip{flex:none;height:32px;padding:0 13px;border-radius:16px;background:var(--fill);font-size:14px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.chip.on{background:var(--tint);color:var(--onbtn);font-weight:500}.chip .n{font-size:13px;opacity:.6}.chip.on .n{opacity:.85}
+.chip.x{background:color-mix(in srgb,var(--tint) 16%,transparent);color:var(--tint)}.chip.x svg{width:12px;height:12px;stroke-width:2.4}
+.btn{height:50px;border-radius:14px;font-size:17px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--tint);color:var(--onbtn)}
+.btn.sec{background:var(--fill);color:var(--tint)}.btn.main:active,.btn:active{opacity:.7}.btn.s{height:40px;font-size:15px;border-radius:10px}.btn.red{color:var(--red)}
+.btn.sec.on{background:color-mix(in srgb,var(--tint) 20%,transparent)}
+.search{margin:0 16px;height:36px;border-radius:10px;background:var(--fill);display:flex;align-items:center;gap:6px;padding:0 8px;color:var(--l2)}
+.search input{flex:1;min-width:0;border:0;background:none;outline:none;font-size:17px;color:var(--label)}.search svg{width:17px;height:17px}
+.sticky{position:sticky;top:0;z-index:6;background:var(--bg);padding-bottom:8px}
+.empty{padding:56px 32px;text-align:center;color:var(--l2)}.empty svg{width:44px;height:44px;color:var(--l3);margin-bottom:10px}.empty b{display:block;font-size:17px;color:var(--label);margin-bottom:4px}.empty span{font-size:14px;line-height:1.4;display:block}
+.empty a{color:var(--tint);display:inline-block;margin-top:12px;font-size:15px;cursor:pointer}
+.bars{display:block;width:100%;height:auto}.bars text{font-size:10px;fill:var(--l2);font-family:var(--sf)}
+.rank{padding:8px 0;cursor:pointer}.rank+.rank{border-top:.5px solid var(--sep)}.rank .t1{display:flex;align-items:center;gap:8px;font-size:15px}.rank .t1 b{margin-left:auto;font-weight:500}
+.rank .tr{height:6px;border-radius:3px;background:var(--fill);margin-top:7px;overflow:hidden}.rank .tr i{display:block;height:100%;border-radius:3px;background:var(--tint)}
+.prog{height:8px;border-radius:4px;background:var(--fill);overflow:hidden}.prog i{display:block;height:100%;background:var(--tint);border-radius:4px}
+.tiles{display:flex;gap:10px;margin:14px 16px 0}.tile{flex:1;min-width:0;background:var(--card);border-radius:12px;padding:12px}.tile .a{font-size:12px;color:var(--l2)}.tile .b{font-size:20px;font-weight:700;margin:2px 0;white-space:nowrap}.tile .c{font-size:11px;color:var(--l2)}
+/* swipe */
+.sw{position:relative;overflow:hidden}.sw .act{position:absolute;right:0;top:0;bottom:0;width:90px;background:var(--orange);color:#fff;font-size:16px;font-weight:500;display:flex;align-items:center;justify-content:center}
+.sw .fg{position:relative;transition:transform .28s cubic-bezier(.22,.8,.24,1);touch-action:pan-y}.sw.drag .fg{transition:none}
+/* editor */
+.sug{display:flex;flex-wrap:wrap;gap:8px;padding:0 16px}
+.sg{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 12px 0 8px;border-radius:19px;background:var(--card);border:1px solid var(--sep);font-size:14px}
+.sg i{font-style:normal;width:20px;height:20px;border-radius:50%;background:var(--fill);font-size:12px;display:flex;align-items:center;justify-content:center;color:var(--l2)}
+.sg em{font-style:normal;color:var(--l2);font-size:12px}.sg.on{border-color:var(--tint);background:color-mix(in srgb,var(--tint) 14%,var(--card))}.sg.on i{background:var(--tint);color:var(--onbtn)}
+.pad{padding:10px 16px}
+.toks{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px 6px}
+.tok{display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 6px 0 11px;border-radius:14px;background:color-mix(in srgb,var(--tint) 16%,transparent);color:var(--tint);font-size:14px}
+.tok b{width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-weight:400;font-size:15px;opacity:.7}
+.tagin{display:flex;align-items:center;gap:8px;padding:0 16px;height:44px}.tagin input{flex:1;min-width:0;border:0;background:none;outline:none;font-size:17px}
+.tagin button{color:var(--tint);font-weight:600;font-size:15px}
+.ev{margin:14px 16px 0;background:var(--card);border-radius:12px;overflow:hidden}
+.ev .eh{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;font-weight:600;font-size:15px;cursor:pointer}.ev .eh .chev{margin-left:auto;transition:transform .2s;transform:rotate(90deg)}.ev.closed .eh .chev{transform:none}.ev.closed .eb{display:none}
+.eb{padding:0 16px 14px}.erec{padding-top:12px}.erec+.erec{border-top:.5px solid var(--sep);margin-top:12px}
+.erec .rh{display:flex;align-items:center;gap:8px;font-size:14px}.erec .rh span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.erec .rh b{margin-left:auto;font-weight:500;white-space:nowrap}
+.evimg{margin-top:10px;border-radius:8px;background:var(--fill);height:132px;padding:14px;display:flex;flex-direction:column;gap:8px}.evimg.card{height:210px;width:62%;margin-left:auto;margin-right:auto}
+.evimg i{display:block;height:7px;border-radius:4px;background:var(--fill2)}.evimg i:first-child{height:10px;width:40%}
+.evtxt{margin-top:10px;border-radius:8px;background:var(--fill);padding:10px 12px;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;word-break:break-all;color:var(--l2)}
+.cand{margin:14px 16px 0;background:var(--card);border-radius:12px;padding:14px 16px;border:1px solid color-mix(in srgb,var(--purple) 40%,transparent)}
+.cand h4{font-size:15px;display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.cand .crec{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px}.crec .m{flex:1;min-width:0}.crec .m div:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cand .btns{display:flex;gap:8px;margin-top:6px}.cand .btns .btn{flex:1;height:40px;font-size:14px;border-radius:10px}
+.note{display:flex;gap:6px;align-items:flex-start;font-size:12px;color:var(--l2);line-height:1.4;margin-top:10px}.note svg{width:14px;height:14px;margin-top:1px}
+.tl{padding:4px 0 0 20px}.tl .it{position:relative;padding:0 0 16px}.tl .it::before{content:"";position:absolute;left:-20px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--c,var(--tint))}
+.tl .it::after{content:"";position:absolute;left:-15.75px;top:17px;bottom:-5px;width:1.5px;background:var(--sep)}.tl .it:last-child{padding-bottom:2px}.tl .it:last-child::after{display:none}
+.tl .a{display:flex;font-size:15px;font-weight:500}.tl .a b{margin-left:auto;font-weight:500}.tl .s{font-size:13px;color:var(--l2);margin-top:2px;line-height:1.4}
+.pi{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex:none}
+.hdr{padding:4px 16px 0}.hdr .tt{font-size:22px;font-weight:700;line-height:1.25;margin-top:2px}.hdr .meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px;font-size:14px;color:var(--l2)}
+.hdr .pos{font-size:13px;color:var(--l2)}
+.fadein{animation:fi .28s ease}@keyframes fi{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+.shake{animation:sh .35s}@keyframes sh{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.field{display:flex;align-items:center;gap:10px}.field input,.field select{flex:1;min-width:0;text-align:right;border:0;background:none;outline:none;font-size:17px;color:var(--label);appearance:none;-webkit-appearance:none}
+.field select{direction:rtl}
+.stepv{display:flex;align-items:center;gap:10px;margin-left:auto}.stepv button{width:30px;height:30px;border-radius:8px;background:var(--fill);font-size:18px;color:var(--tint)}
+/* overlays */
+.toast{position:absolute;left:50%;bottom:104px;transform:translate(-50%,16px);opacity:0;pointer-events:none;background:rgba(44,44,46,.96);color:#fff;border-radius:14px;padding:0 16px;height:44px;display:flex;align-items:center;gap:16px;font-size:15px;max-width:361px;white-space:nowrap;z-index:200;transition:opacity .25s,transform .25s;box-shadow:0 6px 24px rgba(0,0,0,.3)}
+.toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}.toast button{color:#5fd8ee;font-weight:600;font-size:15px}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.36);opacity:0;pointer-events:none;transition:opacity .3s;z-index:150}.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;top:46px;display:flex;flex-direction:column;background:var(--bg);border-radius:14px 14px 0 0;transform:translateY(105%);transition:transform .4s cubic-bezier(.22,.8,.24,1);z-index:151;box-shadow:0 -4px 30px rgba(0,0,0,.2)}
+.sheet.fit{top:auto;max-height:86%}.sheet.on{transform:none}
+.grab{width:36px;height:5px;border-radius:3px;background:var(--l3);margin:6px auto 0;flex:none}
+.shead{flex:none;height:50px;display:flex;align-items:center;padding:0 8px;position:relative;border-bottom:.5px solid var(--sep)}.shead .t{position:absolute;left:90px;right:90px;text-align:center;font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.shead .nbtn:last-child{margin-left:auto;font-weight:600}
+.sbody{flex:1;min-height:0;overflow-y:auto;padding:4px 0 44px;scrollbar-width:none}.sbody::-webkit-scrollbar{display:none}
+.as{position:absolute;left:8px;right:8px;bottom:30px;z-index:171;transform:translateY(115%);transition:transform .38s cubic-bezier(.22,.8,.24,1)}.as.on{transform:none}
+.as .g{background:var(--mat);backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);border-radius:14px;overflow:hidden;margin-top:8px}.as .g.cc{background:var(--card)}
+.as .ti{padding:14px 16px;text-align:center;font-size:13px;color:var(--l2);line-height:1.35}
+.as button{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:57px;font-size:20px;color:var(--tint);border-top:.5px solid var(--sep)}.as .g button:first-child{border-top:0}.as button.red{color:var(--red)}.as .cc button{font-weight:600}.as button:active{background:var(--fill)}
+.as button svg{width:20px;height:20px}.as .ti+button{border-top:.5px solid var(--sep)}
+.ascrim{z-index:170}
+.pop{position:absolute;z-index:190;width:290px;background:var(--card);border-radius:14px;padding:14px 16px;font-size:14px;line-height:1.5;box-shadow:0 10px 40px rgba(0,0,0,.28),0 0 0 .5px var(--sep);opacity:0;transform:scale(.94);transition:opacity .18s,transform .18s}.pop.on{opacity:1;transform:none}
+.popbg{position:absolute;inset:0;z-index:189}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid var(--fill2);border-top-color:var(--tint);animation:rot .8s linear infinite;display:inline-block}@keyframes rot{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="device">
+    <div class="screen" id="screen">
+      <div class="island"></div>
+      <div class="status"><span id="clock">9:41</span><span class="ic">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M1.5 4.2a10 10 0 0114 0M4 7a6.4 6.4 0 019 0"/><circle cx="8.5" cy="10" r="1.2" fill="currentColor" stroke="none"/></svg>
+        <svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x=".5" y=".5" width="23" height="12" rx="3.5" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="20" height="9" rx="2.2" fill="currentColor"/><path d="M25 4.5v4c.9-.3 1.5-1.2 1.5-2s-.6-1.7-1.5-2z" fill="currentColor" opacity=".45"/></svg>
+      </span></div>
+      <div id="views"></div>
+      <nav class="tabbar" id="tabbar"></nav>
+      <div id="layer"></div>
+      <div class="toast" id="toast"></div>
+      <div class="home"></div>
+    </div>
+  </div>
+  <aside class="panel">
+    <h2>可演示的操作</h2>
+    <ol>
+      <li>概览：切换期间；点柱子跳到交易（带月份筛选）；点分类排行推入列表；点 FIRE 卡看只读详情；右上角同步图标。</li>
+      <li>待办：点类型 chips 筛选；<b>左滑</b>某行暂放（或长按弹出菜单）；右上「历史」「＋」。</li>
+      <li>点行进入补全页：采用推荐、改分类、性质、标签（回车添加）、消费人、账户；展开或折叠原始证据；关联候选卡「将发送到 Mac 处理」。</li>
+      <li>底部「保存并下一笔」自动跳下一条；Toast 点「撤销」恢复。</li>
+      <li>交易：搜索、交易｜原始资料 切换、筛选 sheet、日分组、详情、生命周期、编辑 sheet。</li>
+      <li>我的：同步、请求、冲突、成员、账户、分类、备份等子页面。</li>
+    </ol>
+    <p>状态只保存在内存，刷新即重置。URL 支持 #tab=todo&amp;push=complete:q01&amp;theme=dark&amp;bare=1。</p>
+    <button id="resetBtn">重置演示数据</button>
+  </aside>
+</div>
+<script src="data.js"></script>
+<script>
+'use strict';
+const M = window.MOCK;
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const screenEl = $('#screen');
+const TABS = ['overview', 'todo', 'txn', 'me'];
+const TAB_LABEL = { overview: '概览', todo: '待办', txn: '交易', me: '我的' };
+const TYPES = ['待分类', '待核事实', '退款候选', '关联复核', '来源归并'];
+const TYPE_COLOR = { '待分类': 'var(--orange)', '待核事实': 'var(--red)', '退款候选': '#2AB6A0', '关联复核': 'var(--purple)', '来源归并': 'var(--gray)', '草稿': 'var(--blue)', '已确认': 'var(--green)' };
+const PLAT = { wechat: ['微', '#07C160'], alipay: ['支', '#1677FF'], meituan: ['美', '#F5A800'], unionpay: ['云', '#E21836'], bank: ['银', '#5856D6'], card: ['卡', '#8E8E93'] };
+
+/* ---------- icons ---------- */
+const IC = {
+  chev: 'M1 1l6 6-6 6', back: 'M15 5l-7 7 7 7', plus: 'M12 5v14M5 12h14', search: 'M11 4a7 7 0 100 14 7 7 0 000-14zM21 21l-5.2-5.2',
+  sync: 'M20 12a8 8 0 01-13.9 5.4M4 12a8 8 0 0113.9-5.4M18.5 3v4h-4M5.5 21v-4h4', filter: 'M3 6h18M7 12h10M10 18h4',
+  chart: 'M5 20V11M12 20V4M19 20v-7', todo: 'M12 21a9 9 0 100-18 9 9 0 000 18zM8 12.2l2.8 2.8L16 9.5', list: 'M4 6h16M4 12h16M4 18h10',
+  person: 'M12 12a4 4 0 100-8 4 4 0 000 8zM4.5 21c0-3.8 3.4-6 7.5-6s7.5 2.2 7.5 6', info: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 11v5.5M12 7.8h.01',
+  photo: 'M4 5h16v14H4zM4 16l5-5 4 4 3-3 4 4M15.5 9h.01', doc: 'M7 3h7l5 5v13H7zM14 3v5h5', video: 'M3 7h12v10H3zM15 11l6-3v8l-6-3', check: 'M5 12.5l5 5 9-10',
+  x: 'M6 6l12 12M18 6L6 18', up: 'M6 15l6-6 6 6', down: 'M6 9l6 6 6-6', mac: 'M4 5h16v11H4zM9 20h6M12 16v4', clock: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2',
+  folder: 'M3 7h6l2 2h10v10H3z', users: 'M9 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM2.5 20c0-3.3 2.9-5 6.5-5s6.5 1.7 6.5 5M16 4.5a3.5 3.5 0 010 6.5M18 15c2 .6 3.5 2 3.5 5',
+  card: 'M3 6h18v12H3zM3 10h18M7 15h3', tag: 'M3 12V4h8l10 10-8 8zM7.5 8h.01', flame: 'M12 3c1 4 5 5.5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-6 1-9z',
+  shield: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z', cloud: 'M7 18a4 4 0 010-8 5.5 5.5 0 0110.5 1A3.5 3.5 0 0117 18z', warn: 'M12 4l9 16H3zM12 10v4.5M12 17.2h.01',
+  bolt: 'M13 3L5 13h6l-1 8 8-10h-6z', trash: 'M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13', link: 'M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3A4 4 0 0011 18.7l1-1', gear: 'M12 15a3 3 0 100-6 3 3 0 000 6zM12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1'
+};
+const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24"><path d="${IC[n]}"/></svg>`;
+const chev = '<svg class="chev" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6"/></svg>';
+const rIcon = (n, c) => `<span class="ricon" style="background:${c}">${ic(n)}</span>`;
+const plat = p => { const [t, c] = PLAT[p] || ['?', '#999']; return `<span class="pi" style="background:${c}">${t}</span>`; };
+const badge = t => `<span class="badge" style="--c:${TYPE_COLOR[t] || 'var(--gray)'}">${esc(t)}</span>`;
+const infoBtn = t => `<button class="info" data-act="info" data-t="${esc(t)}">${ic('info')}</button>`;
+
+/* ---------- format ---------- */
+const fmt = c => {
+  if (c == null) return '—';
+  const s = (Math.abs(c) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return (c < 0 ? '−¥' : '¥') + s;
+};
+const fmtY = y => '¥' + Math.round(y).toLocaleString('en-US');
+const WD = ['日', '一', '二', '三', '四', '五', '六'];
+const mdw = d => { const x = new Date(d + 'T00:00:00'); return `${x.getMonth() + 1}月${x.getDate()}日 周${WD[x.getDay()]}`; };
+const md = d => d.slice(5).replace('-', '/');
+const net = t => t.amount == null ? null : t.amount - (t.refund || 0);
+
+/* ---------- state ---------- */
+let S;
+function initState() {
+  S = {
+    tab: 'overview', period: '本月', custom: [9, 11],
+    todoFilter: '全部', todoHistory: false,
+    scope: 'txn', q: '', f: { account: null, primary: null, tag: null, view: '全部消费', month: null }, rawPlat: '全部',
+    syncLast: M.settings.lastSync, syncFolder: M.settings.syncFolder, lastBackup: M.settings.lastBackup, syncing: false,
+    requests: [
+      { id: 'rq1', title: '关联复核判断 · 海底捞火锅', state: '等待 Mac 处理', time: '12 分钟前' },
+      { id: 'rq2', title: '素材 · 云闪付账单录屏_1019.mov', state: '解析失败 · 可重试', time: '昨天' }],
+    conflict: true,
+    members: M.members.map(m => ({ ...m })),
+    todos: M.todos.map(t => ({ ...t, status: 'pending' })),
+    txns: Object.fromEntries(M.transactions.map(t => [t.id, { ...t, tags: [...t.tags], issues: [...t.issues] }])),
+    history: M.history.map(h => ({ ...h })),
+    drafts: {}, decisions: {}, open: {}, undo: {}, flags: { autoBackup: true, notify: true, wifiOnly: true },
+    fireParams: { annualContribution: M.fire.annualContribution, normalExpense: M.fire.normalExpense, withdrawalRate: M.fire.withdrawalRate }
+  };
+}
+initState();
+const T = id => S.txns[id];
+const acct = id => (M.accounts.find(a => a.id === id) || {}).name || null;
+const member = id => (S.members.find(m => m.id === id) || {}).name || null;
+const natureTxt = n => n === 'recurring' ? '持续生活支出' : n === 'one_time' ? '一次性购买' : null;
+const rawOf = id => M.rawRecords.filter(r => r.txn === id);
+const RAW = id => M.rawRecords.find(r => r.id === id);
+
+/* ---------- derived: todos ---------- */
+function vm(q) {
+  const t = q.txn ? T(q.txn) : null;
+  const badges = [q.type, ...(t ? t.issues.filter(x => x !== q.type) : [])];
+  return { q, t, id: q.id, title: t ? t.title : q.title, date: t ? t.date : q.date, amount: t ? t.amount : q.amount, badges, draft: !!(S.drafts[q.id] && S.drafts[q.id].dirty) };
+}
+function pending(filter = '全部') {
+  return S.todos.filter(q => q.status === 'pending' && (filter === '全部' || q.type === filter)).map(vm)
+    .sort((a, b) => (a.amount == null) - (b.amount == null) || (b.amount || 0) - (a.amount || 0));
+}
+const pendingCount = () => S.todos.filter(q => q.status === 'pending').length;
+const typeCount = ty => S.todos.filter(q => q.status === 'pending' && (ty === '全部' || q.type === ty)).length;
+const pendingSum = () => pending().reduce((s, v) => s + (v.amount || 0), 0);
+
+/* ---------- derived: periods ---------- */
+const MON = M.monthly;
+const monLabel = i => { const [y, m] = MON[i].month.split('-'); return `${y}年${+m}月`; };
+function range() {
+  switch (S.period) {
+    case '本月': return [11, 11]; case '上月': return [10, 10]; case '今年': return [2, 11]; case '近 90 天': return [9, 11];
+    default: return S.custom;
+  }
+}
+const sumR = (a, b) => MON.slice(a, b + 1).reduce((s, m) => s + m.net, 0);
+function periodInfo() {
+  const [a, b] = range(); const cur = sumR(a, b); const len = b - a + 1; const pa = a - len, pb = a - 1;
+  const prev = pa >= 0 ? sumR(pa, pb) : null;
+  const months = new Set(MON.slice(a, b + 1).map(m => m.month));
+  const inR = d => months.has(d.slice(0, 7));
+  const refunds = Object.values(S.txns).filter(t => inR(t.date)).reduce((s, t) => s + (t.refund || 0), 0);
+  const unlinked = S.todos.filter(q => q.status === 'pending' && q.type === '关联复核' && inR((q.txn ? T(q.txn).date : q.date))).reduce((s, q) => s + ((q.txn ? T(q.txn).amount : q.amount) || 0), 0);
+  const label = a === b ? monLabel(a) : `${monLabel(a)} – ${monLabel(b)}`;
+  const partial = b === 11;
+  const prevLabel = { '本月': '上月', '上月': '前月' }[S.period] || '上期';
+  return { a, b, cur, prev, inR, refunds, unlinked, label, partial, prevLabel };
+}
+function ranking(inR) {
+  const m = {};
+  Object.values(S.txns).forEach(t => {
+    if (t.nonConsumption || t.excluded || t.amount == null || !t.primary || !inR(t.date)) return;
+    (m[t.primary] = m[t.primary] || { name: t.primary, total: 0, n: 0 }); m[t.primary].total += net(t); m[t.primary].n++;
+  });
+  return Object.values(m).sort((x, y) => y.total - x.total);
+}
+
+/* ---------- FIRE ---------- */
+function calcFire(ret) {
+  const F = M.fire, P = S.fireParams;
+  const real = (1 + ret) / (1 + F.inflation) - 1;
+  const reserve = F.buckets.include ? F.buckets.safety + F.buckets.parentMedical + F.buckets.other : 0;
+  const target = P.normalExpense / P.withdrawalRate + reserve;
+  let a = F.assets, y = 0;
+  while (a < target && y < 80) { a = a * (1 + real) + P.annualContribution; y++; }
+  const age = F.baseYear - F.birthYear + y;
+  return { target, years: y, age, reserve, pct: Math.min(1, F.assets / target) };
+}
+
+/* ---------- toast / sheet / action / popover ---------- */
+let toastTimer;
+function toast(msg, undo) {
+  const el = $('#toast');
+  el.innerHTML = `<span>${esc(msg)}</span>` + (undo ? '<button data-act="undo">撤销</button>' : '');
+  el._undo = undo || null;
+  el.classList.add('show'); clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+const layer = $('#layer');
+let SH = null;
+function openSheet(spec) {
+  closeSheet(true);
+  const scrim = document.createElement('div'); scrim.className = 'scrim'; scrim.dataset.act = 'sheet-close';
+  const el = document.createElement('div'); el.className = 'sheet' + (spec.fit ? ' fit' : '');
+  layer.append(scrim, el); SH = { ...spec, el, scrim, sub: null };
+  renderSheet();
+  if (spec.instant || window._instant) { scrim.classList.add('on'); el.style.transition = 'none'; el.classList.add('on'); } else {
+    requestAnimationFrame(() => requestAnimationFrame(() => { scrim.classList.add('on'); el.classList.add('on'); }));
+  }
+}
+function renderSheet() {
+  if (!SH) return;
+  const v = SH.render(SH);
+  const st = SH.el.querySelector('.sbody'); const top = st ? st.scrollTop : 0;
+  SH.el.innerHTML = `<div class="grab"></div><div class="shead"><div>${v.left || ''}</div><div class="t">${esc(v.title)}</div><div style="margin-left:auto">${v.right || ''}</div></div><div class="sbody">${v.body}</div>`;
+  SH.el.querySelector('.sbody').scrollTop = top;
+}
+function closeSheet(now) {
+  if (!SH) return; const { el, scrim } = SH; SH = null;
+  el.classList.remove('on'); scrim.classList.remove('on');
+  if (now) { el.remove(); scrim.remove(); } else setTimeout(() => { el.remove(); scrim.remove(); }, 420);
+}
+function actionSheet(title, items) {
+  closeAction(true);
+  const scrim = document.createElement('div'); scrim.className = 'scrim ascrim on'; scrim.dataset.act = 'as-close';
+  const el = document.createElement('div'); el.className = 'as';
+  el.innerHTML = `<div class="g">${title ? `<div class="ti">${esc(title)}</div>` : ''}${items.map((it, i) => `<button class="${it.red ? 'red' : ''}" data-act="as-pick" data-i="${i}">${it.icon ? ic(it.icon) : ''}${esc(it.t)}</button>`).join('')}</div><div class="g cc"><button data-act="as-close">取消</button></div>`;
+  layer.append(scrim, el); el._items = items; el._scrim = scrim; window._as = el;
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('on')));
+}
+function closeAction(now) {
+  const el = window._as; if (!el) return; window._as = null;
+  el.classList.remove('on'); el._scrim.style.opacity = 0;
+  if (now) { el.remove(); el._scrim.remove(); } else setTimeout(() => { el.remove(); el._scrim.remove(); }, 400);
+}
+function popover(anchor, text) {
+  closePop();
+  const sr = screenEl.getBoundingClientRect(), ar = anchor.getBoundingClientRect();
+  const bg = document.createElement('div'); bg.className = 'popbg'; bg.dataset.act = 'pop-close';
+  const p = document.createElement('div'); p.className = 'pop'; p.textContent = text;
+  p.style.left = Math.max(12, Math.min(393 - 290 - 12, ar.left - sr.left - 130)) + 'px';
+  p.style.top = Math.min(ar.bottom - sr.top + 8, 700) + 'px';
+  layer.append(bg, p); window._pop = [bg, p]; requestAnimationFrame(() => p.classList.add('on'));
+}
+function closePop() { if (window._pop) { window._pop.forEach(e => e.remove()); window._pop = null; } }
+
+
+/* ---------- navigation engine ---------- */
+const VIEWS = {}, A = {};
+const stacks = {}; TABS.forEach(t => stacks[t] = []);
+const viewsEl = $('#views');
+TABS.forEach(t => { const d = document.createElement('div'); d.className = 'tabview'; d.id = 'tv-' + t; viewsEl.append(d); });
+let pid = 0;
+function makePage(tab, name, params) { const el = document.createElement('div'); el.className = 'page'; return { id: ++pid, tab, name, params: params || {}, el, v: null }; }
+function renderPage(p) {
+  const v = VIEWS[p.name](p.params, p); p.v = v;
+  const st = stacks[p.tab], idx = st.indexOf(p);
+  const sc = p.el.querySelector('.scroll'); const top = sc ? sc.scrollTop : 0;
+  const ae = document.activeElement;
+  const keep = ae && ae.id && p.el.contains(ae) ? { id: ae.id, s: ae.selectionStart, e: ae.selectionEnd } : null;
+  let left = v.left || '';
+  if (!left && idx > 0) {
+    const pt = st[idx - 1].v ? st[idx - 1].v.title : ''; const lab = pt && pt.length <= 6 ? pt : '返回';
+    left = `<button class="nbtn" data-act="back">${ic('back')}<span style="margin-left:-4px">${esc(lab)}</span></button>`;
+  }
+  const lt = v.large === false ? '' : `<div class="lt">${esc(typeof v.large === 'string' ? v.large : v.title)}</div>`;
+  p.el.innerHTML = `<div class="nav"><div class="l">${left}</div><div class="t">${esc(v.title)}</div><div class="r">${v.right || ''}</div></div><div class="scroll">${lt}${v.body}</div>${v.foot ? `<div class="foot">${v.foot}</div>` : ''}`;
+  p.el.classList.toggle('small', v.large === false);
+  p.el.classList.toggle('hasfoot', !!v.foot);
+  p.hideTab = !!v.hideTab;
+  const ns = p.el.querySelector('.scroll'); ns.scrollTop = top;
+  p.el.classList.toggle('scrolled', top > 38 && v.large !== false);
+  if (keep) { const n = p.el.querySelector('#' + keep.id); if (n) { n.focus(); try { n.setSelectionRange(keep.s, keep.e); } catch (_) { } } }
+}
+function layout(tab) {
+  const st = stacks[tab];
+  st.forEach((p, i) => { p.el.classList.toggle('under', i === st.length - 2); p.el.classList.toggle('hid', i < st.length - 2); });
+}
+function updateTabs() {
+  const top = stacks[S.tab][stacks[S.tab].length - 1];
+  screenEl.classList.toggle('notab', !!(top && top.hideTab));
+  const icons = { overview: 'chart', todo: 'todo', txn: 'list', me: 'person' };
+  const n = pendingCount();
+  $('#tabbar').innerHTML = TABS.map(t => `<button class="tab ${S.tab === t ? 'on' : ''}" data-act="tab" data-tab="${t}">${ic(icons[t])}<span>${TAB_LABEL[t]}</span>${t === 'todo' && n ? `<span class="bd">${n}</span>` : ''}</button>`).join('');
+}
+function refresh() {
+  TABS.forEach(t => stacks[t].forEach(renderPage));
+  renderSheet(); updateTabs();
+}
+function push(name, params, anim = true) {
+  const tab = S.tab, st = stacks[tab]; const p = makePage(tab, name, params);
+  st.push(p); $('#tv-' + tab).append(p.el); renderPage(p);
+  if (anim) { p.el.classList.add('enter'); void p.el.offsetWidth; p.el.classList.remove('enter'); }
+  layout(tab); updateTabs(); return p;
+}
+function pop() {
+  const st = stacks[S.tab]; if (st.length < 2) return;
+  const p = st.pop(); p.el.classList.add('leave'); setTimeout(() => p.el.remove(), 420);
+  layout(S.tab); updateTabs();
+}
+function resetStack(tab) { const st = stacks[tab]; while (st.length > 1) st.pop().el.remove(); layout(tab); }
+function switchTab(tab, reset) {
+  S.tab = tab; TABS.forEach(t => $('#tv-' + t).classList.toggle('on', t === tab));
+  if (reset) resetStack(tab);
+  stacks[tab].forEach(renderPage); updateTabs();
+}
+function bootStacks() {
+  TABS.forEach(t => { stacks[t].splice(0).forEach(p => p.el.remove()); const p = makePage(t, t, {}); stacks[t].push(p); $('#tv-' + t).append(p.el); });
+  TABS.forEach(t => renderPage(stacks[t][0]));
+}
+const topPage = () => stacks[S.tab][stacks[S.tab].length - 1];
+
+/* ---------- events ---------- */
+let suppressUntil = 0;
+function closeSwipes(except) {
+  document.querySelectorAll('.sw.open').forEach(s => { if (s !== except) { s.classList.remove('open'); s.querySelector('.fg').style.transform = ''; } });
+}
+screenEl.addEventListener('click', e => {
+  if (Date.now() < suppressUntil) { suppressUntil = 0; e.stopPropagation(); return; }
+  const el = e.target.closest('[data-act]');
+  const opened = document.querySelector('.sw.open');
+  if (opened && !(el && el.dataset.act === 'hold')) { closeSwipes(); if (!el || el.closest('.sw') === opened) return; }
+  if (!el) { closePop(); return; }
+  const fn = A[el.dataset.act]; if (fn) fn(el, e);
+});
+screenEl.addEventListener('scroll', e => {
+  const sc = e.target; if (!sc.classList || !sc.classList.contains('scroll')) return;
+  const pg = sc.parentElement; if (pg.classList.contains('small')) return;
+  pg.classList.toggle('scrolled', sc.scrollTop > 38);
+}, true);
+screenEl.addEventListener('input', e => {
+  if (e.isComposing) return; const k = e.target.dataset.in; if (k === 'q') { S.q = e.target.value; refresh(); }
+});
+screenEl.addEventListener('compositionend', e => { if (e.target.dataset.in === 'q') { S.q = e.target.value; refresh(); } });
+screenEl.addEventListener('change', e => { const k = e.target.dataset.ch; if (k && A[k]) A[k](e.target, e); });
+screenEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.id && e.target.id.startsWith('taginput')) { e.preventDefault(); A['tag-add'](e.target); }
+});
+/* swipe + long press */
+let sw = null;
+screenEl.addEventListener('pointerdown', e => {
+  const fg = e.target.closest('.sw .fg'); if (!fg || e.button > 0) return;
+  const el = fg.parentElement; closeSwipes(el);
+  sw = { el, fg, x: e.clientX, y: e.clientY, base: el.classList.contains('open') ? -90 : 0, moved: false, long: false };
+  sw.t = setTimeout(() => { if (sw && !sw.moved) { sw.long = true; suppressUntil = Date.now() + 700; const id = el.dataset.id; actionSheet(el.dataset.title, [{ t: '打开补全', icon: 'doc', fn: () => A.complete({ dataset: { id } }) }, { t: '暂放', icon: 'clock', fn: () => holdTodo(id) }]); } }, 520);
+});
+window.addEventListener('pointermove', e => {
+  if (!sw) return; const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+  if (!sw.moved) {
+    if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) { sw.moved = true; sw.el.classList.add('drag'); clearTimeout(sw.t); }
+    else if (Math.abs(dy) > 8) { clearTimeout(sw.t); }
+  }
+  if (sw.moved) sw.fg.style.transform = `translateX(${Math.max(-140, Math.min(0, sw.base + dx))}px)`;
+});
+window.addEventListener('pointerup', e => {
+  if (!sw) return; clearTimeout(sw.t); const s = sw; sw = null;
+  if (s.moved) {
+    suppressUntil = Date.now() + 400; s.el.classList.remove('drag');
+    const dx = e.clientX - s.x, off = s.base + dx;
+    if (off < -130) { holdTodo(s.el.dataset.id); return; }
+    if (off < -45) { s.el.classList.add('open'); s.fg.style.transform = 'translateX(-90px)'; } else { s.el.classList.remove('open'); s.fg.style.transform = ''; }
+  }
+});
+window.addEventListener('pointercancel', () => { if (sw) { clearTimeout(sw.t); sw.el.classList.remove('drag'); sw = null; } });
+
+/* generic actions */
+A.tab = el => { const t = el.dataset.tab; if (t === S.tab) { if (stacks[t].length > 1) { resetStack(t); updateTabs(); } else { const sc = stacks[t][0].el.querySelector('.scroll'); sc && sc.scrollTo({ top: 0, behavior: 'smooth' }); } } else switchTab(t); };
+A.back = () => pop();
+A.info = el => popover(el, el.dataset.t);
+A['pop-close'] = () => closePop();
+A['sheet-close'] = () => closeSheet();
+A['as-close'] = () => closeAction();
+A['as-pick'] = el => { const a = window._as; const it = a._items[+el.dataset.i]; closeAction(); it.fn && it.fn(); };
+A.undo = () => { const el = $('#toast'); const f = el._undo; el.classList.remove('show'); f && f(); };
+A.noop = el => toast(el.dataset.msg || '演示：此功能在原型中仅给出反馈');
+A.push = el => push(el.dataset.page, el.dataset.p ? JSON.parse(el.dataset.p) : {});
+const pj = o => esc(JSON.stringify(o));
+
+
+/* ---------- view helpers ---------- */
+const dattr = d => Object.entries(d || {}).map(([k, v]) => `data-${k}="${esc(v)}"`).join(' ');
+function row(r) {
+  const act = r.act ? `data-act="${r.act}" ${dattr(r.d)}` : '';
+  const body = r.main != null
+    ? `<div class="main"><div class="ttl">${r.main}</div>${r.sub ? `<div class="sub">${r.sub}</div>` : ''}</div>`
+    : `<span class="k">${r.k}</span>`;
+  return `<div class="row ${r.red ? 'red' : ''} ${r.tint ? 'tint' : ''} ${r.act ? '' : 'nc'}" ${act}>${r.icon || ''}${body}${r.v != null ? `<span class="v">${r.v}</span>` : ''}${r.amt != null ? `<span class="amt">${r.amt}</span>` : ''}${r.toggle != null ? `<span class="sw-t ${r.toggle ? 'on' : ''}"></span>` : ''}${r.chev ? chev : ''}</div>`;
+}
+const grp = (rows, h, f) => `${h ? `<div class="sec-h">${h}</div>` : '<div style="height:20px"></div>'}<div class="group">${rows.map(row).join('')}</div>${f ? `<div class="sec-f">${f}</div>` : ''}`;
+const card = (title, body, o = {}) => `<div class="card" ${o.attr || ''}><div class="ch"><h3>${title}</h3>${o.info ? infoBtn(o.info) : ''}${o.right ? `<span class="r">${o.right}</span>` : ''}</div>${body}</div>`;
+const segHTML = (opts, cur, act, extra = '') => `<div class="seg" ${extra}>${opts.map(o => `<button class="${o === cur ? 'on' : ''}" data-act="${act}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
+const empty = (icon, title, sub, link) => `<div class="empty">${ic(icon)}<b>${esc(title)}</b><span>${esc(sub)}</span>${link || ''}</div>`;
+const tile = (a, b, c) => `<div class="tile"><div class="a">${a}</div><div class="b">${b}</div><div class="c">${c}</div></div>`;
+const navBtn = (act, inner, d = '') => `<button class="nbtn" data-act="${act}" ${d}>${inner}</button>`;
+function doSync() {
+  if (S.syncing) return; S.syncing = true; refresh(); toast('正在同步…');
+  setTimeout(() => { S.syncing = false; S.syncLast = '刚刚'; refresh(); toast('同步完成 · 已是最新'); }, 1400);
+}
+
+/* ---------- 概览 ---------- */
+VIEWS.overview = () => {
+  const P = periodInfo(); const n = pendingCount();
+  const d = P.prev == null ? null : P.cur - P.prev;
+  const deltaTxt = d == null ? '<span class="l2">暂无可比的上期数据</span>'
+    : `<span class="${d > 0 ? 'up' : 'dn'}">${d > 0 ? '↑' : '↓'} ${fmt(Math.abs(d))} (${d > 0 ? '+' : '−'}${Math.abs(d / P.prev * 100).toFixed(1)}%)</span> <span class="l2">较${P.prevLabel}${S.period === '本月' ? ' · 本月未满' : ''}</span>`;
+  const [a, b] = [P.a, P.b];
+  // bars
+  const W = 329, H = 150, base = 128, top = 14, ymax = 2400000, slot = W / 12, bw = 17;
+  let svg = `<svg class="bars" viewBox="0 0 ${W} ${H}">`;
+  [0, 1200000, 2400000].forEach(v => { const y = base - (base - top) * v / ymax; svg += `<line x1="0" x2="${W}" y1="${y}" y2="${y}" stroke="var(--sep)" stroke-width=".5" ${v ? 'stroke-dasharray="3 3"' : ''}/>`; });
+  MON.forEach((m, i) => {
+    const h = (base - top) * m.net / ymax, x = i * slot + (slot - bw) / 2, inP = i >= a && i <= b, sel = S.f.month === m.month;
+    svg += `<g data-act="bar" data-m="${m.month}" style="cursor:pointer"><rect x="${i * slot}" y="0" width="${slot}" height="${H}" fill="transparent"/><rect x="${x}" y="${base - h}" width="${bw}" height="${h}" rx="4" fill="${m.partial ? 'var(--orange)' : 'var(--tint)'}" opacity="${inP || sel ? 1 : .42}"><title>${monLabel(i)} ${fmt(m.net)}</title></rect><text x="${i * slot + slot / 2}" y="${H - 6}" text-anchor="middle" ${inP ? 'style="fill:var(--label);font-weight:600"' : ''}>${+m.month.slice(5)}月</text></g>`;
+    if (i === 11 || m.net === 2210000) svg += `<text x="${Math.min(W - 2, i * slot + slot / 2 + 12)}" y="${base - h - 5}" text-anchor="end" style="fill:var(--label)">¥${(m.net / 1000000).toFixed(2)}万</text>`;
+  });
+  svg += `<text x="0" y="${base - (base - top) / 2 - 3}" style="font-size:9px">1.2万</text><text x="0" y="${top - 3}" style="font-size:9px">2.4万</text></svg>`;
+  const rk = ranking(P.inR).slice(0, 6); const mx = rk.length ? rk[0].total : 1; const tot = rk.reduce((s, r) => s + r.total, 0) || 1;
+  const rkHTML = rk.length ? rk.map(r => `<div class="rank" data-act="cat" data-p="${esc(r.name)}"><div class="t1"><span>${esc(r.name)}</span><span class="l2 f13">${r.n} 笔</span><b>${fmt(r.total)}</b>${chev}</div><div class="tr"><i style="width:${Math.max(3, r.total / mx * 100)}%"></i></div></div>`).join('')
+    : `<div class="l2 f13" style="padding:10px 0">所选期间暂无演示交易明细，试试「本月」或「上月」。</div>`;
+  const F = calcFire(M.fire.annualReturn);
+  const typeBadges = TYPES.filter(t => typeCount(t)).map(t => `<button data-act="goto-todo" data-type="${t}" style="display:inline-flex;gap:4px;align-items:center">${badge(t)}<span class="f13 l2">${typeCount(t)}</span></button>`).join('');
+  return {
+    title: '概览',
+    right: `<button class="nbtn" data-act="sync-menu" style="position:relative">${S.syncing ? '<span class="spin"></span>' : ic('sync')}<span class="dot" style="background:var(--green);margin:-12px -10px 0 0"></span></button>`,
+    body: `<div class="pad" style="padding-top:0">${segHTML(['本月', '上月', '今年', '近 90 天', '自定义'], S.period, 'period')}</div>
+    <div style="padding:14px 16px 0"><div class="l2" style="font-size:14px">净消费 · ${P.label}${P.partial && P.b === 11 ? '（截至 10-28）' : ''}</div>
+      <div class="big">${fmt(P.cur)}</div><div style="font-size:14px;margin-top:6px">${deltaTxt}</div>
+      <div class="l2 f13" style="margin-top:4px">退款 ${fmt(P.refunds)} · 待关联 ${fmt(P.unlinked)}</div></div>
+    ${n ? `<div class="card" data-act="goto-todo" style="cursor:pointer"><div style="display:flex;align-items:center;gap:10px"><span class="ricon" style="background:var(--orange)">${ic('todo')}</span><div style="flex:1;min-width:0"><div style="font-size:17px;font-weight:600">${n} 项待处理 · ${fmt(pendingSum())}</div><div class="l2 f13">按金额从大到小，点开继续补全</div></div>${chev}</div><div style="display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px">${typeBadges}</div></div>` : ''}
+    ${card('月度净消费', svg, { info: '柱子为各月净消费（扣除退款）。橙色为尚未结束的不完整月份。点击柱子可在「交易」中查看该月明细。', right: '近 12 个月' })}
+    ${card('支出结构 · 前 6', rkHTML, { info: '按一级分类汇总所选期间的净消费，点击查看该分类下的交易。' })}
+    <div class="card" data-act="fire-open" style="cursor:pointer"><div class="ch"><h3>FIRE 规划</h3><span class="r">只读</span></div>
+      <div style="display:flex;align-items:flex-end;gap:8px"><div><div class="l2 f13">目标资产</div><div style="font-size:24px;font-weight:700">${fmtY(F.target)}</div></div><div style="margin-left:auto;text-align:right"><div class="l2 f13">预计达成</div><div style="font-size:20px;font-weight:700">${F.age} 岁</div></div></div>
+      <div class="prog" style="margin-top:12px"><i style="width:${(F.pct * 100).toFixed(1)}%"></i></div>
+      <div style="display:flex;margin-top:6px" class="f13"><span class="l2">已积累 ${fmtY(M.fire.assets)} · ${(F.pct * 100).toFixed(0)}%</span><span class="l2" style="margin-left:auto">目标 ${M.fire.targetAge} 岁</span></div></div>
+    <div style="height:20px"></div>`
+  };
+};
+A.period = el => { S.period = el.dataset.v; if (S.period === '自定义') A['custom-sheet'](); refresh(); };
+A['custom-sheet'] = () => openSheet({
+  fit: true, render: () => {
+    const opts = i => MON.map((m, k) => `<option value="${k}" ${k === i ? 'selected' : ''}>${monLabel(k)}</option>`).join('');
+    return {
+      title: '自定义期间', left: navBtn('sheet-close', '取消'), right: navBtn('custom-apply', '应用'), body: `<div style="height:16px"></div><div class="group">
+      <div class="row nc"><span class="k">开始月份</span><span class="field" style="flex:1"><select id="cs-a">${opts(S.custom[0])}</select></span></div>
+      <div class="row nc"><span class="k">结束月份</span><span class="field" style="flex:1"><select id="cs-b">${opts(S.custom[1])}</select></span></div></div><div class="sec-f">数据范围 2025 年 11 月 – 2026 年 10 月</div>`
+    };
+  }
+});
+A['custom-apply'] = () => { let a = +$('#cs-a').value, b = +$('#cs-b').value; if (a > b) [a, b] = [b, a]; S.custom = [a, b]; S.period = '自定义'; closeSheet(); refresh(); toast(`已应用：${monLabel(a)} – ${monLabel(b)}`); };
+A['sync-menu'] = () => actionSheet(`家庭同步 · 上次同步 ${S.syncLast}`, [{ t: '立即同步', icon: 'sync', fn: doSync }, { t: '查看状态', icon: 'info', fn: () => push('sub', { id: 'sync' }) }]);
+A['goto-todo'] = el => { S.todoFilter = el.dataset.type || '全部'; S.todoHistory = false; switchTab('todo', true); };
+A.bar = el => { S.f = { account: null, primary: null, tag: null, view: '全部消费', month: el.dataset.m }; S.scope = 'txn'; S.q = ''; switchTab('txn', true); const i = MON.findIndex(m => m.month === el.dataset.m); toast(`已按 ${monLabel(i)} 筛选交易`); };
+A.cat = el => push('catlist', { p: el.dataset.p });
+A['fire-open'] = () => push('fire');
+
+/* ---------- 分类列表 ---------- */
+VIEWS.catlist = ({ p }) => {
+  const P = periodInfo();
+  const list = Object.values(S.txns).filter(t => t.primary === p && P.inR(t.date) && !t.nonConsumption).sort((x, y) => y.date.localeCompare(x.date));
+  const tot = list.reduce((s, t) => s + (net(t) || 0), 0);
+  return { title: p, body: `<div style="padding:0 16px 4px"><div class="l2 f13">${P.label} · ${list.length} 笔净消费</div><div style="font-size:30px;font-weight:700;margin-top:2px">${fmt(tot)}</div></div>${list.length ? txnGroups(list) : empty('list', '该期间没有交易', '换一个期间再看看')}` };
+};
+
+/* ---------- FIRE 只读 ---------- */
+VIEWS.fire = () => {
+  const F = M.fire, base = calcFire(F.annualReturn);
+  const sc = [0.04, 0.06, 0.08, 0.1].map(r => ({ r, ...calcFire(r) }));
+  return {
+    title: 'FIRE 规划', body: `<div class="tiles">${tile('目标资产', fmtY(base.target), `提取率 ${(S.fireParams.withdrawalRate * 100).toFixed(1)}%`)}${tile('当前可投资', fmtY(F.assets), `已完成 ${(base.pct * 100).toFixed(0)}%`)}${tile('预计达成', base.age + ' 岁', `目标 ${F.targetAge} 岁`)}</div>
+    ${card('进度', `<div class="prog"><i style="width:${(base.pct * 100).toFixed(1)}%"></i></div><div class="f13 l2" style="margin-top:8px">每年投入 ${fmtY(S.fireParams.annualContribution)} · 预计还需 ${base.years} 年</div>`)}
+    ${grp(sc.map(s => ({ k: `年化收益 ${(s.r * 100).toFixed(0)}%`, v: `${s.age} 岁 · 还需 ${s.years} 年` })), '收益率情景', '已扣除 2.5% 通胀；只读展示。')}
+    ${grp(Object.entries(F.budgets).map(([k, v]) => ({ k: esc(k), v: fmtY(v) + ' / 年' })), '一级年度预算')}
+    ${grp([{ k: '安全储备', v: fmtY(F.buckets.safety) }, { k: '父母医疗', v: fmtY(F.buckets.parentMedical) }, { k: '日常支出（年）', v: fmtY(S.fireParams.normalExpense) }, { k: '支出上限（年）', v: fmtY(F.hardCap) }], '储备桶与生活成本')}
+    ${grp([{ k: '查看 / 编辑参数', act: 'push', d: { page: 'sub', p: JSON.stringify({ id: 'fireparams' }) }, chev: 1 }], null, '这是只读视图。完整参数建议在 Mac 上调整。')}<div style="height:20px"></div>`
+  };
+};
+
+/* ---------- 交易行与分组（概览/交易共用） ---------- */
+function txnRow(t) {
+  const cat = t.primary ? (t.secondary && t.secondary !== t.primary ? `${t.primary} · ${t.secondary}` : t.primary) : '资金流';
+  const a = acct(t.account) || '未指定账户';
+  const iss = t.issues.length ? badge(t.issues[0]) : '';
+  const tags = t.tags.slice(0, 3).map(x => `<span class="pill" style="height:18px;font-size:11px;padding:0 6px">${esc(x)}</span>`).join('');
+  return `<div class="row" data-act="txn-open" data-id="${t.id}" style="min-height:60px"><div class="main"><div class="ttl">${esc(t.title)}</div><div class="sub">${esc(cat)} · ${esc(a)}</div>${(tags || iss) ? `<div class="sub" style="margin-top:4px">${iss}${tags}</div>` : ''}</div>
+  <span class="amt" style="${t.amount == null ? 'color:var(--l2)' : ''}">${t.amount == null ? '待确定' : (t.nonConsumption ? '' : '') + fmt(t.amount)}${t.refund ? `<small>退 ${fmt(t.refund)}</small>` : ''}</span>${chev}</div>`;
+}
+function txnGroups(list) {
+  const days = {}; list.forEach(t => (days[t.date] = days[t.date] || []).push(t));
+  return Object.keys(days).sort().reverse().map(d => {
+    const rows = days[d]; const tot = rows.filter(t => !t.nonConsumption && !t.excluded).reduce((s, t) => s + (net(t) || 0), 0);
+    return `<div class="sec-h" style="padding-top:16px"><span>${mdw(d)}</span><span style="margin-left:auto;color:var(--l2)">${rows.every(t => t.nonConsumption) ? '资金流' : '合计 ' + fmt(tot)}</span></div><div class="group">${rows.map(txnRow).join('')}</div>`;
+  }).join('');
+}
+A['txn-open'] = el => push('txndetail', { id: el.dataset.id });
+
+
+/* ---------- 待办 ---------- */
+VIEWS.todo = () => {
+  const hist = S.todoHistory;
+  const right = navBtn('todo-hist', hist ? '待处理' : '历史') + navBtn('todo-plus', ic('plus'));
+  if (hist) {
+    const buckets = ['暂放', '本次已保存', '已确认', '已排除'];
+    const body = buckets.map(b => {
+      const rows = S.history.filter(h => h.bucket === b);
+      if (!rows.length) return '';
+      return grp(rows.map(h => ({
+        main: esc(h.title), sub: md(h.date) + (h.todoId ? '' : ' · 来自 Mac'), amt: fmt(h.amount),
+        act: h.todoId ? 'complete' : 'toast', d: h.todoId ? { id: h.todoId } : { msg: '该记录已在 Mac 上处理，可在「交易」中查看' }, chev: 1
+      })), `${b} · ${rows.length}`);
+    }).join('') || empty('clock', '暂无历史', '暂放或保存的事项会出现在这里');
+    return { title: '待办', large: '历史', right, body: body + '<div style="height:20px"></div>' };
+  }
+  const list = pending(S.todoFilter), sum = list.reduce((s, v) => s + (v.amount || 0), 0);
+  const chips = ['全部', ...TYPES].map(t => `<button class="chip ${S.todoFilter === t ? 'on' : ''}" data-act="todo-type" data-v="${t}">${t}<span class="n">${typeCount(t)}</span></button>`).join('');
+  const rows = list.map(v => `<div class="sw" data-id="${v.id}" data-title="${esc(v.title)}"><div class="act" data-act="hold" data-id="${v.id}">暂放</div><div class="fg"><div class="row" data-act="complete" data-id="${v.id}" style="min-height:62px">${v.draft ? '<span class="dot" style="background:var(--blue)"></span>' : ''}<div class="main"><div class="ttl">${esc(v.title)}</div><div class="sub"><span>${md(v.date)}</span>${v.badges.map(badge).join('')}${v.draft ? badge('草稿') : ''}</div></div><span class="amt" style="${v.amount == null ? 'color:var(--l2)' : ''}">${v.amount == null ? '金额待定' : fmt(v.amount)}</span></div></div></div>`).join('');
+  return {
+    title: '待办', right,
+    body: `<div class="chips">${chips}</div>` + (list.length ? `<div class="sec-h" style="padding-top:6px"><span>${list.length} 项 · 涉及 ${fmt(sum)}</span><span style="margin-left:auto">金额从大到小</span></div><div class="group">${rows}</div><div class="sec-f">左滑可暂放，长按显示更多操作。</div>`
+      : empty('check', '全部处理完了', '没有需要补全的事项。', `<a data-act="todo-hist">去历史复查</a>`)) + '<div style="height:20px"></div>'
+  };
+};
+A['todo-type'] = el => { S.todoFilter = el.dataset.v; refresh(); };
+A['todo-hist'] = () => { S.todoHistory = !S.todoHistory; refresh(); };
+A['todo-plus'] = () => actionSheet('发送素材到 Mac · Mac 处理后自动同步', [
+  { t: '照片', icon: 'photo', fn: () => sendMat('照片') }, { t: '文件', icon: 'doc', fn: () => sendMat('文件') }, { t: '录屏', icon: 'video', fn: () => sendMat('录屏') }]);
+function sendMat(kind) {
+  S.requests.unshift({ id: 'rq' + Date.now(), title: `素材 · ${kind}`, state: '已发送 · 等待 Mac 处理', time: '刚刚' });
+  refresh(); toast('已发送，Mac 处理后自动同步');
+}
+A.hold = el => holdTodo(el.dataset.id);
+A.complete = el => push('complete', { id: el.dataset.id });
+function holdTodo(id) {
+  const q = S.todos.find(x => x.id === id); if (!q || q.status !== 'pending') return;
+  const v = vm(q); const onPage = topPage().name === 'complete' && topPage().params.id === id && S.tab === 'todo';
+  const next = onPage ? nextAfter(id) : null;
+  q.status = 'held'; S.history = S.history.filter(h => h.todoId !== id);
+  S.history.unshift({ id: 'hh' + id, bucket: '暂放', title: v.title, date: v.date, amount: v.amount, todoId: id });
+  closeSwipes(); advanceView(onPage, next);
+  toast('已暂放 · 撤销', () => { q.status = 'pending'; S.history = S.history.filter(h => h.todoId !== id); if (onPage) reopen(id); else refresh(); });
+}
+function nextAfter(id) {
+  const list = pending(S.todoFilter).map(v => v.id), i = list.indexOf(id), rest = list.filter(x => x !== id);
+  return rest.length ? rest[Math.min(Math.max(i, 0), rest.length - 1)] : null;
+}
+function advanceView(onPage, next) {
+  if (onPage) {
+    const p = topPage();
+    if (next) { p.params.id = next; refresh(); const sc = p.el.querySelector('.scroll'); sc.scrollTop = 0; sc.classList.remove('fadein'); void sc.offsetWidth; sc.classList.add('fadein'); } else { pop(); refresh(); }
+  } else refresh();
+}
+function reopen(id) {
+  if (S.tab !== 'todo') switchTab('todo');
+  const p = topPage();
+  if (p.name === 'complete') { p.params.id = id; refresh(); } else { push('complete', { id }); refresh(); }
+}
+
+/* ---------- 草稿 / 编辑器（待办补全页与交易编辑 sheet 共用） ---------- */
+function ensureDraft(key, txnId) {
+  if (!S.drafts[key]) {
+    const t = T(txnId);
+    S.drafts[key] = { txnId, primary: t.primary, secondary: t.secondary, nature: t.nature, tags: [...t.tags], user: t.user, account: t.account, amountStr: t.amount != null ? (t.amount / 100).toFixed(2) : '', date: t.date, include: true, dirty: false };
+  }
+  return S.drafts[key];
+}
+const touch = d => { d.dirty = true; };
+function editor(key, ctx) {
+  const d = S.drafts[key], t = T(d.txnId), sg = t.suggestions || [];
+  const catSet = d.primary && d.primary !== '待分类';
+  const sugs = sg.slice(0, 3).map((s, i) => `<button class="sg ${d.primary === s.primary && d.secondary === s.secondary ? 'on' : ''}" data-act="sug" data-key="${key}" data-i="${i}"><i>${i + 1}</i>${esc(s.primary)} › ${esc(s.secondary)}<em>${s.score}%</em></button>`).join('');
+  const sel = d.tags, more = M.tags.filter(x => !sel.includes(x)).slice(0, 6);
+  return `${sugs ? `<div class="sec-h">分类推荐</div><div class="sug">${sugs}</div>` : ''}
+  ${grp([{ k: '分类', v: catSet ? `${esc(d.primary)} › ${esc(d.secondary)}` : '<span style="color:var(--orange)">未选择</span>', act: 'pick', d: { kind: 'cat', key, ctx }, chev: 1 }], sugs ? null : null)}
+  <div class="sec-h">支出性质</div><div class="group"><div class="pad">${segHTML(['持续生活支出', '一次性购买'], natureTxt(d.nature), 'nature', `data-key="${key}"`)}</div></div>
+  <div class="sec-h">标签</div><div class="group"><div class="toks">${d.tags.map((x, i) => `<span class="tok">${esc(x)}<b data-act="tag-del" data-key="${key}" data-i="${i}">×</b></span>`).join('') || '<span class="l2 f13" style="line-height:28px">还没有标签</span>'}</div>
+    <div class="tagin"><input id="taginput-${ctx}" data-key="${key}" data-ctx="${ctx}" placeholder="输入标签，回车添加" autocomplete="off"><button data-act="tag-add-btn" data-key="${key}" data-ctx="${ctx}">添加</button></div>
+    ${more.length ? `<div class="chips" style="padding:0 12px 12px;flex-wrap:wrap;overflow:visible">${more.map(x => `<button class="pill" data-act="tag-pick" data-key="${key}" data-v="${esc(x)}" style="height:26px">+ ${esc(x)}</button>`).join('')}</div>` : ''}</div>
+  ${grp([
+    { k: '消费人', v: esc(member(d.user) || '未指定'), act: 'pick', d: { kind: 'user', key, ctx }, chev: 1 },
+    { k: '支付账户', v: esc(acct(d.account) || '未指定'), act: 'pick', d: { kind: 'account', key, ctx }, chev: 1 }])}`;
+}
+A.sug = el => { const d = S.drafts[el.dataset.key]; const s = T(d.txnId).suggestions[+el.dataset.i]; d.primary = s.primary; d.secondary = s.secondary; touch(d); refresh(); };
+A.nature = el => { const d = S.drafts[el.closest('.seg').dataset.key]; d.nature = el.dataset.v === '持续生活支出' ? 'recurring' : 'one_time'; touch(d); refresh(); };
+function addTag(key, ctx) {
+  const inp = $('#taginput-' + ctx); const v = inp ? inp.value.trim() : ''; const d = S.drafts[key];
+  if (!v) { toast('请先输入标签内容'); return; }
+  if (!d.tags.includes(v)) { d.tags.push(v); touch(d); } else toast('标签已存在');
+  refresh(); const n = $('#taginput-' + ctx); n && n.focus();
+}
+A['tag-add'] = inp => addTag(inp.dataset.key, inp.dataset.ctx);
+A['tag-add-btn'] = el => addTag(el.dataset.key, el.dataset.ctx);
+A['tag-del'] = el => { const d = S.drafts[el.dataset.key]; d.tags.splice(+el.dataset.i, 1); touch(d); refresh(); };
+A['tag-pick'] = el => { const d = S.drafts[el.dataset.key]; d.tags.push(el.dataset.v); touch(d); refresh(); };
+A.pick = el => {
+  const { kind, key, ctx } = el.dataset;
+  if (ctx === 'sheet') { SH.sub = { kind, key }; renderSheet(); } else push('pick', { kind, key });
+};
+const PK_TITLE = { cat: '选择分类', user: '选择消费人', account: '选择支付账户' };
+function pickerBody(kind, key) {
+  const d = S.drafts[key];
+  if (kind === 'cat') return M.taxonomy.filter(g => g.primary !== '待分类').map(g => grp(g.secondaries.map(s => ({
+    k: esc(s), v: d.primary === g.primary && d.secondary === s ? `<span style="color:var(--tint)">${ic('check')}</span>` : '', act: 'set', d: { kind, key, p: g.primary, s }
+  })), esc(g.primary))).join('') + '<div style="height:20px"></div>';
+  const items = kind === 'user' ? [{ id: null, n: '未指定' }, ...S.members.filter(m => m.active).map(m => ({ id: m.id, n: m.name }))] : [{ id: null, n: '未指定' }, ...M.accounts.map(a => ({ id: a.id, n: a.name }))];
+  const cur = kind === 'user' ? d.user : d.account;
+  return grp(items.map(i => ({ k: esc(i.n), v: cur === i.id ? `<span style="color:var(--tint)">${ic('check')}</span>` : '', act: 'set', d: { kind, key, id: i.id == null ? '' : i.id } }))) ;
+}
+A.set = el => {
+  const { kind, key } = el.dataset; const d = S.drafts[key];
+  if (kind === 'cat') { d.primary = el.dataset.p; d.secondary = el.dataset.s; } else if (kind === 'user') d.user = el.dataset.id || null; else d.account = el.dataset.id || null;
+  touch(d);
+  if (SH && SH.sub) { SH.sub = null; renderSheet(); } else pop();
+  refresh();
+};
+VIEWS.pick = ({ kind, key }) => ({ title: PK_TITLE[kind], large: false, hideTab: true, body: pickerBody(kind, key) });
+
+/* ---------- 证据组件 ---------- */
+function evidence(recs, key, title = '原始证据') {
+  const closed = S.open['ev:' + key] === false;
+  const body = recs.length ? recs.map(r => `<div class="erec"><div class="rh">${plat(r.platform)}<span>${esc(r.title)}</span><b>${r.amount == null ? '金额不明' : fmt(r.amount)}</b></div>
+    <div class="l2 f13" style="margin-top:4px">${esc(M.platforms[r.platform])} · ${esc(r.date)} · ${esc(r.status)}</div>
+    ${r.image ? `<div class="evimg ${r.platform === 'card' ? 'card' : ''}"><i></i><i style="width:85%"></i><i style="width:70%"></i><i style="width:92%"></i><i style="width:55%"></i>${r.platform === 'card' ? '<i style="width:80%"></i><i style="width:60%"></i><i style="width:90%"></i><i style="width:45%"></i>' : ''}</div>` : ''}
+    <div class="evtxt">${esc(r.text)}</div>
+    <div style="display:flex;gap:8px;margin-top:10px"><button class="btn sec s" style="flex:1" data-act="noop" data-msg="演示：已打开原件预览">打开原件</button>${r.txn && key.indexOf('raw') !== 0 && key.indexOf('t:') !== 0 ? '' : ''}</div></div>`).join('')
+    : `<div class="l2 f13" style="padding:4px 0 2px">暂无关联的原始资料。</div>`;
+  return `<div class="ev ${closed ? 'closed' : ''}"><div class="eh" data-act="ev-toggle" data-k="${key}">${ic('doc')}<span>${title}</span><span class="l2 f13" style="font-weight:400">${recs.length} 份</span>${chev}</div><div class="eb">${body}</div></div>`;
+}
+A['ev-toggle'] = el => { const k = 'ev:' + el.dataset.k; S.open[k] = S.open[k] === false; refresh(); };
+
+/* ---------- 补全页 ---------- */
+function candCard(q) {
+  const c = q.candidate, r = q.refund, g = q.group; const dec = S.decisions[q.id];
+  const rec = x => { const r0 = RAW(x); return r0 ? `<div class="crec">${plat(r0.platform)}<div class="m"><div>${esc(r0.title)}</div><div class="l2 f13">${esc(M.platforms[r0.platform])} · ${esc(r0.date)}</div></div><b style="font-weight:500">${fmt(r0.amount)}</b></div>` : ''; };
+  if (g) return `<div class="cand"><h4>${ic('link')}来源归并 ${badge('来源归并')}</h4>
+    <div class="l2 f13">保留的银行记录</div>${g.retained.map(x => `<div class="crec"><div class="m">${esc(x)}</div></div>`).join('')}
+    <div class="l2 f13" style="margin-top:4px">另一来源记录</div>${g.shadow.map(x => `<div class="crec"><div class="m">${esc(x)}</div></div>`).join('')}
+    <div class="btns">${['确认整组归并', '拒绝归并'].map(v => `<button class="btn sec ${dec === v ? 'on' : ''}" data-act="cand" data-id="${q.id}" data-v="${v}">${v}</button>`).join('')}</div>
+    <div class="note">${ic('mac')}<span>${dec ? `已选择「${dec}」· ` : ''}将发送到 Mac 处理</span></div></div>`;
+  const recs = r ? (r.record ? [r.record] : []) : c.records;
+  const head = r ? `退款候选 · ${fmt(r.amount)}` : `关联候选 · ${esc(c.kind)}`;
+  return `<div class="cand"><h4>${ic('link')}${head}</h4>${r ? `<div class="l2 f13" style="margin-bottom:4px">${esc(r.note)}</div>` : `<div class="l2 f13" style="margin-bottom:4px">状态：${esc(c.status)}</div>`}
+    ${recs.map(rec).join('') || '<div class="crec l2">未找到对应的原始记录</div>'}
+    ${!r && c.competing.length ? `<div class="l2 f13" style="margin-top:6px">竞争候选</div>${c.competing.map(rec).join('')}` : ''}
+    <div class="btns">${['支持', '排除', '仍需资料'].map(v => `<button class="btn sec ${dec === v ? 'on' : ''}" data-act="cand" data-id="${q.id}" data-v="${v}">${v}</button>`).join('')}</div>
+    <div class="note">${ic('mac')}<span>${dec ? `已选择「${dec}」· ` : ''}iPhone 上的判断将发送到 Mac 处理</span></div></div>`;
+}
+A.cand = el => {
+  const q = S.todos.find(x => x.id === el.dataset.id), v = el.dataset.v; S.decisions[q.id] = v;
+  const title = `${q.type}判断 · ${vm(q).title}`;
+  S.requests = S.requests.filter(r => r.title !== title); S.requests.unshift({ id: 'rq' + Date.now(), title, state: `已选「${v}」· 等待 Mac 处理`, time: '刚刚' });
+  refresh(); toast(`已记录「${v}」· 将发送到 Mac 处理`);
+};
+VIEWS.complete = ({ id }) => {
+  const q = S.todos.find(x => x.id === id); const v = vm(q), t = v.t;
+  const d = t ? ensureDraft(id, t.id) : null;
+  const list = pending(S.todoFilter), i = list.findIndex(x => x.id === id);
+  const hasPrev = list.length > 1 && i > 0, hasNext = list.length > 1 && i < list.length - 1;
+  const recs = t ? rawOf(t.id) : (q.candidate ? q.candidate.records.map(RAW) : []);
+  const fact = (q.type === '待核事实' && t) ? `<div class="card"><div class="ch"><h3>核实事实</h3></div><div style="display:flex;gap:8px;font-size:14px;line-height:1.45;color:var(--l2)">${ic('warn')}<span>${esc(t.factNote || '请确认金额与日期')}</span></div></div>
+    <div style="height:14px"></div><div class="group">
+    <div class="row nc"><span class="k">统计处理</span><span style="margin-left:auto;width:190px">${segHTML(['计入', '暂不计入'], d.include ? '计入' : '暂不计入', 'fact-inc', `data-key="${id}"`)}</span></div>
+    <div class="row nc"><span class="k">金额更正</span><span class="field"><input data-ch="fact-amt" data-key="${id}" value="${esc(d.amountStr)}" placeholder="例如 560.00" inputmode="decimal"></span></div>
+    <div class="row nc"><span class="k">日期更正</span><span class="field"><input type="date" data-ch="fact-date" data-key="${id}" value="${esc(d.date)}"></span></div></div>` : '';
+  const sub = [md(v.date), t ? (M.platforms[t.platform] || '') : '手动关联'].filter(Boolean).join(' · ');
+  return {
+    title: '补全', large: false, hideTab: true,
+    right: navBtn('cur-nav', ic('up'), `data-d="-1" ${hasPrev ? '' : 'style="opacity:.3"'}`) + navBtn('cur-nav', ic('down'), `data-d="1" ${hasNext ? '' : 'style="opacity:.3"'}`),
+    body: `<div class="hdr"><div class="pos">${i >= 0 ? `第 ${i + 1} / ${list.length} 笔` : '已处理事项'}</div><div class="tt">${esc(v.title)}</div><div style="font-size:34px;font-weight:700;margin-top:6px;${v.amount == null ? 'color:var(--l2)' : ''}">${v.amount == null ? '金额待确定' : fmt(v.amount)}</div><div class="meta"><span>${sub}</span>${v.badges.map(badge).join('')}${v.draft ? badge('草稿') : ''}</div></div>
+    ${fact}${t ? editor(id, 'page') : ''}${(q.candidate || q.refund || q.group) ? candCard(q) : ''}${(t || recs.length) ? evidence(recs, id) : ''}<div style="height:16px"></div>`,
+    foot: `<button class="btn sec" data-act="hold-cur" data-id="${id}">暂放</button><button class="btn main" data-act="save-cur" data-id="${id}">保存并下一笔</button>`
+  };
+};
+A['fact-inc'] = el => { const d = S.drafts[el.closest('.seg').dataset.key]; d.include = el.dataset.v === '计入'; touch(d); refresh(); };
+A['fact-amt'] = el => { const d = S.drafts[el.dataset.key]; d.amountStr = el.value.replace(/[¥,\s]/g, ''); touch(d); refresh(); };
+A['fact-date'] = el => { const d = S.drafts[el.dataset.key]; d.date = el.value; touch(d); refresh(); };
+A['cur-nav'] = el => {
+  const p = topPage(), list = pending(S.todoFilter).map(x => x.id), i = list.indexOf(p.params.id), n = i + (+el.dataset.d);
+  if (n < 0 || n >= list.length) { toast(n < 0 ? '已经是第一笔' : '已经是最后一笔'); return; }
+  p.params.id = list[n]; refresh(); const sc = p.el.querySelector('.scroll'); sc.scrollTop = 0; sc.classList.remove('fadein'); void sc.offsetWidth; sc.classList.add('fadein');
+};
+A['hold-cur'] = el => holdTodo(el.dataset.id);
+function applyDraft(t, d) {
+  t.primary = d.primary; t.secondary = d.secondary; t.nature = d.nature; t.tags = [...d.tags]; t.user = d.user; t.account = d.account;
+  if (d.amountStr !== '' && !isNaN(parseFloat(d.amountStr))) { t.amount = Math.round(parseFloat(d.amountStr) * 100); if (t.status === '金额待确定') t.status = '已支付'; }
+  if (d.date) t.date = d.date;
+  if (t.primary && t.primary !== '待分类') t.issues = t.issues.filter(x => x !== '待分类');
+}
+A['save-cur'] = el => {
+  const id = el.dataset.id, q = S.todos.find(x => x.id === id), d = S.drafts[id], t = q.txn ? T(q.txn) : null;
+  if (q.type === '待分类' && d && (!d.primary || d.primary === '待分类')) {
+    const g = topPage().el.querySelector('.group'); const row = [...topPage().el.querySelectorAll('.row')].find(r => r.dataset.kind !== undefined || (r.dataset.act === 'pick' && r.dataset.kind === 'cat'));
+    if (row) { row.classList.remove('shake'); void row.offsetWidth; row.classList.add('shake'); }
+    toast('请先选择分类再保存'); return;
+  }
+  const v = vm(q), snap = { t: t ? clone(t) : null, status: q.status, d: d ? clone(d) : null, hist: clone(S.history), dec: S.decisions[id] };
+  const next = nextAfter(id);
+  if (t && d) { applyDraft(t, d); t.issues = t.issues.filter(x => x !== q.type); if (!d.include) t.excluded = true; }
+  q.status = 'saved'; delete S.drafts[id];
+  S.history = S.history.filter(h => h.todoId !== id);
+  S.history.unshift({ id: 'hs' + id, bucket: '本次已保存', title: v.title, date: t ? t.date : v.date, amount: t ? t.amount : v.amount, todoId: id });
+  advanceView(true, next);
+  toast('已保存 · 撤销', () => {
+    if (snap.t) S.txns[snap.t.id] = snap.t; q.status = snap.status; S.history = snap.hist; if (snap.d) S.drafts[id] = snap.d;
+    if (snap.dec) S.decisions[id] = snap.dec; reopen(id);
+  });
+};
+
+
+/* ---------- 交易 ---------- */
+function filteredTxns() {
+  const f = S.f, q = S.q.trim().toLowerCase();
+  return Object.values(S.txns).filter(t => {
+    if (f.month && !t.date.startsWith(f.month)) return false;
+    if (f.account && t.account !== f.account) return false;
+    if (f.primary && t.primary !== f.primary) return false;
+    if (f.tag && !t.tags.includes(f.tag)) return false;
+    if (f.view === '全部消费' && t.nonConsumption) return false;
+    if (f.view === '待处理' && !t.issues.length) return false;
+    if (f.view === '账户待关联' && !t.issues.includes('关联复核')) return false;
+    if (f.view === '资金流' && !t.nonConsumption) return false;
+    if (q && !(t.title + (t.primary || '') + (t.secondary || '') + t.tags.join('') + (acct(t.account) || '')).toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a, b) => b.date.localeCompare(a.date));
+}
+const filterActive = () => !!(S.f.account || S.f.primary || S.f.tag || S.f.month || S.f.view !== '全部消费');
+VIEWS.txn = () => {
+  const f = S.f;
+  const chips = [];
+  if (f.month) chips.push(['month', monLabel(MON.findIndex(m => m.month === f.month))]);
+  if (f.account) chips.push(['account', acct(f.account)]);
+  if (f.primary) chips.push(['primary', f.primary]);
+  if (f.tag) chips.push(['tag', '# ' + f.tag]);
+  if (f.view !== '全部消费') chips.push(['view', f.view]);
+  const fc = chips.length ? `<div class="chips" style="padding-top:8px;padding-bottom:0">${chips.map(([k, v]) => `<button class="chip x" data-act="f-clear" data-k="${k}">${esc(v)}${ic('x')}</button>`).join('')}</div>` : '';
+  let list = '';
+  if (S.scope === 'txn') {
+    const L = filteredTxns();
+    list = L.length ? txnGroups(L) : empty('search', '没有符合条件的交易', S.q ? '换个关键词试试' : '调整筛选条件试试', `<a data-act="f-reset">清除筛选</a>`);
+  } else {
+    const q = S.q.trim().toLowerCase();
+    const L = M.rawRecords.filter(r => (S.rawPlat === '全部' || r.platform === S.rawPlat) && (!q || (r.title + r.text).toLowerCase().includes(q))).sort((a, b) => b.date.localeCompare(a.date));
+    const pc = ['全部', ...Object.keys(M.platforms)].map(p => `<button class="chip ${S.rawPlat === p ? 'on' : ''}" data-act="plat" data-v="${p}">${p === '全部' ? '全部' : M.platforms[p]}</button>`).join('');
+    list = `<div class="chips" style="padding-top:8px;padding-bottom:4px">${pc}</div>` + (L.length ? `<div class="sec-h" style="padding-top:8px">${L.length} 份原始资料</div><div class="group">${L.map(r => row({ icon: plat(r.platform), main: esc(r.title), sub: `${esc(r.date)}${r.txn ? ' · 已归入交易' : ' · 未归入'}`, amt: r.amount == null ? '—' : fmt(r.amount), act: 'raw-open', d: { id: r.id }, chev: 1 }).replace('min-height:44px', '')).join('')}</div>` : empty('doc', '没有原始资料', '换个平台或关键词试试'));
+  }
+  return {
+    title: '交易', right: navBtn('filter-open', ic('filter') + (filterActive() ? '<span class="dot"></span>' : ''), 'style="position:relative"'),
+    body: `<div class="sticky"><div class="search">${ic('search')}<input id="q-input" data-in="q" value="${esc(S.q)}" placeholder="${S.scope === 'txn' ? '搜索商家、分类、标签' : '搜索原始资料'}" autocomplete="off"></div>
+      <div style="padding:10px 16px 0">${segHTML(['交易', '原始资料'], S.scope === 'txn' ? '交易' : '原始资料', 'scope')}</div>${fc}</div>${list}<div style="height:20px"></div>`
+  };
+};
+A.scope = el => { S.scope = el.dataset.v === '交易' ? 'txn' : 'raw'; refresh(); };
+A.plat = el => { S.rawPlat = el.dataset.v; refresh(); };
+A['f-clear'] = el => { const k = el.dataset.k; S.f[k] = k === 'view' ? '全部消费' : null; refresh(); };
+A['f-reset'] = () => { S.f = { account: null, primary: null, tag: null, view: '全部消费', month: null }; S.q = ''; refresh(); };
+A['filter-open'] = () => openSheet({
+  title: '筛选', render: () => {
+    const f = S.f; const ch = (k, v, label, on) => `<button class="chip ${on ? 'on' : ''}" data-act="f-set" data-k="${k}" data-v="${esc(v)}">${esc(label)}</button>`;
+    const sec = (h, inner) => `<div class="sec-h">${h}</div><div class="chips wrap" style="padding-bottom:0">${inner}</div>`;
+    return {
+      title: '筛选', left: navBtn('f-reset-sheet', '重置'), right: navBtn('sheet-close', '完成'),
+      body: sec('视图', ['全部消费', '待处理', '账户待关联', '资金流'].map(v => ch('view', v, v, f.view === v)).join('')) +
+        sec('账户', ch('account', '', '全部', !f.account) + M.accounts.map(a => ch('account', a.id, a.name, f.account === a.id)).join('')) +
+        sec('一级分类', ch('primary', '', '全部', !f.primary) + M.taxonomy.map(g => ch('primary', g.primary, g.primary, f.primary === g.primary)).join('')) +
+        sec('标签', ch('tag', '', '全部', !f.tag) + M.tags.map(x => ch('tag', x, x, f.tag === x)).join('')) +
+        `<div class="sec-f" style="text-align:center;padding-top:18px">当前显示 ${filteredTxns().length} 笔交易</div>`
+    };
+  }
+});
+A['f-set'] = el => { S.f[el.dataset.k] = el.dataset.v || null; if (el.dataset.k === 'view' && !el.dataset.v) S.f.view = '全部消费'; refresh(); };
+A['f-reset-sheet'] = () => { S.f = { account: null, primary: null, tag: null, view: '全部消费', month: null }; refresh(); toast('已重置筛选'); };
+A['sheet-close'] = () => { if (SH && SH.onClose) SH.onClose(); closeSheet(); };
+A['sheet-back'] = () => { SH.sub = null; renderSheet(); };
+
+/* ---------- 交易详情 ---------- */
+const KIND = { payment: ['支付', 'var(--tint)'], refund: ['退款', 'var(--green)'], bank_debit: ['银行扣款', 'var(--blue)'] };
+VIEWS.txndetail = ({ id }) => {
+  const t = T(id);
+  const lc = M.lifecycle[id] || [{ date: t.date, kind: 'payment', source: t.platform, account: acct(t.account) || t.channel, status: t.status, amount: t.amount }];
+  const tl = lc.map(e => `<div class="it" style="--c:${KIND[e.kind][1]}"><div class="a"><span>${KIND[e.kind][0]}</span><b style="color:${e.amount < 0 ? 'var(--green)' : 'inherit'}">${fmt(e.amount)}</b></div><div class="s">${md(e.date)} · ${esc(M.platforms[e.source])} · ${esc(e.account)} · ${esc(e.status)}</div></div>`).join('');
+  const cat = t.primary ? (t.secondary && t.secondary !== t.primary ? `${t.primary} › ${t.secondary}` : t.primary) : '非消费（资金流）';
+  return {
+    title: '交易详情', large: false, hideTab: true,
+    right: navBtn('txn-edit', '编辑', `data-id="${id}"`),
+    body: `<div class="hdr"><div class="l2 f13" style="font-size:14px">${esc(t.title)}</div><div class="big" style="margin-top:4px;${t.amount == null ? 'color:var(--l2);font-size:32px' : ''}">${t.amount == null ? '金额待确定' : fmt(t.amount)}</div>
+      ${t.refund ? `<div class="f13 dn" style="margin-top:4px">已退款 ${fmt(t.refund)} · 净额 ${fmt(net(t))}</div>` : ''}
+      <div class="meta"><span>${mdw(t.date)}</span><span>· ${esc(t.status)}</span>${t.issues.map(badge).join('')}${t.excluded ? '<span class="badge" style="--c:var(--gray)">已排除</span>' : ''}</div></div>
+    ${grp([{ k: '分类', v: esc(cat) }, { k: '支出性质', v: esc(natureTxt(t.nature) || '—') }])}
+    ${grp([{ k: '消费人', v: esc(member(t.user) || '—') }, { k: '支付账户', v: esc(acct(t.account) || '—') }, { k: '通道', v: esc(t.channel) },
+      { k: '标签', v: t.tags.length ? t.tags.map(x => `<span class="pill">${esc(x)}</span>`).join(' ') : '—' }])}
+    ${card('生命周期', `<div class="tl">${tl}</div>`)}
+    ${evidence(rawOf(id), 't:' + id)}
+    ${grp([{ k: '从补全和统计中排除', toggle: !!t.excluded, act: 'excl', d: { id } }], '更多', '排除后，这笔交易不再计入统计，也不会出现在待办。')}<div style="height:12px"></div>`,
+    foot: `<button class="btn main" data-act="txn-edit" data-id="${id}">编辑</button>`
+  };
+};
+A.excl = el => { const t = T(el.dataset.id); t.excluded = !t.excluded; refresh(); toast(t.excluded ? '已从补全和统计中排除' : '已恢复计入统计', () => { t.excluded = !t.excluded; refresh(); }); };
+A['txn-edit'] = el => {
+  const id = el.dataset.id, key = 't:' + id; delete S.drafts[key]; ensureDraft(key, id);
+  openSheet({
+    key, onClose: () => { delete S.drafts[key]; },
+    render: sh => sh.sub ? { title: PK_TITLE[sh.sub.kind], left: navBtn('sheet-back', ic('back') + '<span style="margin-left:-4px">编辑</span>'), body: pickerBody(sh.sub.kind, key) }
+      : { title: '编辑交易', left: navBtn('sheet-close', '取消'), right: navBtn('txn-save', '保存', `data-id="${id}"`), body: `<div class="hdr" style="padding-top:8px"><div class="l2 f13">${esc(T(id).title)}</div><div style="font-size:24px;font-weight:700">${fmt(T(id).amount)}</div></div>${editor(key, 'sheet')}` }
+  });
+};
+A['txn-save'] = el => {
+  const id = el.dataset.id, key = 't:' + id, d = S.drafts[key], t = T(id), snap = clone(t);
+  applyDraft(t, d); closeSheet(); delete S.drafts[key]; refresh();
+  toast('已保存 · 撤销', () => { S.txns[id] = snap; refresh(); });
+};
+A['raw-open'] = el => push('rawdetail', { id: el.dataset.id });
+VIEWS.rawdetail = ({ id }) => {
+  const r = RAW(id);
+  return {
+    title: '原始资料', large: false,
+    body: `<div class="hdr" style="display:flex;gap:12px;align-items:center">${plat(r.platform)}<div style="min-width:0"><div style="font-size:17px;font-weight:600">${esc(r.title)}</div><div class="l2 f13">${esc(M.platforms[r.platform])} · ${esc(r.date)}</div></div></div>
+    <div style="padding:10px 16px 0" class="big">${r.amount == null ? '<span class="l2" style="font-size:30px">金额不明</span>' : fmt(r.amount)}</div>
+    ${grp([{ k: '状态', v: esc(r.status) }, { k: '所属交易', v: r.txn ? esc(T(r.txn).title) : '<span style="color:var(--orange)">尚未归入交易</span>' }])}
+    ${r.txn ? grp([{ k: '查看所属交易 →', tint: 1, act: 'goto-txn', d: { id: r.txn }, chev: 1 }]) : '<div class="sec-f">这份资料会在待办「关联复核」里等待判断。</div>'}
+    ${evidence([r], 'raw:' + id)}<div style="height:16px"></div>`
+  };
+};
+A['goto-txn'] = el => push('txndetail', { id: el.dataset.id });
+
+
+/* ---------- 我的 ---------- */
+const subRow = (icon, color, k, v, id, extra = {}) => ({ icon: rIcon(icon, color), k, v, act: 'push', d: { page: 'sub', p: JSON.stringify({ id }) }, chev: 1, ...extra });
+VIEWS.me = () => {
+  const syncRow = { icon: rIcon('cloud', 'var(--green)'), main: `已同步 · ${esc(S.syncLast)}`, sub: `${esc(M.household.name)} · ${esc(S.syncFolder)}`, act: 'push', d: { page: 'sub', p: JSON.stringify({ id: 'sync' }) }, chev: 1 };
+  return {
+    title: '我的',
+    body: `${grp([syncRow,
+      { icon: rIcon('sync', 'var(--tint)'), k: '立即同步', tint: 1, act: 'sync-now', v: S.syncing ? '<span class="spin"></span>' : null },
+      subRow('folder', '#8E8E93', '同步目录', esc(S.syncFolder.split('/').pop()), 'syncdir'),
+      subRow('mac', 'var(--blue)', '发往 Mac 的请求', S.requests.length ? `<span class="cnt" style="background:var(--tint);color:var(--onbtn)">${S.requests.length}</span>` : '无', 'requests'),
+      subRow('warn', 'var(--orange)', '同步冲突', S.conflict ? '<span class="cnt">1</span>' : '无', 'conflicts')], '家庭同步')}
+    ${grp([subRow('person', '#5E5CE6', '成员', S.members.filter(m => m.active).length + ' 人', 'members'), subRow('card', '#FF9F0A', '账户', M.accounts.length + ' 个', 'accounts'), subRow('link', '#BF5AF2', '来源归属规则', '', 'ownrules')], '家庭')}
+    ${grp([subRow('list', 'var(--tint)', '分类管理', M.taxonomy.length + ' 类', 'taxonomy'), subRow('tag', '#FF6482', '标签规则', M.settings.tagRules.length + ' 条', 'tagrules')], '分类与标签')}
+    ${grp([{ icon: rIcon('flame', '#FF6B35'), k: 'FIRE 规划', v: '只读', act: 'fire-open', chev: 1 }], 'FIRE 规划', '完整视图为只读；参数可在详情页进入编辑，但建议在 Mac 上调整。')}
+    ${grp([subRow('shield', '#30B0C7', '本机副本备份', '上次 ' + S.lastBackup.slice(5, 10).replace('-', '/'), 'backup'), subRow('folder', '#8E8E93', '重新选择目录', '', 'pickdir'), subRow('check', 'var(--green)', '资料检查', '', 'check')], '备份与资料')}
+    ${grp([subRow('info', '#8E8E93', '关于', '版本 0.9 原型', 'about')], '关于')}<div style="height:24px"></div>`
+  };
+};
+A['sync-now'] = () => doSync();
+const lvlColor = { ok: 'var(--green)', info: 'var(--blue)', warning: 'var(--orange)', error: 'var(--red)' };
+const SUBS = {
+  sync: () => ['同步状态', `<div class="card" style="text-align:center;padding:22px 16px"><div class="ricon" style="width:52px;height:52px;border-radius:26px;background:var(--green);margin:0 auto 10px">${ic('check')}</div><div style="font-size:20px;font-weight:700">已同步</div><div class="l2" style="font-size:14px;margin-top:2px">上次同步 ${esc(S.syncLast)}</div></div>` +
+    grp([{ k: '同步目录', v: esc(S.syncFolder) }, { k: '本机角色', v: '客户端' }, { k: '主机', v: esc(M.household.device) }], '概况') +
+    grp(M.system.map(s => {
+      const act = { s1: 'sync-now', s2: 'push', s3: 'push', s4: 'retry-rec' }[s.id];
+      const d = s.id === 's2' ? { page: 'sub', p: JSON.stringify({ id: 'conflicts' }) } : s.id === 's3' ? { page: 'sub', p: JSON.stringify({ id: 'requests' }) } : {};
+      const title = s.id === 's4' && S.retried ? '录屏已重新提交解析' : s.id === 's2' && !S.conflict ? '冲突已处理' : s.title;
+      return { icon: `<span class="dot" style="background:${s.id === 's2' && !S.conflict || s.id === 's4' && S.retried ? 'var(--green)' : lvlColor[s.level]}"></span>`, main: esc(title), sub: esc(s.detail), v: `<span style="color:var(--tint)">${esc(s.id === 's4' && S.retried ? '已重试' : s.action)}</span>`, act, d, chev: 0 };
+    }), '系统事项', '系统事项不进入待办，只在这里查看。')],
+  syncdir: () => ['同步目录', grp([{ k: '当前目录', v: esc(S.syncFolder) }, { k: '最近同步', v: esc(S.syncLast) }], '目录') + grp(M.settings.devices.map(d => ({ icon: rIcon(d.role === '主机' ? 'mac' : 'person', '#8E8E93'), main: esc(d.name), sub: d.role, v: d.role === '主机' ? '在线' : '' })), '参与设备') + grp([{ k: '重新选择目录…', tint: 1, act: 'push', d: { page: 'sub', p: JSON.stringify({ id: 'pickdir' }) }, chev: 1 }], null, '所有设备需指向同一个 iCloud Drive 文件夹。')],
+  pickdir: () => ['选择目录', grp(['iCloud Drive/家庭复盘', 'iCloud Drive/家庭复盘（备用）', '我的 iPhone/文稿/家庭复盘'].map(p => ({ k: esc(p), v: S.syncFolder === p ? `<span style="color:var(--tint)">${ic('check')}</span>` : '', act: 'setdir', d: { p } })), '可用位置', '切换目录后会重新建立同步，不会删除原目录中的数据。')],
+  requests: () => ['发往 Mac 的请求', S.requests.length ? grp(S.requests.map(r => ({ icon: rIcon('mac', 'var(--blue)'), main: esc(r.title), sub: `${esc(r.state)} · ${esc(r.time)}`, act: 'req', d: { id: r.id } })), '队列', 'Mac 在线时会自动处理，结果通过同步返回。轻点可重新发送。') + grp([{ k: '清空已完成', tint: 1, act: 'req-clear' }]) : empty('mac', '没有待发送的请求', 'iPhone 上的判断与素材会在这里排队。')],
+  conflicts: () => ['同步冲突', S.conflict ? `<div class="card"><div class="ch"><h3>海底捞火锅 · 标签</h3><span class="r">1 项</span></div><div class="l2 f13" style="margin-bottom:10px">iPhone 与 Mac 同时修改了标签，请选择保留哪一个。</div>
+      <div class="btns" style="display:flex;flex-direction:column;gap:10px"><button class="btn sec" style="height:64px;flex-direction:column;gap:2px" data-act="resolve" data-v="iPhone"><span>使用 iPhone 的版本</span><span class="f13 l2" style="font-weight:400">生日 · 周末 · 聚餐</span></button><button class="btn sec" style="height:64px;flex-direction:column;gap:2px" data-act="resolve" data-v="Mac"><span>使用 Mac 的版本</span><span class="f13 l2" style="font-weight:400">生日</span></button></div></div>` : empty('check', '没有同步冲突', '所有设备的修改已合并。')],
+  members: () => ['成员', grp(S.members.map(m => ({ icon: rIcon('person', m.active ? '#5E5CE6' : '#8E8E93'), k: esc(m.name), toggle: m.active, act: 'member', d: { id: m.id } })), '家庭成员', '停用的成员不会出现在消费人选项里。') + grp([{ k: '添加成员…', tint: 1, act: 'noop', d: { msg: '演示：添加成员在 Mac 上完成' } }])],
+  accounts: () => ['账户', grp(M.accounts.map(a => ({ icon: rIcon('card', '#FF9F0A'), main: esc(a.name), sub: '归属 ' + esc(member(a.owner)), chev: 1, act: 'noop', d: { msg: '演示：账户详情在 Mac 上编辑' } })), '支付账户')],
+  ownrules: () => ['来源归属规则', grp([['微信零钱', 'm1'], ['支付宝余额', 'm2'], ['建设银行储蓄卡 ·0451', 'm2'], ['招商银行信用卡 ·8812', 'm1']].map(([s, m]) => ({ k: esc(s), v: '→ ' + esc(member(m)), act: 'noop', d: { msg: '演示：规则在 Mac 上编辑' } })), '按来源自动归属', '新导入的记录会按规则填入消费人。') + grp([{ k: '无法判断时', v: '留给待办', chev: 0 }])],
+  taxonomy: () => ['分类管理', grp(M.taxonomy.map(g => ({ main: esc(g.primary), sub: esc(g.secondaries.join('、')), v: g.secondaries.length + ' 项', act: 'push', d: { page: 'sub', p: JSON.stringify({ id: 'taxo', p: g.primary }) }, chev: 1 })), '一级分类')],
+  taxo: ({ p }) => [p, grp(M.taxonomy.find(g => g.primary === p).secondaries.map(s => ({ k: esc(s), v: Object.values(S.txns).filter(t => t.secondary === s).length + ' 笔' })), '二级分类') + grp([{ k: '新建二级分类…', tint: 1, act: 'noop', d: { msg: '演示：新建分类' } }])],
+  tagrules: () => ['标签规则', grp(M.settings.tagRules.map(r => ({ main: esc(r.match), sub: '自动添加标签', v: `<span class="pill">${esc(r.tag)}</span>`, act: 'noop', d: { msg: '演示：规则在此编辑' } })), '自动规则') + `<div class="sec-h">全部标签</div><div class="chips wrap">${M.tags.map(x => `<span class="pill" style="height:28px;padding:0 12px;font-size:14px">${esc(x)}</span>`).join('')}</div>` + grp([{ k: '新建规则…', tint: 1, act: 'noop', d: { msg: '演示：新建标签规则' } }])],
+  backup: () => ['本机副本备份', grp([{ k: '最近备份', v: esc(S.lastBackup) }, { k: '位置', v: '本机 · 文稿/家庭复盘备份' }, { k: '立即备份', tint: 1, act: 'backup-now', v: S.backing ? '<span class="spin"></span>' : null }], '备份') + grp([{ k: '每周自动备份', toggle: S.flags.autoBackup, act: 'flag', d: { k: 'autoBackup' } }, { k: '仅在 Wi-Fi 下备份', toggle: S.flags.wifiOnly, act: 'flag', d: { k: 'wifiOnly' } }], '选项', '备份为本机副本，不会上传到其他服务。')],
+  check: () => {
+    const un = M.rawRecords.filter(r => r.txn == null).length;
+    return ['资料检查', grp([{ icon: rIcon('check', 'var(--green)'), k: '重复来源', v: '0 项' }, { icon: rIcon('warn', 'var(--orange)'), k: '金额待确定的交易', v: Object.values(S.txns).filter(t => t.amount == null).length + ' 项', act: 'goto-todo', d: { type: '待核事实' }, chev: 1 }, { icon: rIcon('warn', 'var(--orange)'), k: '未归入交易的原始资料', v: un + ' 份', act: 'raw-unlinked', chev: 1 }, { icon: rIcon('check', 'var(--green)'), k: '日期冲突', v: '0 项' }], '检查结果') + grp([{ k: '重新检查', tint: 1, act: 'recheck' }])];
+  },
+  about: () => ['关于', `<div style="text-align:center;padding:10px 0 0"><div class="ricon" style="width:72px;height:72px;border-radius:17px;background:var(--tint);margin:0 auto 10px">${ic('chart').replace('class="i "', 'class="i" style="width:40px;height:40px"')}</div><div style="font-size:20px;font-weight:700">家庭财务复盘</div><div class="l2 f13">iPhone 原型 · 演示数据</div></div>` + grp([{ k: '版本', v: '0.9 (原型)' }, { k: '家庭', v: esc(M.household.name) }, { k: '设备', v: '林然的 iPhone' }, { k: '数据截止', v: esc(M.household.cutoff) }]) + grp([{ k: '隐私说明', chev: 1, act: 'noop', d: { msg: '数据仅保存在你的 iCloud Drive 与本机' } }, { k: '开源许可', chev: 1, act: 'noop', d: { msg: '演示：许可列表' } }])],
+  fireparams: () => {
+    const P = S.fireParams;
+    const st = (k, txt) => `<span class="stepv"><button data-act="fp" data-k="${k}" data-d="-1">−</button><span style="min-width:84px;text-align:center;color:var(--label)">${txt}</span><button data-act="fp" data-k="${k}" data-d="1">+</button></span>`;
+    const F = calcFire(M.fire.annualReturn);
+    return ['FIRE 参数', grp([{ k: '年投入', v: st('annualContribution', fmtY(P.annualContribution)), act: null }, { k: '日常年支出', v: st('normalExpense', fmtY(P.normalExpense)) }, { k: '提取率', v: st('withdrawalRate', (P.withdrawalRate * 100).toFixed(1) + '%') }], '可调整', '修改后立即重算，仅保存在本次演示中。') +
+      grp([{ k: '目标资产', v: fmtY(F.target) }, { k: '预计达成', v: F.age + ' 岁' }], '结果')];
+  }
+};
+VIEWS.sub = p => {
+  const [title, body] = SUBS[p.id](p);
+  return { title, large: ['sync', 'syncdir', 'requests', 'conflicts', 'members', 'accounts', 'taxonomy', 'tagrules', 'backup', 'check', 'fireparams', 'pickdir', 'ownrules'].includes(p.id) ? title : false, body: body + '<div style="height:20px"></div>' };
+};
+A.setdir = el => { S.syncFolder = el.dataset.p; refresh(); toast('已切换同步目录'); };
+A.req = el => { const r = S.requests.find(x => x.id === el.dataset.id); r.state = '已重新发送 · 等待 Mac 处理'; r.time = '刚刚'; refresh(); toast('已重新发送'); };
+A['req-clear'] = () => toast('没有已完成的请求');
+A.resolve = el => {
+  S.conflict = false; const t = T('t13'); t.tags = el.dataset.v === 'iPhone' ? ['生日', '周末', '聚餐'] : ['生日'];
+  refresh(); toast(`已使用 ${el.dataset.v} 的版本`);
+};
+A.member = el => { const m = S.members.find(x => x.id === el.dataset.id); m.active = !m.active; refresh(); };
+A.flag = el => { S.flags[el.dataset.k] = !S.flags[el.dataset.k]; refresh(); };
+A['retry-rec'] = () => { S.retried = true; refresh(); toast('已重新提交解析'); };
+A['backup-now'] = () => { if (S.backing) return; S.backing = true; refresh(); setTimeout(() => { S.backing = false; S.lastBackup = '2026-10-28 ' + '09:41'; refresh(); toast('备份完成'); }, 1300); };
+A.recheck = () => toast('检查完成 · 发现 2 项需要关注');
+A['raw-unlinked'] = () => { S.scope = 'raw'; S.rawPlat = '全部'; S.q = ''; switchTab('txn', true); toast('已切换到原始资料'); };
+A.fp = el => {
+  const k = el.dataset.k, d = +el.dataset.d, P = S.fireParams;
+  if (k === 'withdrawalRate') P[k] = Math.max(0.02, Math.min(0.06, Math.round((P[k] + d * 0.001) * 1000) / 1000)); else P[k] = Math.max(0, P[k] + d * (k === 'annualContribution' ? 10000 : 12000));
+  refresh();
+};
+
+/* ---------- boot ---------- */
+function boot() {
+  initState(); bootStacks(); switchTab('overview');
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (h.get('theme')) document.documentElement.dataset.theme = h.get('theme');
+  if (h.has('bare')) document.body.classList.add('bare');
+  if (h.get('period')) { S.period = h.get('period'); }
+  if (h.get('scope') === 'raw') S.scope = 'raw';
+  if (h.get('month')) S.f.month = h.get('month');
+  if (h.get('q')) S.q = h.get('q');
+  window._instant = true;
+  if (h.get('tab')) switchTab(h.get('tab'));
+  (h.get('push') || '').split(',').filter(Boolean).forEach(x => {
+    const [n, a, b] = x.split(':'); const pm = { complete: { id: a }, txndetail: { id: a }, rawdetail: { id: a }, catlist: { p: a }, sub: { id: a, p: b }, fire: {}, pick: { kind: a, key: b } }[n] || {};
+    push(n, pm, false);
+  });
+  const sh = h.get('sheet');
+  if (sh) { const [n, a] = sh.split(':'); if (n === 'edit') A['txn-edit']({ dataset: { id: a } }); else if (n === 'filter') A['filter-open'](); else if (n === 'custom') A['custom-sheet'](); }
+  window._instant = false;
+  refresh();
+}
+$('#resetBtn').addEventListener('click', () => { closeSheet(true); closeAction(true); boot(); toast('演示数据已重置'); });
+boot();
+
+/*@@END@@*/
+</script>
+</body>
+</html>

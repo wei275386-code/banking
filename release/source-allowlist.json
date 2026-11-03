@@ -15,6 +15,7 @@
       "native/FamilyReviewIOS/FamilyReviewApp/FamilyReviewApp.swift",
       "native/FamilyReviewIOS/FamilyReviewApp/Info.plist",
       "native/FamilyReviewIOS/FamilyReviewApp/MobileData.swift",
+      "native/FamilyReviewIOS/FamilyReviewApp/MobileInbox.swift",
       "native/FamilyReviewIOS/FamilyReviewApp/MobileServices.swift",
       "native/FamilyReviewIOS/project.yml",
       "native/PaymentImageCore/Package.swift",

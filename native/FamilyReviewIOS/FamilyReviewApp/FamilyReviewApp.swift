@@ -18,41 +18,53 @@ struct MobileRoot: View {
     @State private var services = MobileServices.shared
     @State private var tab = "overview"
     @State private var filters = false
+    @State private var inbox = InboxModel()
     @State private var overviewPath = [String]()
     @State private var detailPath = [String]()
+    @State private var mePath = [String]()
+    @State private var rawScope = false
     @State private var ready = false
     @Environment(\.scenePhase) private var scene
     private var reviewTabs: some View {
         TabView(selection: $tab) {
-            NavigationStack(path: $overviewPath) { MobilePage(title: "家庭复盘", finance: finance) {
-                NavigationLink { HouseholdSettingsView(store: finance) } label: { Label("家庭设置", systemImage: "person.2.badge.gearshape") }
-                NavigationLink { CategoryManagementPage(store: finance) } label: { Label("分类修改", systemImage: "folder.badge.gearshape") }.accessibilityIdentifier("category-management")
-                FinanceOverviewPage(store: finance)
-                NavigationLink("标签与 Patterns") { MobilePage(title: "标签与 Patterns", finance: finance) { FinanceTagsPage(store: finance) }.toolbar { filterButton } }
-                NavigationLink("关注与调整") { MobilePage(title: "关注与调整", finance: finance) { FinanceFocusPage(store: finance) }.toolbar { filterButton } }
-            }.toolbar { filterButton }
+            NavigationStack(path: $overviewPath) {
+                MobilePage(title: "概览", finance: finance) {
+                    FinanceOverviewPage(store: finance, inbox: inbox) { kind in inbox.kind = kind; tab = "completion" }
+                    MobileFireSummary(finance: finance)
+                }
+                .navigationBarTitleDisplayMode(.large)
+                .toolbar { periodMenu; filterButton }
                 .navigationDestination(for: String.self) { destination in
-                    if destination == "tags" { MobilePage(title: "标签与 Patterns", finance: finance) { FinanceTagsPage(store: finance) }.toolbar { filterButton } }
+                    switch destination {
+                    case "tags": MobilePage(title: "标签", finance: finance) { FinanceTagsPage(store: finance) }.toolbar { filterButton }
+                    case "focus": MobilePage(title: "支出调整", finance: finance) { FinanceFocusPage(store: finance) }.toolbar { filterButton }
+                    default: MobileFire(finance: finance)
+                    }
                 }
             }
-            .tabItem { Label("复盘", systemImage: "chart.bar.xaxis") }.tag("overview")
-            NavigationStack { MobileCompletionList(finance: finance, evidence: evidence) }
-                .tabItem { Label("补全", systemImage: "checklist") }.tag("completion")
-            NavigationStack(path: $detailPath) { MobileTransactions(finance: finance, evidence: evidence).toolbar { filterButton }
-                .navigationDestination(for: String.self) { id in
-                    FinanceSelectedTransaction(store: finance, evidence: evidence, recordID: id).navigationTitle("交易详情").navigationBarTitleDisplayMode(.inline).onAppear { finance.selected = id }
-                }
+            .tabItem { Label("概览", systemImage: "square.grid.2x2") }.tag("overview")
+            NavigationStack { MobileInboxList(finance: finance, evidence: evidence, inbox: inbox) }
+                .tabItem { Label("待办", systemImage: "checklist") }
+                .badge(inbox.count(.all))
+                .tag("completion")
+            NavigationStack(path: $detailPath) {
+                MobileTransactions(finance: finance, evidence: evidence, raw: $rawScope).toolbar { if !rawScope { filterButton } }
+                    .navigationDestination(for: String.self) { id in
+                        FinanceSelectedTransaction(store: finance, evidence: evidence, recordID: id).navigationTitle("交易详情").navigationBarTitleDisplayMode(.inline).onAppear { finance.selected = id }
+                    }
             }
-                .tabItem { Label("明细", systemImage: "list.bullet.rectangle") }.tag("details")
-            NavigationStack { MobilePage(title: "FIRE 规划", finance: finance) {
-                NavigationLink { MobilePage(title: "模型参数", finance: finance) { FinanceParametersPage(store: finance) } } label: { Label("模型参数", systemImage: "gearshape") }
-                NavigationLink { MobilePage(title: "买房与子女", finance: finance) { FinanceBranchesPage(store: finance) } } label: { Label("买房与子女", systemImage: "house") }
-                FinanceFirePage(store: finance)
-            } }.tabItem { Label("规划", systemImage: "flag.checkered") }.tag("fire")
-            NavigationStack { MobileData(finance: finance, evidence: evidence, services: services) }
-                .tabItem { Label("资料", systemImage: "tray.full") }.tag("data")
+            .tabItem { Label("交易", systemImage: "list.bullet.rectangle") }.tag("details")
+            NavigationStack(path: $mePath) {
+                MobileMe(finance: finance, evidence: evidence, services: services)
+                    .navigationDestination(for: String.self) { destination in
+                        if destination == "fire" { MobileFire(finance: finance) }
+                        else { MobileData(finance: finance, evidence: evidence, services: services) }
+                    }
+            }
+            .tabItem { Label("我的", systemImage: "person.crop.circle") }.tag("me")
         }
-        .tint(.teal)
+        .tint(DS.accent)
+        .toastOverlay(bottomPadding: 64)
         .sheet(isPresented: $filters) { MobileFilters(finance: finance) }
         .fileImporter(isPresented: $services.parameterPicker, allowedContentTypes: [.json]) { result in
             if case .success(let url) = result { services.importParameters(url, finance: finance) }
@@ -61,20 +73,36 @@ struct MobileRoot: View {
             if case .failure(let error) = result { finance.error = error.localizedDescription }
             services.exportDocument = nil
         }
-        .onChange(of: tab) { _, value in finance.section = value }
-        .onChange(of: finance.section) { _, value in
-            if ["overview", "completion", "details", "fire", "data"].contains(value) {
-                tab = value
-                if value == "details", let id = finance.selected, detailPath.last != id { detailPath.append(id) }
-            }
-            else if value == "tags" {
-                tab = "overview"
-                if overviewPath.last != "tags" { overviewPath.append("tags") }
-            }
-        }
+        .onAppear { inbox.bind(finance, evidence); prepareInbox() }
+        .task(id: finance.revision) { await finance.reconcileCompletion(); prepareInbox() }
+        .onChange(of: evidence.previewGeneration) { _, _ in prepareInbox() }
+        .onChange(of: tab) { _, value in if value != "me" { finance.section = value } }
+        .onChange(of: finance.section) { _, value in route(value) }
         .onChange(of: finance.selected) { _, id in
             if finance.section == "details", let id, detailPath.last != id { detailPath.append(id) }
         }
+    }
+    /// Keeps `FinancialStore.section` semantics shared with the Mac: pages set a
+    /// section and the phone maps it onto a tab and navigation path.
+    private func route(_ value: String) {
+        switch value {
+        case "overview", "completion": tab = value
+        case "details":
+            tab = value; rawScope = false
+            if let id = finance.selected, detailPath.last != id { detailPath.append(id) }
+        case "tags", "focus":
+            tab = "overview"; if overviewPath.last != value { overviewPath.append(value) }
+        case "fire", "branches", "params":
+            tab = "overview"; if overviewPath.last != "fire" { overviewPath.append("fire") }
+        case "data":
+            tab = "me"; if mePath.last != "data" { mePath.append("data") }
+        default: break
+        }
+    }
+    private func prepareInbox() {
+        let workspace = finance.completion
+        if workspace.from.isEmpty { workspace.from = finance.from; workspace.to = finance.to }
+        workspace.refresh(finance, evidence)
     }
     var body: some View {
         Group {
@@ -84,7 +112,7 @@ struct MobileRoot: View {
                 MobileWelcome(finance: finance, evidence: evidence, services: services)
             } else { reviewTabs }
         }
-        .tint(.teal)
+        .tint(DS.accent)
         .task {
             MobileEvidenceRegistry.evidence = evidence
             await openLocalReview()
@@ -111,6 +139,16 @@ struct MobileRoot: View {
             }
         } catch { finance.error = "本机资料读取未完成：" + error.localizedDescription }
         ready = true
+    }
+    private var periodMenu: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Menu {
+                ForEach(["本月", "上月", "今年", "近90天", "全部"], id: \.self) { name in Button(name) { finance.selectRange(name) } }
+                Divider()
+                Button("自定义…") { filters = true }
+            } label: { Text(periodTitle(from: finance.from, to: finance.to)).font(.callout) }
+                .disabled(finance.report?.cutoff == nil)
+        }
     }
     private var filterButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) { Button { filters = true } label: { Label("筛选", systemImage: "line.3.horizontal.decrease") } }
@@ -153,7 +191,7 @@ struct MobileFilters: View {
                 Section("统计区间") {
                     Picker("快捷区间", selection: Binding(get: { "选择区间" }, set: { finance.selectRange($0) })) {
                         Text("选择区间").tag("选择区间")
-                        ForEach(["今年", "近30天", "近90天", "全部"], id: \.self) { Text($0).tag($0) }
+                        ForEach(["本月", "上月", "今年", "近90天", "全部"], id: \.self) { Text($0).tag($0) }
                     }
                     DatePicker("开始日期", selection: Binding(get: { parseDay(finance.from) }, set: { finance.from = min(day($0), finance.to) }), displayedComponents: .date)
                     DatePicker("截止日期", selection: Binding(get: { parseDay(finance.to) }, set: { finance.to = max(finance.from, min(day($0), finance.report?.cutoff ?? day($0))) }), in: ...parseDay(finance.report?.cutoff ?? day(Date())), displayedComponents: .date)
@@ -177,56 +215,61 @@ struct MobileFilters: View {
 struct MobileTransactions: View {
     @Bindable var finance: FinancialStore
     @Bindable var evidence: BrowserStore
+    @Binding var raw: Bool
     var body: some View {
         List {
             Section {
-                Text(finance.from + " 至 " + finance.to).font(.caption).foregroundStyle(.secondary)
-                Picker("显示", selection: $finance.recordView) { ForEach(["全部消费", "待处理", "账户待关联", "资金流"], id: \.self) { Text($0).tag($0) } }
+                Picker("范围", selection: $raw) { Text("交易").tag(false); Text("原始资料").tag(true) }.pickerStyle(.segmented)
+                if !raw {
+                    Picker("显示", selection: $finance.recordView) { ForEach(["全部消费", "待处理", "账户待关联", "资金流"], id: \.self) { Text($0).tag($0) } }
+                    MobileActiveFilters(finance: finance)
+                    Text(periodTitle(from: finance.from, to: finance.to) + " · \(finance.visibleRecords.count) 笔").font(.caption).foregroundStyle(.secondary)
+                }
             }
-            ForEach(finance.visibleRecords) { record in
-                NavigationLink(value: record.id) { FinanceTransactionRow(record: record) }
+            if raw { MobileRawRecords(finance: finance, evidence: evidence) }
+            else {
+                ForEach(finance.visibleRecords) { record in
+                    NavigationLink(value: record.id) { FinanceTransactionRow(record: record) }
+                }
             }
-        }.navigationTitle("支出明细").searchable(text: $finance.query, prompt: "日期、商户、金额或用户")
-        .overlay { if finance.visibleRecords.isEmpty { ContentUnavailableView.search(text: finance.query) } }
+        }.navigationTitle("交易")
+        .searchable(text: raw ? $evidence.query : $finance.query, prompt: raw ? "日期、商户或金额" : "日期、商户、金额或用户")
+        .overlay { if !raw && finance.visibleRecords.isEmpty { ContentUnavailableView.search(text: finance.query) } }
         .onAppear { MobileEvidenceRegistry.evidence = evidence }
     }
 }
-struct MobileCompletionList: View {
+/// Active account, category and tag filters as removable chips.
+struct MobileActiveFilters: View {
     @Bindable var finance: FinancialStore
-    @Bindable var evidence: BrowserStore
-    var workspace: CompletionWorkspace { finance.completion }
     var body: some View {
-        List {
-            Section {
-                NavigationLink { SourceRecordSetList(store: finance, evidence: evidence) } label: {
-                    Label("来源归并（\(finance.sourceRecordGroups.count)）", systemImage: "rectangle.3.group")
-                }.accessibilityIdentifier("source-set-list")
-            }
-            Section {
-                Picker("处理队列", selection: Binding(get: { workspace.mode }, set: { workspace.mode = $0 })) { ForEach(["优先补全", "待分类", "待核事实", "退款候选", "暂放", "本次已保存", "已确认", "已排除"], id: \.self) { Text($0).tag($0) } }
-                Toggle("包含范围外及日期未知资料", isOn: Binding(get: { workspace.allDates }, set: { workspace.allDates = $0; workspace.refresh(finance, evidence) }))
-                Text("只扩大补全队列，统计范围不变；同名联动始终覆盖全资料库。跳过暂放、本次已保存及已确认项目；按金额从大到小，金额未知排最后。").font(.caption).foregroundStyle(.secondary)
-                Text(workspace.from + " 至 " + workspace.to + " · \(workspace.visible.count) 项").font(.caption).foregroundStyle(.secondary)
-                Text("本次保存 \(workspace.saved.count) 项 · 暂放 \(workspace.deferred.count) 项").font(.caption).foregroundStyle(.secondary)
-                Text("同名商家自动确认，可在「已确认」复查").font(.caption).foregroundStyle(.teal)
-                if !workspace.message.isEmpty { Text(workspace.message).font(.caption).foregroundStyle(.teal) }
-                if let error = finance.error { Text(error).font(.caption).foregroundStyle(.red) }
-            }
-            ForEach(workspace.visible) { entry in
-                NavigationLink { MobileCompletionDetail(finance: finance, evidence: evidence, workspace: workspace, initial: entry.id) } label: {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(entry.component?.title ?? entry.record.title).lineLimit(2)
-                        HStack { Text(entry.record.date.isEmpty ? "日期未知" : entry.record.date); Spacer(); Text(entry.amountUnknown ? "金额未知" : money(entry.impact)).monospacedDigit().accessibilityIdentifier("completion-amount:" + entry.id) }.font(.caption)
-                        Text(entry.issueSummaries.joined(separator: " · ")).font(.caption).foregroundStyle(.orange)
-                        if workspace.isDirty(entry) { Text("未保存草稿").font(.caption).foregroundStyle(.blue) }
-                    }.padding(.vertical, 5)
+        if finance.account != "全部账户" || finance.primary != "全部分类" || !finance.selectedTags.isEmpty {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    if finance.account != "全部账户" { chip(finance.account) { finance.account = "全部账户" } }
+                    if finance.primary != "全部分类" { chip(finance.primary) { finance.primary = "全部分类" } }
+                    ForEach(finance.selectedTags, id: \.self) { tag in chip("#" + tag) { finance.selectedTags.removeAll { $0 == tag } } }
                 }
             }
-        }.navigationTitle("补全").searchable(text: Binding(get: { workspace.query }, set: { workspace.query = $0 }), prompt: "项目、日期或金额")
-        .onAppear { if workspace.from.isEmpty { workspace.from = finance.from; workspace.to = finance.to }; workspace.refresh(finance, evidence) }
-        .task(id: finance.revision) { await finance.reconcileCompletion(); workspace.refresh(finance, evidence) }
-        .onChange(of: finance.revision) { _, _ in workspace.refresh(finance, evidence) }
-        .onChange(of: evidence.previewGeneration) { _, _ in workspace.refresh(finance, evidence) }
+        }
+    }
+    private func chip(_ title: String, remove: @escaping () -> Void) -> some View {
+        Button(action: remove) { HStack(spacing: DS.xs) { Text(title); Image(systemName: "xmark").font(.caption2.weight(.bold)) } }
+            .buttonStyle(.bordered).controlSize(.small).tint(DS.accent).accessibilityLabel("移除筛选 \(title)")
+    }
+}
+/// Read-only FIRE summary on the overview; editing lives under 我的.
+struct MobileFireSummary: View {
+    let finance: FinancialStore
+    var body: some View {
+        if finance.report?.fire_parameters.needsBaseInput == false {
+            NavigationLink(value: "fire") {
+                HStack {
+                    Label("FIRE 目标与情景", systemImage: "flag.checkered").font(.headline)
+                    Spacer()
+                    Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                }.cardStyle()
+            }.buttonStyle(.plain)
+        }
     }
 }
 struct MobileCompletionDetail: View {
@@ -240,7 +283,7 @@ struct MobileCompletionDetail: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     if let error = finance.error { Text(error).foregroundStyle(.red) }
-                    if !workspace.message.isEmpty { Text(workspace.message).font(.callout).foregroundStyle(.teal) }
+                    if !workspace.message.isEmpty { Text(workspace.message).font(.callout).foregroundStyle(DS.accent) }
                     if let entry = workspace.current {
                         CompletionEditor(entry: entry, store: finance, evidence: evidence, workspace: workspace, busy: busy).id(entry.id)
                         CompletionEvidence(entry: entry, store: finance, evidence: evidence, workspace: workspace, busy: busy, dirty: workspace.isDirty(entry)).id(entry.id)
@@ -257,14 +300,17 @@ struct MobileCompletionDetail: View {
                         Button(entry.component == nil ? "下一笔" : "保存并下一笔") {
                             let ids = workspace.visible.map(\.id)
                             if entry.component == nil { workspace.next(after: entry.id, previous: ids) }
-                            else { Task { if await finance.saveCompletion(entry) { workspace.refresh(finance, evidence); workspace.next(after: entry.id, previous: ids) } } }
+                            else { Task { if await finance.saveCompletion(entry) {
+                                workspace.refresh(finance, evidence); workspace.next(after: entry.id, previous: ids)
+                                ToastCenter.shared.show("已保存", undoTitle: "撤销") { Task { await finance.undoCompletion(); workspace.refresh(finance, evidence) } }
+                            } } }
                         }.buttonStyle(.borderedProminent)
                     }
                 }
                 if workspace.undo != nil { Button("撤销上一笔") { Task { await finance.undoCompletion(); workspace.refresh(finance, evidence) } }.font(.callout) }
             }.padding(12).frame(maxWidth: .infinity).background(.regularMaterial).disabled(busy)
         }.frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(uiColor: .systemGroupedBackground)).navigationTitle("项目补全").navigationBarTitleDisplayMode(.inline)
+        .background(Color(uiColor: .systemGroupedBackground)).navigationTitle("补全").navigationBarTitleDisplayMode(.inline)
         .toolbar { MobileKeyboardToolbar() }
         .onAppear { workspace.selected = initial; workspace.refresh(finance, evidence) }
         .onChange(of: finance.revision) { _, _ in workspace.refresh(finance, evidence) }

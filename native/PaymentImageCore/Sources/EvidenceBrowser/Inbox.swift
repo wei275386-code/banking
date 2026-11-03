@@ -63,8 +63,11 @@ struct InboxRowInfo {
     @ObservationIgnored weak var evidence: BrowserStore?
     @ObservationIgnored private weak var workspace: CompletionWorkspace?
 
+    /// Observed so views that rendered before `bind` re-read counts afterwards.
+    private var bound = false
     func bind(_ finance: FinancialStore, _ evidence: BrowserStore) {
         self.finance = finance; self.evidence = evidence; workspace = finance.completion
+        bound = true
         syncWorkspaceMode()
     }
     private func syncWorkspaceMode() {
@@ -78,7 +81,7 @@ struct InboxRowInfo {
     // MARK: Items
 
     var items: [InboxItem] {
-        guard let finance, let evidence else { return [] }
+        guard bound, let finance, let evidence else { return [] }
         let workspace = finance.completion
         var result = [InboxItem]()
         if showsCompletion { result += workspace.visible.map(InboxItem.completion) }
@@ -114,7 +117,7 @@ struct InboxRowInfo {
     }
 
     func count(_ kind: InboxKind) -> Int {
-        guard let finance, let evidence else { return 0 }
+        guard bound, let finance, let evidence else { return 0 }
         let workspace = finance.completion
         let candidates = evidence.orderedCandidates.filter(\.review_required)
         let sets = finance.sourceRecordGroups.filter(Self.sourceSetPending).count

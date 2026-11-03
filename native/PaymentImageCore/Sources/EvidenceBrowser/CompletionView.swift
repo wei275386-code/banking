@@ -250,7 +250,7 @@ struct CompletionEditor: View {
             Text(entry.component?.title ?? entry.record.title).font(.title2.bold()).lineLimit(3).help(entry.component?.title ?? entry.record.title).textSelection(.enabled)
             Text(entry.record.date + " · " + entry.record.status).foregroundStyle(.secondary)
             if entry.component?.completionConfirmed == true {
-                Label(entry.component?.completion_confirmation?.origin == "linked" ? "分类等字段已自动确认 · 同名商家联动" : "分类等字段已确认", systemImage: "checkmark.circle.fill").foregroundStyle(.teal)
+                Label(entry.component?.completion_confirmation?.origin == "linked" ? "分类等字段已自动确认 · 同名商家联动" : "分类等字段已确认", systemImage: "checkmark.circle.fill").foregroundStyle(DS.accent)
             }
             FinanceTransactionIdentity(record: entry.record)
             TransactionFactActions(record: entry.record, store: store, evidence: evidence)
@@ -305,7 +305,7 @@ struct CompletionEditor: View {
             ReviewCard(title: "分类") {
                 let linked = CategoryHeuristics.linkedTargets(source: component, draft: draft, records: store.report?.records ?? [], excluding: Set(workspace.drafts.keys))
                 if !linked.isEmpty {
-                    Text("保存时将确认 \(linked.count) 项同名商家并移出默认队列（含区间外），可整批撤销。").font(.caption).foregroundStyle(.teal).accessibilityIdentifier("completion-linked-preview")
+                    Text("保存时将确认 \(linked.count) 项同名商家并移出默认队列（含区间外），可整批撤销。").font(.caption).foregroundStyle(DS.accent).accessibilityIdentifier("completion-linked-preview")
                 } else {
                     Text(CategoryHeuristics.blocksAutomation(component.title) ? "平台、通道或不完整名称：本笔分类不自动联动。" : "保存即确认；同名且分类一致的项目一起确认，已有草稿跳过。").font(.caption).foregroundStyle(.secondary)
                 }
@@ -345,7 +345,7 @@ struct CompletionEditor: View {
                 if draft.tags.isEmpty { Text("暂无标签；不强制补标签。").font(.caption).foregroundStyle(.secondary) }
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 110))], alignment: .leading, spacing: 8) {
                     ForEach(draft.tags, id: \.self) { tag in
-                        Button { var next = workspace.draft(entry) ?? draft; next.tags.removeAll { $0 == tag }; workspace.edit(entry, next) } label: { Label(tag, systemImage: "xmark.circle").lineLimit(1) }.buttonStyle(.bordered).tint(.teal)
+                        Button { var next = workspace.draft(entry) ?? draft; next.tags.removeAll { $0 == tag }; workspace.edit(entry, next) } label: { Label(tag, systemImage: "xmark.circle").lineLimit(1) }.buttonStyle(.bordered).tint(DS.accent)
                     }
                 }
                 Menu("选择已有标签") {

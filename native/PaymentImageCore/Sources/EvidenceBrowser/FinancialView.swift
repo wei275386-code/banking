@@ -705,11 +705,13 @@ struct FinanceOverviewPage: View {
                     HStack { Button("#" + tag) { store.inspectTag(tag) }.buttonStyle(.borderless); Spacer(); Text(money(s.byTag[tag] ?? 0)).monospacedDigit() }
                 }
                 if s.byTag.isEmpty { Text("当前区间没有带标签的消费。").font(.callout).foregroundStyle(.secondary) }
-                #if os(macOS)
                 Button("查看全部标签") { store.section = "tags" }.buttonStyle(.borderless)
-                #endif
             }
         }
+    }
+    @ViewBuilder private func inboxSummary(_ total: Int, _ inbox: InboxModel) -> some View {
+        Text("还有 \(total) 项待处理").font(.title3.weight(.semibold)).fixedSize()
+        Text("涉及 " + money(inbox.openImpact)).foregroundStyle(.secondary).monospacedDigit().fixedSize()
     }
     private func inboxCard(_ inbox: InboxModel, open: @escaping (InboxKind) -> Void) -> some View {
         let total = inbox.count(.all)
@@ -717,10 +719,12 @@ struct FinanceOverviewPage: View {
             if total == 0 {
                 Label("全部处理完了", systemImage: "checkmark.circle.fill").foregroundStyle(DS.confirmed)
             } else {
-                HStack(alignment: .firstTextBaseline) {
-                    Text("还有 \(total) 项待处理").font(.title3.weight(.semibold))
-                    Text("涉及 " + money(inbox.openImpact)).foregroundStyle(.secondary).monospacedDigit()
-                    Spacer()
+                HStack(alignment: .center) {
+                    ViewThatFits(in: .horizontal) {
+                        HStack(alignment: .firstTextBaseline) { inboxSummary(total, inbox) }
+                        VStack(alignment: .leading, spacing: 2) { inboxSummary(total, inbox) }
+                    }
+                    Spacer(minLength: DS.s)
                     Button("开始处理") { open(.all) }.buttonStyle(.borderedProminent)
                 }
                 TagFlowLayout {
@@ -739,7 +743,7 @@ struct ReviewMonthlyChart: View, Equatable {
     var body: some View {
         Chart(byMonth.keys.sorted(), id: \.self) { month in
             BarMark(x: .value("月份", month), y: .value("净消费", Double(byMonth[month] ?? 0) / 100))
-                .foregroundStyle(month == cutoffMonth ? Color.orange : Color.teal)
+                .foregroundStyle(month == cutoffMonth ? Color.orange : DS.accent)
         }.frame(height: 240)
     }
 }
@@ -842,7 +846,7 @@ struct FinanceSelectedTransaction: View {
                     ForEach(TransactionListOrder.sorted(r.components, amount: { $0.reason.contains("支付金额待确定") ? nil : $0.net_cents }, date: { _ in r.date }, id: \.id)) { c in ComponentEditor(component: c, store: store) }
                     ReviewCard(title: "交易生命周期") {
                         ForEach(r.paymentEvents) { e in HStack(alignment: .top) {
-                            Image(systemName: e.kind.contains("refund") || e.kind == "bank_credit" ? "arrow.uturn.backward.circle" : "checkmark.circle").foregroundStyle(.teal)
+                            Image(systemName: e.kind.contains("refund") || e.kind == "bank_credit" ? "arrow.uturn.backward.circle" : "checkmark.circle").foregroundStyle(DS.accent)
                             VStack(alignment: .leading) { Text(e.date + " · " + (e.payment_account ?? platformName(e.source))); Text(platformName(e.source) + " · " + e.status).font(.caption).foregroundStyle(.secondary).textSelection(.enabled) }
                             Spacer(); Text(money(e.amount_cents)).monospacedDigit()
                         }.padding(.vertical, 5) }
@@ -878,7 +882,7 @@ struct FinanceTransactionRow: View, Equatable {
             if r.user_id != nil { Text("用户：" + r.userDisplayName).font(.caption2).foregroundStyle(.secondary) }
             Text((r.components.contains { !$0.included && !$0.reason.isEmpty } ? "待处理 · " : "") + r.status + " · " + (r.components.first?.primary ?? "")).font(.caption).foregroundStyle(r.components.contains { !$0.included && !$0.reason.isEmpty } ? Color.orange : Color.secondary)
             let tags = Array(Set(r.components.flatMap(\.tags))).sorted()
-            if !tags.isEmpty { Text(tags.prefix(4).joined(separator: " · ") + (tags.count > 4 ? " …" : "")).font(.caption2).foregroundStyle(.teal).lineLimit(2) }
+            if !tags.isEmpty { Text(tags.prefix(4).joined(separator: " · ") + (tags.count > 4 ? " …" : "")).font(.caption2).foregroundStyle(DS.accent).lineLimit(2) }
         }.padding(.vertical, 6).accessibilityIdentifier("transaction-row:" + r.id)
     }
 }

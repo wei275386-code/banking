@@ -248,14 +248,6 @@ struct PeriodMenu: View {
     private var periodLabel: String { periodTitle(from: store.from, to: store.to) }
 }
 
-/// Compact human label for a statistics range.
-func periodTitle(from: String, to: String) -> String {
-    guard from.count == 10, to.count == 10 else { return "未建立范围" }
-    if from.prefix(7) == to.prefix(7) { return String(from.prefix(4)) + "年" + String(Int(from.dropFirst(5).prefix(2)) ?? 0) + "月" }
-    if from.hasSuffix("-01-01"), from.prefix(4) == to.prefix(4) { return String(from.prefix(4)) + "年" }
-    return from.replacingOccurrences(of: "-", with: ".") + " – " + to.replacingOccurrences(of: "-", with: ".")
-}
-
 // MARK: Status center
 
 struct StatusCenterButton: View {

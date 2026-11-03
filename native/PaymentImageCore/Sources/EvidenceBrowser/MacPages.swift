@@ -122,13 +122,27 @@ struct MacInboxPage: View {
     @ViewBuilder private var emptyQueue: some View {
         if inbox.history == nil {
             ContentUnavailableView {
-                Label(inbox.query.isEmpty ? "全部处理完了" : "没有匹配项", systemImage: "checkmark.circle")
+                Label(emptyTitle, systemImage: inbox.query.isEmpty ? "checkmark.circle" : "magnifyingglass")
             } description: {
-                Text(inbox.query.isEmpty ? "当前类型没有待处理的项目。" : "清空搜索或切换类型。")
+                Text(emptyDetail)
             } actions: {
-                if inbox.query.isEmpty { Button("复查本次已保存") { inbox.history = .saved } }
+                if !inbox.query.isEmpty { Button("清空搜索") { inbox.query = "" } }
+                else if inbox.kind != .all && inbox.count(.all) > 0 { Button("查看全部待办") { inbox.kind = .all } }
+                else if !inbox.includeAllDates { Button("包括区间外与日期未知") { inbox.includeAllDates = true } }
+                else { Button("复查本次已保存") { inbox.history = .saved } }
             }
         } else { ContentUnavailableView("暂无记录", systemImage: "clock") }
+    }
+
+    private var emptyTitle: String {
+        if !inbox.query.isEmpty { return "没有匹配项" }
+        return inbox.count(.all) == 0 ? "当前区间已全部处理" : "此类型已处理完"
+    }
+    private var emptyDetail: String {
+        if !inbox.query.isEmpty { return "没有符合「\(inbox.query)」的待办。" }
+        let remaining = inbox.count(.all)
+        if remaining > 0 { return "其他类型还有 \(remaining) 项待处理。" }
+        return inbox.includeAllDates ? "全部日期都没有待处理项目。" : "统计区间外或日期未知的资料可能仍有待办。"
     }
 
     // MARK: Detail
@@ -336,7 +350,8 @@ private struct MacRawRecordList: View {
                     ForEach(platforms, id: \.self) { name in FilterChip(title: platformName(name), selected: platform == name) { platform = name } }
                 }.padding(.horizontal, DS.m)
             }
-            if let summary = videoSummary { Text(summary).font(.caption).foregroundStyle(.secondary).padding(.horizontal, DS.m) }
+            Text("原始资料包含全部日期，不受统计区间和账户、分类、标签筛选影响" + (videoSummary.map { "；" + $0 } ?? "") + "。")
+                .font(.caption).foregroundStyle(.secondary).padding(.horizontal, DS.m)
             List(selection: $evidence.selected) {
                 ForEach(records) { record in
                     VStack(alignment: .leading, spacing: 3) {

@@ -26,7 +26,7 @@ struct SourceRecordSetList: View {
                     VStack(alignment: .leading, spacing: 6) {
                         HStack { Text(group.kind == "refund" ? "退款来源组" : "付款来源组").font(.headline); Spacer(); Text("匹配金额 " + money(group.amount_cents)).monospacedDigit() }
                         Text(group.date.isEmpty ? "日期未知" : group.date).font(.caption)
-                        Text("银联 \(group.network_count) 笔 · 银行 \(group.bank_count) 笔 · " + group.statusTitle).font(.caption).foregroundStyle(group.confirmed ? Color.teal : Color.orange)
+                        Text("银联 \(group.network_count) 笔 · 银行 \(group.bank_count) 笔 · " + group.statusTitle).font(.caption).foregroundStyle(group.confirmed ? DS.accent : Color.orange)
                         if let reason = group.review_reason { Text(reason).font(.caption).foregroundStyle(.secondary) }
                     }.padding(.vertical, 5)
                 }.accessibilityIdentifier("source-set-" + group.id)
@@ -73,7 +73,7 @@ struct SourceRecordSetDetail: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(group.kind == "refund" ? "退款来源整组核对" : "付款来源整组核对").font(.title2.bold())
                         Text((group.date.isEmpty ? "日期未知" : group.date) + " · 匹配金额 " + money(group.amount_cents)).monospacedDigit()
-                        Text(group.statusTitle).font(.headline).foregroundStyle(group.confirmed ? Color.teal : Color.orange).accessibilityIdentifier("source-set-status")
+                        Text(group.statusTitle).font(.headline).foregroundStyle(group.confirmed ? DS.accent : Color.orange).accessibilityIdentifier("source-set-status")
                         Text(group.basis).textSelection(.enabled)
                         if let reason = group.review_reason { Text(reason).foregroundStyle(.orange) }
                         Text("组内不指定逐笔配对；银行交易 ID、原始金额与已确认退款关联保持各自归属。归并只消除同一资金流的多来源重复记录，不额外扣减退款。").font(.caption).foregroundStyle(.secondary)

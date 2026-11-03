@@ -12,7 +12,7 @@ struct TransactionFactActions: View {
             SourceRecordSetActions(record: record, store: store, evidence: evidence)
             TransactionTraceView(record: record, evidence: evidence)
             RefundCandidateActions(record: record, store: store, evidence: evidence)
-            if let status = record.fact_review_status { Text(status).font(.caption).foregroundStyle(status.hasPrefix("事实已确认") ? Color.teal : .orange).textSelection(.enabled) }
+            if let status = record.fact_review_status { Text(status).font(.caption).foregroundStyle(status.hasPrefix("事实已确认") ? DS.accent : .orange).textSelection(.enabled) }
             if let review = store.overrides[record.reviewOverrideKey]?.transaction_facts,
                let targetID = review.targetID,
                let target = store.report?.records.first(where: { $0.id == targetID || $0.components.contains { $0.id == targetID } }) {
@@ -180,7 +180,7 @@ struct TransactionTraceSourceView: View {
     private var eventLabel: String { source.event_kind == "supporting_material" ? "订单资料（日期不代表付款时间）" : statusName(source.event_kind) }
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text(heading).font(.caption.bold()).foregroundStyle(source.association == "linked" ? Color.teal : Color.orange)
+            Text(heading).font(.caption.bold()).foregroundStyle(source.association == "linked" ? DS.accent : Color.orange)
             Text(title).fixedSize(horizontal: false, vertical: true).textSelection(.enabled)
             Text(source.date + " · " + eventLabel + " · " + money(source.amount_cents) + " " + source.currency).font(.caption).textSelection(.enabled)
             DisclosureGroup("支付方式、单号与来源") {

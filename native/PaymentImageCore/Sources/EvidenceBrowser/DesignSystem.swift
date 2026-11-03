@@ -1,5 +1,10 @@
 #if os(macOS) || os(iOS)
 import SwiftUI
+#if os(macOS)
+import AppKit
+#else
+import UIKit
+#endif
 import Observation
 
 /// Shared visual language for macOS and iOS: spacing, semantic colors and the
@@ -7,11 +12,28 @@ import Observation
 enum DS {
     static let xs: CGFloat = 4, s: CGFloat = 8, m: CGFloat = 12, l: CGFloat = 16, xl: CGFloat = 24
     static let corner: CGFloat = 12
-    static let accent = Color.teal
+    /// Teal tuned for contrast: darker in light mode so white text and small
+    /// accent text stay readable; brighter in dark mode with dark text on top.
+    static let accent = dynamic(light: (0.04, 0.47, 0.55), dark: (0.37, 0.80, 0.89))
+    /// Foreground for text drawn on an `accent` fill.
+    static let onAccent = dynamic(light: (1, 1, 1), dark: (0.02, 0.10, 0.12))
     static let pending = Color.orange
     static let failure = Color.red
     static let draft = Color.blue
     static let confirmed = Color.green
+    private static func dynamic(light: (CGFloat, CGFloat, CGFloat), dark: (CGFloat, CGFloat, CGFloat)) -> Color {
+        #if os(macOS)
+        Color(nsColor: NSColor(name: nil) { appearance in
+            let value = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? dark : light
+            return NSColor(srgbRed: value.0, green: value.1, blue: value.2, alpha: 1)
+        })
+        #else
+        Color(uiColor: UIColor { traits in
+            let value = traits.userInterfaceStyle == .dark ? dark : light
+            return UIColor(red: value.0, green: value.1, blue: value.2, alpha: 1)
+        })
+        #endif
+    }
     #if os(macOS)
     static let pageBackground = Color(nsColor: .windowBackgroundColor)
     static let cardBackground = Color(nsColor: .controlBackgroundColor)
@@ -58,12 +80,20 @@ struct FilterChip: View {
                 if let count { Text("\(count)").monospacedDigit().opacity(0.75) }
             }
             .font(.callout).lineLimit(1)
-            .padding(.horizontal, 10).padding(.vertical, 4)
-            .foregroundStyle(selected ? Color.white : Color.primary)
+            .padding(.horizontal, 10).padding(.vertical, chipVerticalPadding)
+            .foregroundStyle(selected ? DS.onAccent : Color.primary)
             .background(selected ? AnyShapeStyle(DS.accent) : AnyShapeStyle(.quaternary), in: Capsule())
             .contentShape(Capsule())
+            #if os(iOS)
+            .padding(.vertical, 4).contentShape(Rectangle())
+            #endif
         }.buttonStyle(.plain).accessibilityAddTraits(selected ? .isSelected : [])
     }
+    #if os(iOS)
+    private var chipVerticalPadding: CGFloat { 7 }
+    #else
+    private var chipVerticalPadding: CGFloat { 4 }
+    #endif
 }
 
 /// Long explanations live behind ⓘ instead of permanent captions.
@@ -150,6 +180,14 @@ struct ToastOverlay: ViewModifier {
             }
         }.animation(.snappy, value: center.current)
     }
+}
+
+/// Compact human label for a statistics range.
+func periodTitle(from: String, to: String) -> String {
+    guard from.count == 10, to.count == 10 else { return "未建立范围" }
+    if from.prefix(7) == to.prefix(7) { return String(from.prefix(4)) + "年" + String(Int(from.dropFirst(5).prefix(2)) ?? 0) + "月" }
+    if from.hasSuffix("-01-01"), from.prefix(4) == to.prefix(4) { return String(from.prefix(4)) + "年" }
+    return from.replacingOccurrences(of: "-", with: ".") + " – " + to.replacingOccurrences(of: "-", with: ".")
 }
 
 extension Notification.Name {

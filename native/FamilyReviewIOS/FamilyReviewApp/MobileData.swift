@@ -15,7 +15,7 @@ struct MobileWelcome: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-                    Image(systemName: "house.and.flag").font(.largeTitle).foregroundStyle(.teal)
+                    Image(systemName: "house.and.flag").font(.largeTitle).foregroundStyle(DS.accent)
                     Text("欢迎使用家庭财务复盘").font(.title2.bold())
                     Text("手机用于查看家庭资料并保存本机修改。首次使用，请连接 Mac 已建立的家庭同步目录。").foregroundStyle(.secondary)
                     ReviewCard(title: "连接家庭资料") {
@@ -167,7 +167,7 @@ struct MobileCandidate: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Text("此判断只改变证据关联，不确认身份或删除其他银行消费。").font(.caption).foregroundStyle(.secondary)
-                if !evidence.reviewMessage.isEmpty { Text(evidence.reviewMessage).foregroundStyle(.teal) }
+                if !evidence.reviewMessage.isEmpty { Text(evidence.reviewMessage).foregroundStyle(DS.accent) }
                 if let error = evidence.error { Text(error).foregroundStyle(.red) }
                 if let live {
                     Text("关联状态：" + live.association_status).font(.caption)

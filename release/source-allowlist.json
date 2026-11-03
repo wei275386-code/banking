@@ -228,6 +228,7 @@
       "native/PaymentImageCore/Tests/FinancialStoreTests/Fixtures/current/refund-review.json",
       "native/PaymentImageCore/Tests/FinancialStoreTests/Fixtures/current/review-overrides.json",
       "native/PaymentImageCore/Tests/FinancialStoreTests/Fixtures/current/review-state.json",
+      "native/PaymentImageCore/Tests/FinancialStoreTests/ImportReportingTests.swift",
       "native/PaymentImageCore/Tests/FinancialStoreTests/MerchantTagStoreTests.swift",
       "native/PaymentImageCore/Tests/FinancialStoreTests/PendingSelectionRaceTests.swift",
       "native/PaymentImageCore/Tests/FinancialStoreTests/PendingSelectionStoreTests.swift",

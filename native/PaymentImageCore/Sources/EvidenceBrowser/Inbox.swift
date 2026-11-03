@@ -47,6 +47,8 @@ enum InboxItem: Identifiable {
 
 struct InboxRowInfo {
     let title: String; let date: String; let amount: Int?; let badges: [(String, BadgeTone)]
+    /// Set when refunds make the net differ from the sorting amount (the original spend).
+    var refundNote: String? = nil
 }
 
 @Observable @MainActor final class InboxModel {
@@ -197,7 +199,8 @@ struct InboxRowInfo {
             if finance?.completion.isDirty(entry) == true { badges.append(("草稿", .draft)) }
             if entry.component?.completionConfirmed == true { badges.append(("已确认", .confirmed)) }
             return InboxRowInfo(title: entry.component?.title ?? entry.record.title, date: entry.record.date,
-                                amount: entry.amountUnknown ? nil : entry.impact, badges: badges)
+                                amount: entry.amountUnknown ? nil : entry.impact, badges: badges,
+                                refundNote: entry.amountUnknown ? nil : entry.component.flatMap { $0.refund_cents != 0 ? "退款后净额 " + money($0.net_cents) : nil })
         case .association(let candidate):
             let records = (candidate.record_ids + candidate.bank_ids).compactMap { id in evidence?.records.first { $0.id == id } }
             let lead = records.first { !candidate.bank_ids.contains($0.id) } ?? records.first

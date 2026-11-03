@@ -713,9 +713,11 @@ struct FinanceOverviewPage: View {
             }
         }
     }
-    @ViewBuilder private func inboxSummary(_ total: Int, _ inbox: InboxModel) -> some View {
-        Text("还有 \(total) 项待处理").font(.title3.weight(.semibold)).fixedSize()
-        Text("涉及 " + money(inbox.openImpact)).foregroundStyle(.secondary).monospacedDigit().fixedSize()
+    /// `fixed` keeps the one-line layouts measurable for ViewThatFits; the stacked
+    /// fallback wraps so large Dynamic Type never pushes the page wider than the screen.
+    @ViewBuilder private func inboxSummary(_ total: Int, _ inbox: InboxModel, fixed: Bool = true) -> some View {
+        Text("还有 \(total) 项待处理").font(.title3.weight(.semibold)).fixedSize(horizontal: fixed, vertical: !fixed)
+        Text("涉及 " + money(inbox.openImpact)).foregroundStyle(.secondary).monospacedDigit().fixedSize(horizontal: fixed, vertical: !fixed)
     }
     private func inboxCard(_ inbox: InboxModel, open: @escaping (InboxKind) -> Void) -> some View {
         let total = inbox.count(.all)
@@ -723,13 +725,20 @@ struct FinanceOverviewPage: View {
             if total == 0 {
                 Label("全部处理完了", systemImage: "checkmark.circle.fill").foregroundStyle(DS.confirmed)
             } else {
-                HStack(alignment: .center) {
-                    ViewThatFits(in: .horizontal) {
+                let start = Button("开始处理") { open(.all) }.buttonStyle(.borderedProminent)
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .center) {
                         HStack(alignment: .firstTextBaseline) { inboxSummary(total, inbox) }
-                        VStack(alignment: .leading, spacing: 2) { inboxSummary(total, inbox) }
+                        Spacer(minLength: DS.s); start
                     }
-                    Spacer(minLength: DS.s)
-                    Button("开始处理") { open(.all) }.buttonStyle(.borderedProminent)
+                    HStack(alignment: .center) {
+                        VStack(alignment: .leading, spacing: 2) { inboxSummary(total, inbox) }
+                        Spacer(minLength: DS.s); start
+                    }
+                    VStack(alignment: .leading, spacing: DS.s) {
+                        VStack(alignment: .leading, spacing: 2) { inboxSummary(total, inbox, fixed: false) }
+                        start
+                    }
                 }
                 TagFlowLayout {
                     ForEach(InboxKind.allCases.filter { $0 != .all }) { kind in

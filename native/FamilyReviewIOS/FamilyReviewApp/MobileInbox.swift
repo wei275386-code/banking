@@ -102,6 +102,7 @@ struct MobileInboxRow: View {
                 Text(info.amount.map(money) ?? "金额未知").monospacedDigit()
                     .accessibilityIdentifier(id.map { "completion-amount:" + $0 } ?? "")
             }.font(.caption)
+            if let note = info.refundNote { Text(note).font(.caption).foregroundStyle(.secondary).monospacedDigit().frame(maxWidth: .infinity, alignment: .trailing) }
         }.padding(.vertical, 3)
     }
 }

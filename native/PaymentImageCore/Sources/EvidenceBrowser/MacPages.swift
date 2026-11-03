@@ -248,6 +248,7 @@ struct InboxRow: View {
             HStack(spacing: DS.xs) {
                 Text(info.date.isEmpty ? "日期未知" : String(info.date.prefix(10))).font(.caption).foregroundStyle(.secondary)
                 ForEach(Array(info.badges.enumerated()), id: \.offset) { _, badge in StatusBadge(text: badge.0, tone: badge.1) }
+                if let note = info.refundNote { Spacer(minLength: DS.s); Text(note).font(.caption).foregroundStyle(.secondary).monospacedDigit() }
             }
         }.padding(.vertical, DS.xs)
     }

@@ -298,6 +298,9 @@ struct MobileCompletionDetail: View {
     @Bindable var evidence: BrowserStore
     @Bindable var workspace: CompletionWorkspace
     let initial: String
+    /// The shared inbox, so finishing the completion items doesn't claim the whole queue is done.
+    var inbox: InboxModel? = nil
+    @Environment(\.dismiss) private var dismiss
     var busy: Bool { finance.loading || finance.completionSaving || finance.importing || workspace.persisting || evidence.loading }
     var body: some View {
         VStack(spacing: 0) {
@@ -308,7 +311,7 @@ struct MobileCompletionDetail: View {
                     if let entry = workspace.current {
                         CompletionEditor(entry: entry, store: finance, evidence: evidence, workspace: workspace, busy: busy).id(entry.id)
                         CompletionEvidence(entry: entry, store: finance, evidence: evidence, workspace: workspace, busy: busy, dirty: workspace.isDirty(entry)).id(entry.id)
-                    } else { ContentUnavailableView("此队列已完成", systemImage: "checkmark.circle") }
+                    } else { finished }
                 }.padding(16)
             }.scrollDismissesKeyboard(.interactively).frame(maxWidth: .infinity, maxHeight: .infinity).clipped()
             VStack(spacing: 8) {
@@ -336,5 +339,17 @@ struct MobileCompletionDetail: View {
         .onAppear { workspace.selected = initial; workspace.refresh(finance, evidence) }
         .onChange(of: finance.revision) { _, _ in workspace.refresh(finance, evidence) }
         .onChange(of: evidence.previewGeneration) { _, _ in workspace.refresh(finance, evidence) }
+    }
+    @ViewBuilder private var finished: some View {
+        let left = inbox?.count(.all) ?? 0
+        if left > 0 {
+            ContentUnavailableView {
+                Label("补全项已处理完", systemImage: "checkmark.circle")
+            } description: {
+                Text("待办里还有 \(left) 项其他事项（如关联复核、来源归并），返回列表继续处理。")
+            } actions: {
+                Button("返回待办") { dismiss() }.buttonStyle(.borderedProminent)
+            }
+        } else { ContentUnavailableView("此队列已完成", systemImage: "checkmark.circle") }
     }
 }

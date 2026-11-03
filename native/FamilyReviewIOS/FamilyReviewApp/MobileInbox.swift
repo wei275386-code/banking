@@ -82,7 +82,7 @@ struct MobileInboxList: View {
     }
     @ViewBuilder private func destination(_ item: InboxItem) -> some View {
         switch item {
-        case .completion(let entry): MobileCompletionDetail(finance: finance, evidence: evidence, workspace: workspace, initial: entry.id)
+        case .completion(let entry): MobileCompletionDetail(finance: finance, evidence: evidence, workspace: workspace, initial: entry.id, inbox: inbox)
         case .association(let candidate): MobileCandidate(candidate: candidate, finance: finance, evidence: evidence)
         case .sourceSet(let group): SourceRecordSetDetail(groupID: group.id, store: finance, evidence: evidence)
         }
@@ -92,18 +92,30 @@ struct MobileInboxList: View {
 struct MobileInboxRow: View {
     let info: InboxRowInfo
     let id: String?
+    @Environment(\.dynamicTypeSize) private var typeSize
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text(info.title).lineLimit(2)
-            HStack(spacing: DS.xs) {
-                Text(info.date.isEmpty ? "日期未知" : String(info.date.prefix(10))).foregroundStyle(.secondary)
-                ForEach(Array(info.badges.enumerated()), id: \.offset) { _, badge in StatusBadge(text: badge.0, tone: badge.1) }
-                Spacer(minLength: DS.s)
-                Text(info.amount.map(money) ?? "金额未知").monospacedDigit()
-                    .accessibilityIdentifier(id.map { "completion-amount:" + $0 } ?? "")
-            }.font(.caption)
-            if let note = info.refundNote { Text(note).font(.caption).foregroundStyle(.secondary).monospacedDigit().frame(maxWidth: .infinity, alignment: .trailing) }
+            Text(info.title).lineLimit(typeSize.isAccessibilitySize ? 4 : 2)
+            if typeSize.isAccessibilitySize {
+                // Large text: give amount, date and each badge their own room instead of truncating.
+                amount.font(.callout)
+                Text(date).font(.caption).foregroundStyle(.secondary)
+                TagFlowLayout { ForEach(Array(info.badges.enumerated()), id: \.offset) { _, badge in StatusBadge(text: badge.0, tone: badge.1).fixedSize() } }
+            } else {
+                HStack(spacing: DS.xs) {
+                    Text(date).foregroundStyle(.secondary)
+                    ForEach(Array(info.badges.enumerated()), id: \.offset) { _, badge in StatusBadge(text: badge.0, tone: badge.1) }
+                    Spacer(minLength: DS.s)
+                    amount
+                }.font(.caption)
+            }
+            if let note = info.refundNote { Text(note).font(.caption).foregroundStyle(.secondary).monospacedDigit().frame(maxWidth: .infinity, alignment: typeSize.isAccessibilitySize ? .leading : .trailing) }
         }.padding(.vertical, 3)
+    }
+    private var date: String { info.date.isEmpty ? "日期未知" : String(info.date.prefix(10)) }
+    private var amount: some View {
+        Text(info.amount.map(money) ?? "金额未知").monospacedDigit().lineLimit(1).minimumScaleFactor(0.6)
+            .accessibilityIdentifier(id.map { "completion-amount:" + $0 } ?? "")
     }
 }
 

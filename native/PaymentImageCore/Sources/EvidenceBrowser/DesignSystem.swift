@@ -59,11 +59,14 @@ enum BadgeTone { case pending, failure, draft, confirmed, accent, neutral
 struct StatusBadge: View {
     let text: String
     var tone: BadgeTone = .pending
+    /// Large-text layouts let a long label wrap within the available width instead of clipping.
+    var wraps = false
     var body: some View {
-        Text(text).font(.caption2.weight(.medium)).lineLimit(1)
+        Text(text).font(.caption2.weight(.medium)).lineLimit(wraps ? nil : 1)
+            .fixedSize(horizontal: false, vertical: wraps)
             .padding(.horizontal, 6).padding(.vertical, 2)
             .foregroundStyle(tone.color)
-            .background(tone.color.opacity(0.14), in: Capsule())
+            .background(tone.color.opacity(0.14), in: RoundedRectangle(cornerRadius: wraps ? 6 : 20, style: .continuous))
     }
 }
 

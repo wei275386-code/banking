@@ -100,7 +100,7 @@ struct MobileInboxRow: View {
                 // Large text: give amount, date and each badge their own room instead of truncating.
                 amount.font(.callout)
                 Text(date).font(.caption).foregroundStyle(.secondary)
-                TagFlowLayout { ForEach(Array(info.badges.enumerated()), id: \.offset) { _, badge in StatusBadge(text: badge.0, tone: badge.1).fixedSize() } }
+                TagFlowLayout { ForEach(Array(info.badges.enumerated()), id: \.offset) { _, badge in StatusBadge(text: badge.0, tone: badge.1, wraps: true) } }
             } else {
                 HStack(spacing: DS.xs) {
                     Text(date).foregroundStyle(.secondary)

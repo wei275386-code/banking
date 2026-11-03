@@ -344,11 +344,12 @@ struct MobileCompletionDetail: View {
         let left = inbox?.count(.all) ?? 0
         if left > 0 {
             ContentUnavailableView {
-                Label("补全项已处理完", systemImage: "checkmark.circle")
+                Label("当前筛选下的补全项已处理完", systemImage: "checkmark.circle")
             } description: {
-                Text("待办里还有 \(left) 项其他事项（如关联复核、来源归并），返回列表继续处理。")
+                Text("待办里还有 \(left) 项其他事项（如关联复核、来源归并或其他类型），返回全部待办继续处理。")
             } actions: {
-                Button("返回待办") { dismiss() }.buttonStyle(.borderedProminent)
+                // Clear the type and search scope first so the list we return to shows the remaining work.
+                Button("查看全部待办") { inbox?.openPending(.all); dismiss() }.buttonStyle(.borderedProminent)
             }
         } else { ContentUnavailableView("此队列已完成", systemImage: "checkmark.circle") }
     }

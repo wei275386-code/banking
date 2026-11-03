@@ -648,11 +648,19 @@ func wan(_ value: Double) -> String { String(format: "%.1f 万", value / 10000) 
 
 struct ReviewMetric: View {
     let title: String; let value: String; let note: String
-    var body: some View { VStack(alignment: .leading, spacing: 7) { Text(title).foregroundStyle(.secondary); Text(value).font(.title2.bold()).monospacedDigit(); Text(note).font(.caption).foregroundStyle(.secondary) }.frame(maxWidth: .infinity, alignment: .leading).padding(18).background(.quaternary.opacity(0.35)).clipShape(RoundedRectangle(cornerRadius: 14)) }
+    var tone: BadgeTone = .neutral
+    var body: some View {
+        VStack(alignment: .leading, spacing: DS.xs) {
+            Text(title).font(.callout).foregroundStyle(.secondary)
+            Text(value).font(.title2.weight(.semibold)).monospacedDigit().foregroundStyle(tone == .neutral ? Color.primary : tone.color).lineLimit(1).minimumScaleFactor(0.7)
+            if !note.isEmpty { Text(note).font(.caption).foregroundStyle(.secondary).lineLimit(2) }
+        }.cardStyle()
+    }
 }
 struct ReviewCard<Content: View>: View {
-    let title: String; @ViewBuilder let content: Content
-    var body: some View { VStack(alignment: .leading, spacing: 15) { Text(title).font(.title3.bold()); content }.padding(22).frame(maxWidth: .infinity, alignment: .leading).background(.background).clipShape(RoundedRectangle(cornerRadius: 16)) }
+    let title: String; var info: String? = nil; @ViewBuilder let content: Content
+    init(title: String, info: String? = nil, @ViewBuilder content: () -> Content) { self.title = title; self.info = info; self.content = content() }
+    var body: some View { VStack(alignment: .leading, spacing: DS.m) { SectionHeader(title: title, info: info); content }.cardStyle(padding: DS.l + 2) }
 }
 
 #if os(macOS)

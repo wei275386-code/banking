@@ -80,21 +80,25 @@ import PaymentImageCore
             throw error
         }
     }
+    static let modes = ["优先补全", "待分类", "待核事实", "退款候选", "暂放", "本次已保存", "已确认", "已排除"]
+    func matches(_ entry: CompletionEntry, mode: String) -> Bool {
+        if entry.record.reviewExcluded && mode != "已排除" { return false }
+        switch mode {
+        case "已排除": return entry.record.reviewExcluded
+        case "待分类": return entry.missingCategory && !deferred.contains(entry.id)
+        case "待核事实": return entry.factsPending && !deferred.contains(entry.id)
+        case "退款候选": return refundCandidateRecordIDs.contains(entry.record.id) && entry.record.unallocated_credit_cents > 0 && !deferred.contains(entry.id)
+        case "暂放": return deferred.contains(entry.id)
+        case "本次已保存": return saved.contains(entry.id)
+        case "已确认": return entry.component?.completionConfirmed == true || entry.record.factReviewConfirmed
+        default: return !deferred.contains(entry.id) && !saved.contains(entry.id) && entry.component?.completionConfirmed != true && !(entry.record.factReviewConfirmed && !entry.factsPending && !entry.missingCategory)
+        }
+    }
+    /// Unfiltered by search, so type counts stay stable while the user types.
+    func count(_ mode: String) -> Int { entries.reduce(0) { $0 + (matches($1, mode: mode) ? 1 : 0) } }
     func filter() {
         visible = entries.filter { entry in
-            if entry.record.reviewExcluded && mode != "已排除" { return false }
-            let allowed: Bool
-            switch mode {
-            case "已排除": allowed = entry.record.reviewExcluded
-            case "待分类": allowed = entry.missingCategory && !deferred.contains(entry.id)
-            case "待核事实": allowed = entry.factsPending && !deferred.contains(entry.id)
-            case "退款候选": allowed = refundCandidateRecordIDs.contains(entry.record.id) && entry.record.unallocated_credit_cents > 0 && !deferred.contains(entry.id)
-            case "暂放": allowed = deferred.contains(entry.id)
-            case "本次已保存": allowed = saved.contains(entry.id)
-            case "已确认": allowed = entry.component?.completionConfirmed == true || entry.record.factReviewConfirmed
-            default: allowed = !deferred.contains(entry.id) && !saved.contains(entry.id) && entry.component?.completionConfirmed != true && !(entry.record.factReviewConfirmed && !entry.factsPending && !entry.missingCategory)
-            }
-            return allowed && (query.isEmpty || (entry.record.traceSearchText + " " + entry.record.date + " " + entry.record.title + " " + (entry.component?.title ?? "") + " " + entry.record.userDisplayName + " " + (entry.record.user_id ?? "") + " " + money(entry.impact)).localizedCaseInsensitiveContains(query))
+            matches(entry, mode: mode) && (query.isEmpty || (entry.record.traceSearchText + " " + entry.record.date + " " + entry.record.title + " " + (entry.component?.title ?? "") + " " + entry.record.userDisplayName + " " + (entry.record.user_id ?? "") + " " + money(entry.impact)).localizedCaseInsensitiveContains(query))
         }
         if !visible.contains(where: { $0.id == selected }) { selected = visible.first?.id }
     }

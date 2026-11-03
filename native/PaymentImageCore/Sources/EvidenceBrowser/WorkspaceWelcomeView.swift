@@ -14,28 +14,30 @@ struct WorkspaceWelcomeView: View {
     @State private var maintenanceTask: Task<Void, Never>?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 22) {
-            Image(systemName: "house.and.flag").font(.system(size: 42)).foregroundStyle(.teal)
-            Text("家庭财务复盘").font(.largeTitle.bold())
-            Text("创建家庭资料后即可导入账单。资料自动保存在本机应用目录，与工程源码分开。").foregroundStyle(.secondary)
-            HStack {
-                Button("创建新的家庭资料") { create() }.buttonStyle(.borderedProminent)
-                Button("打开已有本机资料") { chooseExisting() }
-            }.disabled(busy)
-            HStack {
-                Button("从备份恢复") { restore() }
-                Button("恢复同步副本") { restoreClient() }
-                Button(pendingClient == nil ? "连接已有家庭同步" : "重新选择原同步目录") { connect() }
-                if let pendingClient {
-                    Button("继续等待家庭快照") { waitForPending(pendingClient) }
-                }
-            }.disabled(busy)
-            if busy { ProgressView("正在准备资料…") }
-            if maintenanceTask != nil { Button("取消操作") { maintenanceTask?.cancel(); stopping = true } }
-            if stopping { Text("正在停止操作，并核对目标状态…").foregroundStyle(.secondary) }
-            if let error = finance.error { Text(error).foregroundStyle(.red).textSelection(.enabled) }
-            if let unavailable { Text(unavailable).foregroundStyle(.secondary) }
-            if !finance.syncStatus.isEmpty { Text(finance.syncStatus).foregroundStyle(.secondary) }
+        VStack(spacing: DS.xl) {
+            VStack(spacing: DS.s) {
+                Image(systemName: "house.and.flag").font(.system(size: 44)).foregroundStyle(DS.accent)
+                Text("家庭财务复盘").font(.largeTitle.bold())
+                Text("导入账单与截图，复盘家庭消费，规划长期目标。").foregroundStyle(.secondary)
+            }
+            VStack(spacing: DS.m) {
+                welcomeChoice("创建新的家庭资料", detail: "资料保存在本机应用目录，与工程源码分开。", symbol: "plus.circle.fill", prominent: true) { create() }
+                welcomeChoice("打开已有本机资料", detail: "继续使用这台 Mac 上已有的家庭资料。", symbol: "folder") { chooseExisting() }
+                welcomeChoice(pendingClient == nil ? "连接已有家庭同步" : "重新选择原同步目录", detail: "加入另一台 Mac 已发布的家庭资料。", symbol: "icloud") { connect() }
+            }.frame(width: 440).disabled(busy)
+            HStack(spacing: DS.l) {
+                Button("从备份恢复…") { restore() }
+                Button("恢复同步副本…") { restoreClient() }
+                if let pendingClient { Button("继续等待家庭快照") { waitForPending(pendingClient) } }
+            }.buttonStyle(.link).disabled(busy)
+            VStack(spacing: DS.s) {
+                if busy { ProgressView("正在准备资料…") }
+                if maintenanceTask != nil { Button("取消操作") { maintenanceTask?.cancel(); stopping = true } }
+                if stopping { Text("正在停止操作，并核对目标状态…").foregroundStyle(.secondary) }
+                if let error = finance.error { NoticeText(text: error, tone: .failure) }
+                if let unavailable { Text(unavailable).foregroundStyle(.secondary) }
+                if !finance.syncStatus.isEmpty { Text(finance.syncStatus).foregroundStyle(.secondary).textSelection(.enabled) }
+            }.frame(maxWidth: 520)
         }.padding(56).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             .frame(minWidth: 760, minHeight: 520)
             .task {
@@ -50,6 +52,23 @@ struct WorkspaceWelcomeView: View {
                     }
                 } catch { finance.error = "无法恢复已选资料，请恢复或重新选择已有资料：" + error.localizedDescription }
             }
+    }
+    private func welcomeChoice(_ title: String, detail: String, symbol: String, prominent: Bool = false, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: DS.m) {
+                Image(systemName: symbol).font(.title2).foregroundStyle(prominent ? DS.onAccent : DS.accent).frame(width: 28)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title).font(.headline)
+                    Text(detail).font(.caption).foregroundStyle(prominent ? DS.onAccent.opacity(0.85) : .secondary)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").foregroundStyle(prominent ? DS.onAccent : Color.secondary)
+            }
+            .foregroundStyle(prominent ? DS.onAccent : Color.primary)
+            .padding(DS.l)
+            .background(prominent ? AnyShapeStyle(DS.accent) : AnyShapeStyle(DS.cardBackground), in: RoundedRectangle(cornerRadius: DS.corner))
+            .contentShape(RoundedRectangle(cornerRadius: DS.corner))
+        }.buttonStyle(.plain)
     }
     private func create() {
         do {

@@ -29,7 +29,7 @@ struct CategoryManagementPage: View {
         List {
             Section {
                 Text("主分类管理支出用途，二级分类细分用途。改名和移动会更新历史交易；删除时选择迁移目标。").font(.callout).foregroundStyle(.secondary)
-                if !store.categoryMessage.isEmpty { Text(store.categoryMessage).font(.callout).foregroundStyle(.teal).accessibilityIdentifier("category-status") }
+                if !store.categoryMessage.isEmpty { Text(store.categoryMessage).font(.callout).foregroundStyle(DS.accent).accessibilityIdentifier("category-status") }
                 if let error = store.error { Text(error).foregroundStyle(.red) }
             }
             Section("主分类 · \(matching.count)") {
@@ -108,7 +108,7 @@ private struct PrimaryCategoryDetail: View {
                         Button { open(newSecondary: true) } label: { Label("新增二级分类", systemImage: "plus") }.accessibilityIdentifier("category-add-secondary")
                     }
                 }
-                if !store.categoryMessage.isEmpty { Section { Text(store.categoryMessage).foregroundStyle(.teal) } }
+                if !store.categoryMessage.isEmpty { Section { Text(store.categoryMessage).foregroundStyle(DS.accent) } }
                 if let error = store.error { Section { Text(error).foregroundStyle(.red) } }
             }
         }
@@ -166,7 +166,7 @@ private struct CategoryTransactionsPage: View {
                     Spacer()
                     Button("换绑分类") { open(unbinding: false) }.accessibilityIdentifier("category-batch-rebind")
                 }.buttonStyle(.bordered).disabled(selected.isEmpty)
-                if !store.categoryMessage.isEmpty { Text(store.categoryMessage).font(.caption).foregroundStyle(.teal) }
+                if !store.categoryMessage.isEmpty { Text(store.categoryMessage).font(.caption).foregroundStyle(DS.accent) }
                 if let error = store.error { Text(error).font(.caption).foregroundStyle(.red) }
                 if store.categorySaving { ProgressView("正在保存…") }
             }

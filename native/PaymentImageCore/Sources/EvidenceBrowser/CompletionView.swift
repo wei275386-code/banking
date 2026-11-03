@@ -80,22 +80,32 @@ import PaymentImageCore
             throw error
         }
     }
-    func filter() {
-        visible = entries.filter { entry in
-            if entry.record.reviewExcluded && mode != "已排除" { return false }
-            let allowed: Bool
-            switch mode {
-            case "已排除": allowed = entry.record.reviewExcluded
-            case "待分类": allowed = entry.missingCategory && !deferred.contains(entry.id)
-            case "待核事实": allowed = entry.factsPending && !deferred.contains(entry.id)
-            case "退款候选": allowed = refundCandidateRecordIDs.contains(entry.record.id) && entry.record.unallocated_credit_cents > 0 && !deferred.contains(entry.id)
-            case "暂放": allowed = deferred.contains(entry.id)
-            case "本次已保存": allowed = saved.contains(entry.id)
-            case "已确认": allowed = entry.component?.completionConfirmed == true || entry.record.factReviewConfirmed
-            default: allowed = !deferred.contains(entry.id) && !saved.contains(entry.id) && entry.component?.completionConfirmed != true && !(entry.record.factReviewConfirmed && !entry.factsPending && !entry.missingCategory)
-            }
-            return allowed && (query.isEmpty || (entry.record.traceSearchText + " " + entry.record.date + " " + entry.record.title + " " + (entry.component?.title ?? "") + " " + entry.record.userDisplayName + " " + (entry.record.user_id ?? "") + " " + money(entry.impact)).localizedCaseInsensitiveContains(query))
+    static let modes = ["全部", "优先补全", "待分类", "待核事实", "退款候选", "暂放", "本次已保存", "已确认", "已排除"]
+    func matches(_ entry: CompletionEntry, mode: String) -> Bool {
+        if entry.record.reviewExcluded && mode != "已排除" { return false }
+        switch mode {
+        case "已排除": return entry.record.reviewExcluded
+        case "全部": return isOpen(entry)
+        case "待分类": return entry.missingCategory && !deferred.contains(entry.id)
+        case "待核事实": return entry.factsPending && !deferred.contains(entry.id)
+        case "退款候选": return refundCandidateRecordIDs.contains(entry.record.id) && entry.record.unallocated_credit_cents > 0 && !deferred.contains(entry.id)
+        case "暂放": return deferred.contains(entry.id)
+        case "本次已保存": return saved.contains(entry.id)
+        case "已确认": return entry.component?.completionConfirmed == true || entry.record.factReviewConfirmed
+        default: return !deferred.contains(entry.id) && !saved.contains(entry.id) && entry.component?.completionConfirmed != true && !(entry.record.factReviewConfirmed && !entry.factsPending && !entry.missingCategory)
         }
+    }
+    func matchesQuery(_ entry: CompletionEntry) -> Bool {
+        query.isEmpty || (entry.record.traceSearchText + " " + entry.record.date + " " + entry.record.title + " " + (entry.component?.title ?? "") + " " + entry.record.userDisplayName + " " + (entry.record.user_id ?? "") + " " + money(entry.impact)).localizedCaseInsensitiveContains(query)
+    }
+    /// Open work of any type: the union behind the inbox's 全部 view.
+    func isOpen(_ entry: CompletionEntry) -> Bool {
+        ["优先补全", "待分类", "待核事实", "退款候选"].contains { matches(entry, mode: $0) }
+    }
+    /// Unfiltered by search, so type counts stay stable while the user types.
+    func count(_ mode: String) -> Int { entries.reduce(0) { $0 + (matches($1, mode: mode) ? 1 : 0) } }
+    func filter() {
+        visible = entries.filter { matches($0, mode: mode) && matchesQuery($0) }
         if !visible.contains(where: { $0.id == selected }) { selected = visible.first?.id }
     }
     func draft(_ entry: CompletionEntry) -> CompletionDraft? {
@@ -198,132 +208,6 @@ struct TransactionReviewExclusion: View {
 }
 
 
-#if os(macOS)
-struct CompletionPage: View {
-    @Bindable var store: FinancialStore
-    @Bindable var evidence: BrowserStore
-    @Bindable var workspace: CompletionWorkspace
-    @State private var showingSourceSets = false
-    private var busy: Bool { !store.editingAvailable || store.completionSaving || store.importing || store.loading || evidence.loading || workspace.persisting }
-    var body: some View {
-        VStack(spacing: 0) {
-            header
-            Divider()
-            GeometryReader { geometry in
-                HStack(spacing: 0) {
-                    queue.frame(width: 250)
-                    Divider()
-                    if let entry = workspace.current {
-                        if geometry.size.width >= 900 {
-                            ScrollView { CompletionEditor(entry: entry, store: store, evidence: evidence, workspace: workspace, busy: busy).id(entry.id).padding(20) }.id(entry.id).frame(width: geometry.size.width * 0.41)
-                            Divider()
-                            evidencePanel(entry)
-                        } else {
-                            ScrollView {
-                                VStack(alignment: .leading, spacing: 20) {
-                                    CompletionEditor(entry: entry, store: store, evidence: evidence, workspace: workspace, busy: busy).id(entry.id)
-                                    CompletionEvidence(entry: entry, store: store, evidence: evidence, workspace: workspace, busy: busy, dirty: workspace.isDirty(entry))
-                                }.padding(22)
-                            }.id(entry.id)
-                        }
-                    } else {
-                        ContentUnavailableView("当前队列已看完", systemImage: "checkmark.circle", description: Text("可切换待核事实、暂放或本次已保存。未核实事实仍留在待核事实队列中；已无缺项的项目可在本次已保存复查。"))
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                }
-            }
-            Divider()
-            footer
-        }
-        .background(Color(nsColor: .windowBackgroundColor))
-        .onAppear {
-            if workspace.from.isEmpty { workspace.from = store.from; workspace.to = store.to }
-            workspace.refresh(store, evidence)
-        }
-        .task(id: store.revision) { await store.reconcileCompletion(); workspace.refresh(store, evidence) }
-        .onChange(of: store.revision) { _, _ in workspace.refresh(store, evidence) }
-        .onChange(of: evidence.previewGeneration) { _, _ in workspace.refresh(store, evidence) }
-        .onChange(of: workspace.allDates) { _, _ in workspace.refresh(store, evidence) }
-        .sheet(isPresented: $showingSourceSets) {
-            NavigationStack {
-                SourceRecordSetList(store: store, evidence: evidence)
-                    .toolbar { ToolbarItem(placement: .confirmationAction) { Button("关闭") { showingSourceSets = false } } }
-            }.frame(minWidth: 600, minHeight: 600)
-        }
-    }
-    private var header: some View {
-        HStack(alignment: .center, spacing: 20) {
-            VStack(alignment: .leading, spacing: 5) {
-                Text("补全").font(.title2.bold())
-                Text("同名商家自动确认，可在「已确认」复查").foregroundStyle(.secondary)
-            }
-            Spacer()
-            Button("来源归并（\(store.sourceRecordGroups.count)）") { showingSourceSets = true }
-                .accessibilityIdentifier("source-set-list").disabled(busy)
-            VStack(alignment: .trailing, spacing: 4) {
-                Text("本次保存 \(workspace.saved.count) 项 · 暂放 \(workspace.deferred.count) 项").font(.callout)
-                Text("\(workspace.visible.count) 项待看 · 按金额从大到小；金额未知排最后").font(.caption).foregroundStyle(.secondary)
-            }
-        }.padding(.horizontal, 22).padding(.vertical, 16)
-    }
-    private var queue: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            VStack(alignment: .leading, spacing: 10) {
-                Picker("队列", selection: $workspace.mode) {
-                    ForEach(["优先补全", "待分类", "待核事实", "退款候选", "暂放", "本次已保存", "已确认", "已排除"], id: \.self) { Text($0).tag($0) }
-                }
-                TextField("搜索日期、商户、金额或用户", text: $workspace.query).textFieldStyle(.roundedBorder)
-                Toggle("包括区间外与日期未知", isOn: $workspace.allDates).font(.caption)
-                Text("只扩大补全队列，统计日期范围不变；同名联动始终覆盖全资料库。").font(.caption2).foregroundStyle(.secondary)
-                Text(workspace.allDates ? "全部资料日期" : workspace.from + " — " + workspace.to).font(.caption).foregroundStyle(.secondary)
-                Text("仅列已生成生命周期的消费项目；独立证据待核保留在交易证据页。").font(.caption2).foregroundStyle(.secondary)
-            }.padding(14)
-            List(selection: $workspace.selected) {
-                ForEach(workspace.visible) { entry in
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack { Text(entry.record.date).font(.caption); Spacer(); Text(entry.amountUnknown ? "金额未知" : money(entry.impact)).monospacedDigit().font(.callout) }
-                        Text(entry.component?.title ?? entry.record.title).lineLimit(2)
-                        Text(entry.issueSummaries.joined(separator: " · ")).font(.caption).foregroundStyle(entry.factsPending ? Color.orange : Color.secondary).lineLimit(3)
-                        if workspace.isDirty(entry) { Text("未保存草稿").font(.caption2).foregroundStyle(.blue) }
-                    }.padding(.vertical, 6).tag(entry.id)
-                }
-            }.listStyle(.inset).disabled(busy)
-                .overlay { if workspace.visible.isEmpty { Text("没有匹配项").foregroundStyle(.secondary) } }
-        }.disabled(busy)
-    }
-    private func evidencePanel(_ entry: CompletionEntry) -> some View {
-        ScrollView { CompletionEvidence(entry: entry, store: store, evidence: evidence, workspace: workspace, busy: busy, dirty: workspace.isDirty(entry)).padding(18) }.id(entry.id)
-            .frame(maxWidth: .infinity)
-    }
-    private var footer: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 3) {
-                if let failure = workspace.workflowError { Text(failure).font(.caption).foregroundStyle(.red) }
-                if !workspace.message.isEmpty { Text(workspace.message).font(.caption).foregroundStyle(.secondary) }
-                if let entry = workspace.current, workspace.isDirty(entry) { Text("有未保存选项；切换交易会保留本次草稿。").font(.caption).foregroundStyle(.blue) }
-            }.frame(maxWidth: .infinity, alignment: .leading)
-            if busy { ProgressView().controlSize(.small) }
-            Button("撤销上一笔") { Task { await store.undoCompletion(); workspace.refresh(store, evidence) } }.disabled(busy || workspace.undo == nil)
-            if let entry = workspace.current {
-                Button(workspace.deferred.contains(entry.id) ? "放回队列" : "暂放并下一笔") {
-                    let previous = workspace.visible.map(\.id)
-                    Task { await workspace.setDeferred(entry.id, value: !workspace.deferred.contains(entry.id), store: store); workspace.next(after: entry.id, previous: previous) }
-                }.disabled(busy || workspace.workflowError != nil)
-                Button(entry.component == nil ? "下一笔" : "保存并下一笔") {
-                    let previous = workspace.visible.map(\.id)
-                    Task {
-                        let success = entry.component == nil ? true : await store.saveCompletion(entry)
-                        if success {
-                            workspace.refresh(store, evidence); workspace.next(after: entry.id, previous: previous)
-                        }
-                    }
-                }.buttonStyle(.borderedProminent).keyboardShortcut(.return, modifiers: .command).disabled(busy)
-            }
-        }.padding(.horizontal, 20).padding(.vertical, 14)
-    }
-}
-
-#endif
 struct CompletionEditor: View {
     let entry: CompletionEntry
     @Bindable var store: FinancialStore
@@ -356,6 +240,9 @@ struct CompletionEditor: View {
             }
         }.disabled(disabled)
             .onAppear { choosingPrimary = entry.missingCategory }
+            .onReceive(NotificationCenter.default.publisher(for: .adoptCategorySuggestion)) { note in
+                if note.object as? String == entry.id, !disabled, entry.missingCategory, let suggestion = categorySuggestion { adopt(suggestion) }
+            }
             .task(id: "\(entry.id)|\(store.revision)") {
             guard let component = entry.component, let report = store.report else { categorySuggestion = nil; return }
             let result = await Task.detached(priority: .userInitiated) {
@@ -369,7 +256,7 @@ struct CompletionEditor: View {
             Text(entry.component?.title ?? entry.record.title).font(.title2.bold()).lineLimit(3).help(entry.component?.title ?? entry.record.title).textSelection(.enabled)
             Text(entry.record.date + " · " + entry.record.status).foregroundStyle(.secondary)
             if entry.component?.completionConfirmed == true {
-                Label(entry.component?.completion_confirmation?.origin == "linked" ? "分类等字段已自动确认 · 同名商家联动" : "分类等字段已确认", systemImage: "checkmark.circle.fill").foregroundStyle(.teal)
+                Label(entry.component?.completion_confirmation?.origin == "linked" ? "分类等字段已自动确认 · 同名商家联动" : "分类等字段已确认", systemImage: "checkmark.circle.fill").foregroundStyle(DS.accent)
             }
             FinanceTransactionIdentity(record: entry.record)
             TransactionFactActions(record: entry.record, store: store, evidence: evidence)
@@ -407,14 +294,19 @@ struct CompletionEditor: View {
                     if suggestion.score < 60 && (suggestion.platform || suggestion.ambiguous) {
                         Text("匹配较弱，请核对用途后决定。").font(.caption).foregroundStyle(.orange)
                     }
-                    Button("采用候选分类") {
-                        guard var next = workspace.draft(entry) else { return }
-                        next.primary = suggestion.source.primary; next.secondary = suggestion.source.secondary
-                        workspace.edit(entry, next); choosingPrimary = false
-                    }.buttonStyle(.bordered).accessibilityIdentifier("completion-adopt-suggestion")
+                    Button("采用候选分类") { adopt(suggestion) }
+                        .buttonStyle(.bordered).accessibilityIdentifier("completion-adopt-suggestion")
+                        #if os(macOS)
+                        .help("快捷键 1 或 ⌥⌘1")
+                        #endif
                 }
             }
         }
+    }
+    private func adopt(_ suggestion: CategorySuggestion) {
+        guard var next = workspace.draft(entry) else { return }
+        next.primary = suggestion.source.primary; next.secondary = suggestion.source.secondary
+        workspace.edit(entry, next); choosingPrimary = false
     }
     private func fields(_ component: FinancialComponent, _ draft: CompletionDraft) -> some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -422,7 +314,7 @@ struct CompletionEditor: View {
             ReviewCard(title: "分类") {
                 let linked = CategoryHeuristics.linkedTargets(source: component, draft: draft, records: store.report?.records ?? [], excluding: Set(workspace.drafts.keys))
                 if !linked.isEmpty {
-                    Text("保存时将确认 \(linked.count) 项同名商家并移出默认队列（含区间外），可整批撤销。").font(.caption).foregroundStyle(.teal).accessibilityIdentifier("completion-linked-preview")
+                    Text("保存时将确认 \(linked.count) 项同名商家并移出默认队列（含区间外），可整批撤销。").font(.caption).foregroundStyle(DS.accent).accessibilityIdentifier("completion-linked-preview")
                 } else {
                     Text(CategoryHeuristics.blocksAutomation(component.title) ? "平台、通道或不完整名称：本笔分类不自动联动。" : "保存即确认；同名且分类一致的项目一起确认，已有草稿跳过。").font(.caption).foregroundStyle(.secondary)
                 }
@@ -462,7 +354,7 @@ struct CompletionEditor: View {
                 if draft.tags.isEmpty { Text("暂无标签；不强制补标签。").font(.caption).foregroundStyle(.secondary) }
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 110))], alignment: .leading, spacing: 8) {
                     ForEach(draft.tags, id: \.self) { tag in
-                        Button { var next = workspace.draft(entry) ?? draft; next.tags.removeAll { $0 == tag }; workspace.edit(entry, next) } label: { Label(tag, systemImage: "xmark.circle").lineLimit(1) }.buttonStyle(.bordered).tint(.teal)
+                        Button { var next = workspace.draft(entry) ?? draft; next.tags.removeAll { $0 == tag }; workspace.edit(entry, next) } label: { Label(tag, systemImage: "xmark.circle").lineLimit(1) }.buttonStyle(.bordered).tint(DS.accent)
                     }
                 }
                 Menu("选择已有标签") {

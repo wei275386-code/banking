@@ -38,7 +38,7 @@ import PaymentImageCore
             for section in ["overview", "tags", "focus", "details", "fire", "branches", "params", "data"] {
                 store.section = section
                 measure("render." + section) {
-                    let host = NSHostingView(rootView: FinanceRootView(store: store, evidence: evidence))
+                    let host = NSHostingView(rootView: MacRootView(store: store, evidence: evidence, inbox: InboxModel()))
                     host.frame = NSRect(x: 0, y: 0, width: 1280, height: 860)
                     host.layoutSubtreeIfNeeded()
                     checksum += Int(host.fittingSize.height)
@@ -50,7 +50,7 @@ import PaymentImageCore
         }
         store.account = "全部账户"; store.primary = "全部分类"; store.query = ""; store.section = "details"
         store.selected = store.records.first?.id
-        let persistent = NSHostingView(rootView: FinanceRootView(store: store, evidence: evidence))
+        let persistent = NSHostingView(rootView: MacRootView(store: store, evidence: evidence, inbox: InboxModel()))
         persistent.frame = NSRect(x: 0, y: 0, width: 1280, height: 860)
         persistent.layoutSubtreeIfNeeded(); _ = persistent.fittingSize
         for _ in 0..<3 {
@@ -68,7 +68,7 @@ import PaymentImageCore
             let stats = measure("tags." + match + ".statistics") { store.stats }
             tagSamples.append(["tags": store.selectedTags, "match": match, "net_cents": stats.net, "count": stats.count])
             measure("render.tags." + match + ".minimum-window") {
-                let host = NSHostingView(rootView: FinanceRootView(store: store, evidence: evidence))
+                let host = NSHostingView(rootView: MacRootView(store: store, evidence: evidence, inbox: InboxModel()))
                 host.frame = NSRect(x: 0, y: 0, width: 1180, height: 800)
                 host.layoutSubtreeIfNeeded(); checksum += Int(host.fittingSize.height)
             }

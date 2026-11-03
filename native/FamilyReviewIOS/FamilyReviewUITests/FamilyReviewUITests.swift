@@ -8,7 +8,7 @@ final class FamilyReviewUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["--qa-isolated","--qa-amount-sort","--qa-reset-amount-sort"]
         app.launch()
-        XCTAssertTrue(app.staticTexts["已记录净消费"].waitForExistence(timeout:30))
+        XCTAssertTrue(app.staticTexts["净消费"].waitForExistence(timeout:30))
         return app
     }
     @MainActor private func amountText(_ id: String, app: XCUIApplication) -> XCUIElement {
@@ -16,7 +16,7 @@ final class FamilyReviewUITests: XCTestCase {
     }
     @MainActor func testAmountSortDetailsCategorySearchAndPaginationReadOnly() {
         let app = amountSortLaunch()
-        app.tabBars.buttons["明细"].tap()
+        app.tabBars.buttons["交易"].tap()
         let multi = amountText("sort-multi",app:app), credit = amountText("sort-credit",app:app), high = amountText("sort-high",app:app)
         XCTAssertTrue(multi.waitForExistence(timeout:5)); XCTAssertTrue(multi.label.contains("910.00"))
         XCTAssertLessThan(multi.frame.minY,credit.frame.minY); XCTAssertLessThan(credit.frame.minY,high.frame.minY)
@@ -31,8 +31,8 @@ final class FamilyReviewUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["交易详情"].waitForExistence(timeout:5))
         XCTAssertTrue(app.staticTexts["排序：组合设备 900元"].firstMatch.exists)
         capture(app,"amount-03-full-lifecycle-detail")
-        app.navigationBars.buttons.firstMatch.tap(); XCTAssertTrue(app.navigationBars["支出明细"].exists)
-        app.tabBars.buttons["复盘"].tap()
+        app.navigationBars.buttons.firstMatch.tap(); XCTAssertTrue(app.navigationBars["交易"].exists)
+        app.tabBars.buttons["概览"].tap()
         let category = app.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","日常消费")).firstMatch
         reveal(category,in:app); category.tap()
         let secondary = app.buttons["category-transactions:日常消费/咖啡茶饮"]
@@ -52,7 +52,7 @@ final class FamilyReviewUITests: XCTestCase {
     }
     @MainActor func testAmountSortCompletionRefundTargetsAndEvidenceReadOnly() {
         let app = amountSortLaunch()
-        app.tabBars.buttons["补全"].tap()
+        app.tabBars.buttons["待办"].tap()
         let credit = app.staticTexts["completion-amount:sort-credit:facts"], high = app.staticTexts["completion-amount:sort-high"]
         reveal(credit,in:app); XCTAssertTrue(credit.label.contains("700.00")); XCTAssertLessThan(credit.frame.minY,high.frame.minY)
         capture(app,"amount-08-completion-impact-descending")
@@ -78,7 +78,7 @@ final class FamilyReviewUITests: XCTestCase {
         app.navigationBars["原购买项目"].buttons["取消"].tap()
         // Close the unsaved form; navigation and search must not save facts.
         app.buttons["关闭"].tap()
-        app.tabBars.buttons["资料"].tap()
+        app.tabBars.buttons["我的"].tap()
         let evidence = app.buttons["交易证据与关联复核"]; reveal(evidence,in:app); evidence.tap()
         XCTAssertTrue(app.navigationBars["交易证据"].waitForExistence(timeout:5))
         let candidateHigh = app.staticTexts["隔离排序候选 qa-high"], candidateLow = app.staticTexts["隔离排序候选 qa-low"]
@@ -109,7 +109,6 @@ final class FamilyReviewUITests: XCTestCase {
         XCTAssertTrue(element.exists && element.isHittable,"Element must become visible: " + element.description)
     }
     @MainActor private func queue(_ mode: String, app: XCUIApplication) {
-        app.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","处理队列")).firstMatch.tap()
-        app.buttons[mode].tap()
+        app.buttons["inbox-kind:" + mode].tap()
     }
 }

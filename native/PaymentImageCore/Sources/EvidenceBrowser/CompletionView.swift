@@ -80,11 +80,12 @@ import PaymentImageCore
             throw error
         }
     }
-    static let modes = ["优先补全", "待分类", "待核事实", "退款候选", "暂放", "本次已保存", "已确认", "已排除"]
+    static let modes = ["全部", "优先补全", "待分类", "待核事实", "退款候选", "暂放", "本次已保存", "已确认", "已排除"]
     func matches(_ entry: CompletionEntry, mode: String) -> Bool {
         if entry.record.reviewExcluded && mode != "已排除" { return false }
         switch mode {
         case "已排除": return entry.record.reviewExcluded
+        case "全部": return isOpen(entry)
         case "待分类": return entry.missingCategory && !deferred.contains(entry.id)
         case "待核事实": return entry.factsPending && !deferred.contains(entry.id)
         case "退款候选": return refundCandidateRecordIDs.contains(entry.record.id) && entry.record.unallocated_credit_cents > 0 && !deferred.contains(entry.id)

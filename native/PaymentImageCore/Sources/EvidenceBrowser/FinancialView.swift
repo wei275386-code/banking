@@ -84,6 +84,8 @@ import UniformTypeIdentifiers
     var syncStatus = ""
     /// View state: received concurrent versions await a user decision.
     var syncConflictsPending = false
+    /// The last sync attempt failed or must be retried (separate from conflicts).
+    var syncFailed = false
     let completion = CompletionWorkspace()
     var completionSaving = false
     var loading = false

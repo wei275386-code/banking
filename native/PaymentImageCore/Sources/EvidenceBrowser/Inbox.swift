@@ -12,7 +12,7 @@ enum InboxKind: String, CaseIterable, Identifiable {
     /// The CompletionWorkspace mode backing this kind, if any.
     var completionMode: String? {
         switch self {
-        case .all: "优先补全"
+        case .all: "全部"
         case .category, .facts, .refund: rawValue
         case .association, .sourceSet: nil
         }
@@ -90,7 +90,9 @@ struct InboxRowInfo {
         guard bound, let finance, let evidence else { return [] }
         let workspace = finance.completion
         var result = [InboxItem]()
-        let completions = completionEntries(workspace)
+        // The workspace mode mirrors the kind (全部 = open-work union), so this list and
+        // the editor's save-and-next walk the same set on both platforms.
+        let completions = workspace.visible
         if showsCompletion { result += completions.map(InboxItem.completion) }
         let wantsAssociations = history == .associations || (history == nil && (kind == .all || kind == .association))
         if wantsAssociations {
@@ -112,11 +114,6 @@ struct InboxRowInfo {
             return TransactionListOrder.sorted(result, amount: { self.row($0).amount }, date: { self.row($0).date }, id: \.id)
         }
         return result
-    }
-    /// 全部 shows the union of open completion types; other views follow the workspace mode.
-    private func completionEntries(_ workspace: CompletionWorkspace) -> [CompletionEntry] {
-        guard history == nil, kind == .all else { return workspace.visible }
-        return workspace.entries.filter { workspace.isOpen($0) && workspace.matchesQuery($0) }
     }
     /// Associations and source sets follow the same date scope as completion entries.
     private func inRange(_ date: String) -> Bool {

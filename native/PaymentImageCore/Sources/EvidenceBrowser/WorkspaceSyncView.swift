@@ -91,12 +91,14 @@ import PaymentImageCore
             store.editorPauseReason = nil
             await store.reloadWorkspaceIfChanged(paths, evidence: evidence)
             guard !Task.isCancelled, isCurrent(store) else { return }
-            store.syncStatus = "家庭同步已核对（" + String(generation.prefix(8)) + "）。"
+            store.syncFailed = false; store.syncStatus = "家庭同步已核对（" + String(generation.prefix(8)) + "）。"
+            // Incoming concurrent edits leave the report revision unchanged; re-read conflicts here.
+            await store.refreshSyncConflictFlag()
             if let refreshBarrier { await refreshBarrier(.activated) }
         } catch is CancellationError {
             // A retired selection must not replace the new family's UI/status.
         } catch {
-            if isCurrent(store), !Task.isCancelled { store.syncStatus = "等待家庭同步：" + error.localizedDescription }
+            if isCurrent(store), !Task.isCancelled { store.syncFailed = true; store.syncStatus = "等待家庭同步：" + error.localizedDescription; await store.refreshSyncConflictFlag() }
         }
     }
 }
@@ -191,11 +193,11 @@ import PaymentImageCore
             }
             if let evidence { await evidence.load(handle.review, finance: store.report) }
             guard !Task.isCancelled, isCurrent(store) else { return }
-            store.syncStatus = handle.conflicts.isEmpty ? "已核对家庭快照；本机修改会保留至真实纳入。" : "并发修改已保留，请核对字段版本。"
+            store.syncFailed = false; store.syncStatus = handle.conflicts.isEmpty ? "已核对家庭快照；本机修改会保留至真实纳入。" : "并发修改已保留，请核对字段版本。"
             store.syncConflictsPending = !handle.conflicts.isEmpty
         } catch is CancellationError {
         } catch {
-            if isCurrent(store), !Task.isCancelled { store.syncStatus = "等待同步：" + error.localizedDescription }
+            if isCurrent(store), !Task.isCancelled { store.syncFailed = true; store.syncStatus = "等待同步：" + error.localizedDescription }
         }
     }
 }
@@ -211,7 +213,7 @@ extension FinancialStore {
         familyClientSyncController?.stop(); familyClientSyncController = nil
         workspaceRuntimeTask?.cancel()
         invalidatePendingLoad()
-        editorPauseReason = nil
+        editorPauseReason = nil; syncFailed = false; syncConflictsPending = false
         if root == nil {
             workspacePaths = nil; workspaceState = nil; clientWorkspacePaths = nil; pinnedClientReview = nil
         familyClientPaths = nil; familyClientHandle = nil
@@ -366,7 +368,7 @@ extension FinancialStore {
                 }
                 let controller = MacFamilyClientSyncController(paths: paths, store: self, evidence: evidence, selectionGeneration: generation)
                 familyClientSyncController?.stop(); familyClientSyncController = controller
-                syncStatus = "家庭副本可离线使用；刷新会发送已保存修改并核对新快照。"
+                syncFailed = false; syncStatus = "家庭副本可离线使用；刷新会发送已保存修改并核对新快照。"
                 controller.start()
                 return
             }
@@ -374,13 +376,13 @@ extension FinancialStore {
                 guard !Task.isCancelled, isWorkspaceSelectionCurrent(paths: paths, generation: generation) else { return }
                 let controller = try MacFamilyHostSyncController(paths: paths, connection: connection, store: self, evidence: evidence, selectionGeneration: generation)
                         familyHostSyncController?.stop(); familyHostSyncController = controller
-                syncStatus = "本机家庭同步已建立，自动核对已保存修改。"
+                syncFailed = false; syncStatus = "本机家庭同步已建立，自动核对已保存修改。"
                 controller.start()
                 return
             }
         } catch {
             guard !Task.isCancelled, isWorkspaceSelectionCurrent(paths: paths, generation: generation) else { return }
-            syncStatus = "本机资料仍可使用；请重新选择原家庭同步目录：" + error.localizedDescription
+            syncFailed = true; syncStatus = "本机资料仍可使用；请重新选择原家庭同步目录：" + error.localizedDescription
         }
     }
     func connectWorkspaceClient(paths: WorkspacePaths, remote: URL, evidence: BrowserStore?,
@@ -535,9 +537,9 @@ struct WorkspaceSyncActions: View {
                 guard store.isWorkspaceSelectionCurrent(paths: paths, generation: selectionGeneration) else { return }
                 await store.loadWorkspace(paths, selectionGeneration: selectionGeneration)
                 guard store.isWorkspaceSelectionCurrent(paths: paths, generation: selectionGeneration) else { return }
-                store.syncStatus = "完整快照已发布并通过回读验证（" + String(generation.prefix(8)) + "）。"
+                store.syncFailed = false; store.syncStatus = "完整快照已发布并通过回读验证（" + String(generation.prefix(8)) + "）。"
             } catch {
-                if store.isWorkspaceSelectionCurrent(paths: paths, generation: selectionGeneration) { store.syncStatus = "发布尚未完成，可重试原发布：" + error.localizedDescription }
+                if store.isWorkspaceSelectionCurrent(paths: paths, generation: selectionGeneration) { store.syncFailed = true; store.syncStatus = "发布尚未完成，可重试原发布：" + error.localizedDescription }
             }
         }
     }
@@ -557,7 +559,7 @@ struct WorkspaceSyncActions: View {
                     try MacWorkspaceSelection.remember(paths.workspace,
                         shape: store.clientWorkspacePaths != nil ? .snapshotClient : .workspace, repairCorrupt: true)
                 }
-            } catch { store.syncStatus = "原家庭同步尚未恢复：" + error.localizedDescription }
+            } catch { store.syncFailed = true; store.syncStatus = "原家庭同步尚未恢复：" + error.localizedDescription }
         }
     }
     private func create() {
@@ -579,9 +581,9 @@ struct WorkspaceSyncActions: View {
                 guard store.isWorkspaceSelectionCurrent(paths: paths, generation: generation) else { return }
                 await store.loadWorkspace(paths, selectionGeneration: generation)
                 guard store.error == nil else { throw WorkspaceError.invalid(store.error!) }
-                store.syncStatus = "家庭同步已建立，首个完整快照已通过回读验证。"
+                store.syncFailed = false; store.syncStatus = "家庭同步已建立，首个完整快照已通过回读验证。"
             } catch {
-                if store.isWorkspaceSelectionCurrent(paths: paths, generation: generation) { store.syncStatus = "家庭同步未建立：" + error.localizedDescription }
+                if store.isWorkspaceSelectionCurrent(paths: paths, generation: generation) { store.syncFailed = true; store.syncStatus = "家庭同步未建立：" + error.localizedDescription }
             }
         }
     }
@@ -592,7 +594,7 @@ struct WorkspaceSyncActions: View {
         guard let remote = WorkspaceMaintenance.directory(message: "明确选择已有家庭同步目录。此操作只连接 client，不会启用 Host 或创建新绑定。") else { return }
         let paths: WorkspacePaths
         do { paths = try store.clientWorkspacePaths ?? MacWorkspaceSelection.newClientContainer() }
-        catch { store.syncStatus = error.localizedDescription; return }
+        catch { store.syncFailed = true; store.syncStatus = error.localizedDescription; return }
         let scoped = remote.startAccessingSecurityScopedResource()
         busy = true
         Task {
@@ -602,7 +604,7 @@ struct WorkspaceSyncActions: View {
                     try MacWorkspaceSelection.remember(paths.workspace, shape: .snapshotClient, repairCorrupt: true)
                 }
             }
-            catch { store.syncStatus = "连接未完成：" + error.localizedDescription }
+            catch { store.syncFailed = true; store.syncStatus = "连接未完成：" + error.localizedDescription }
         }
     }
 }

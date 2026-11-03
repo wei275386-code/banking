@@ -289,7 +289,7 @@ struct StatusCenterButton: View {
     @State private var shown = false
     private var attention: Bool {
         store.workspaceRuntimeFailure != nil || store.pendingVideoCount > 0
-            || store.workspaceRequestStatuses.values.contains("needsReview") || store.syncConflictsPending
+            || store.workspaceRequestStatuses.values.contains("needsReview") || store.syncConflictsPending || store.syncFailed
     }
     private var symbol: String {
         if store.importing { return "arrow.triangle.2.circlepath" }

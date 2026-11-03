@@ -34,6 +34,8 @@ targets:
       - path: ../PaymentImageCore/Sources/EvidenceBrowser/CategoryManagementView.swift
       - path: ../PaymentImageCore/Sources/EvidenceBrowser/ReviewLatency.swift
       - path: ../PaymentImageCore/Sources/EvidenceBrowser/AdaptiveReview.swift
+      - path: ../PaymentImageCore/Sources/EvidenceBrowser/DesignSystem.swift
+      - path: ../PaymentImageCore/Sources/EvidenceBrowser/Inbox.swift
       - path: Bootstrap
         type: folder
         buildPhase: resources

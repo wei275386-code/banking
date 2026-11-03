@@ -85,7 +85,7 @@ struct InboxRowInfo {
         let wantsAssociations = history == .associations || (history == nil && (kind == .all || kind == .association))
         if wantsAssociations {
             let pending = history == nil
-            var candidates = evidence.orderedCandidates.filter { (!pending || $0.review_required) && evidence.matches($0) }
+            var candidates = evidence.orderedCandidates.filter { (!pending || $0.review_required) && matches($0, evidence) }
             if kind == .all && pending {
                 // Associations already reviewable inside a listed completion entry stay there.
                 let covered = Set(workspace.visible.flatMap(\.record.evidence_keys))
@@ -104,6 +104,11 @@ struct InboxRowInfo {
         return result
     }
     static func sourceSetPending(_ group: SourceRecordSet) -> Bool { group.status != "confirmed" && group.status != "rejected" }
+    private func matches(_ candidate: Candidate, _ evidence: BrowserStore) -> Bool {
+        guard !query.isEmpty else { return true }
+        let ids = Set(candidate.record_ids + candidate.bank_ids)
+        return evidence.records.contains { ids.contains($0.id) && (platformName($0.platform) + " " + $0.date + " " + $0.title + " " + money($0.amount)).localizedCaseInsensitiveContains(query) }
+    }
     private func matches(_ group: SourceRecordSet) -> Bool {
         query.isEmpty || ([group.date, group.basis, money(group.amount_cents)] + group.evidence_keys).joined(separator: " ").localizedCaseInsensitiveContains(query)
     }

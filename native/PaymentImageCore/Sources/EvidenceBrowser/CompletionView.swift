@@ -202,132 +202,6 @@ struct TransactionReviewExclusion: View {
 }
 
 
-#if os(macOS)
-struct CompletionPage: View {
-    @Bindable var store: FinancialStore
-    @Bindable var evidence: BrowserStore
-    @Bindable var workspace: CompletionWorkspace
-    @State private var showingSourceSets = false
-    private var busy: Bool { !store.editingAvailable || store.completionSaving || store.importing || store.loading || evidence.loading || workspace.persisting }
-    var body: some View {
-        VStack(spacing: 0) {
-            header
-            Divider()
-            GeometryReader { geometry in
-                HStack(spacing: 0) {
-                    queue.frame(width: 250)
-                    Divider()
-                    if let entry = workspace.current {
-                        if geometry.size.width >= 900 {
-                            ScrollView { CompletionEditor(entry: entry, store: store, evidence: evidence, workspace: workspace, busy: busy).id(entry.id).padding(20) }.id(entry.id).frame(width: geometry.size.width * 0.41)
-                            Divider()
-                            evidencePanel(entry)
-                        } else {
-                            ScrollView {
-                                VStack(alignment: .leading, spacing: 20) {
-                                    CompletionEditor(entry: entry, store: store, evidence: evidence, workspace: workspace, busy: busy).id(entry.id)
-                                    CompletionEvidence(entry: entry, store: store, evidence: evidence, workspace: workspace, busy: busy, dirty: workspace.isDirty(entry))
-                                }.padding(22)
-                            }.id(entry.id)
-                        }
-                    } else {
-                        ContentUnavailableView("当前队列已看完", systemImage: "checkmark.circle", description: Text("可切换待核事实、暂放或本次已保存。未核实事实仍留在待核事实队列中；已无缺项的项目可在本次已保存复查。"))
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                }
-            }
-            Divider()
-            footer
-        }
-        .background(Color(nsColor: .windowBackgroundColor))
-        .onAppear {
-            if workspace.from.isEmpty { workspace.from = store.from; workspace.to = store.to }
-            workspace.refresh(store, evidence)
-        }
-        .task(id: store.revision) { await store.reconcileCompletion(); workspace.refresh(store, evidence) }
-        .onChange(of: store.revision) { _, _ in workspace.refresh(store, evidence) }
-        .onChange(of: evidence.previewGeneration) { _, _ in workspace.refresh(store, evidence) }
-        .onChange(of: workspace.allDates) { _, _ in workspace.refresh(store, evidence) }
-        .sheet(isPresented: $showingSourceSets) {
-            NavigationStack {
-                SourceRecordSetList(store: store, evidence: evidence)
-                    .toolbar { ToolbarItem(placement: .confirmationAction) { Button("关闭") { showingSourceSets = false } } }
-            }.frame(minWidth: 600, minHeight: 600)
-        }
-    }
-    private var header: some View {
-        HStack(alignment: .center, spacing: 20) {
-            VStack(alignment: .leading, spacing: 5) {
-                Text("补全").font(.title2.bold())
-                Text("同名商家自动确认，可在「已确认」复查").foregroundStyle(.secondary)
-            }
-            Spacer()
-            Button("来源归并（\(store.sourceRecordGroups.count)）") { showingSourceSets = true }
-                .accessibilityIdentifier("source-set-list").disabled(busy)
-            VStack(alignment: .trailing, spacing: 4) {
-                Text("本次保存 \(workspace.saved.count) 项 · 暂放 \(workspace.deferred.count) 项").font(.callout)
-                Text("\(workspace.visible.count) 项待看 · 按金额从大到小；金额未知排最后").font(.caption).foregroundStyle(.secondary)
-            }
-        }.padding(.horizontal, 22).padding(.vertical, 16)
-    }
-    private var queue: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            VStack(alignment: .leading, spacing: 10) {
-                Picker("队列", selection: $workspace.mode) {
-                    ForEach(["优先补全", "待分类", "待核事实", "退款候选", "暂放", "本次已保存", "已确认", "已排除"], id: \.self) { Text($0).tag($0) }
-                }
-                TextField("搜索日期、商户、金额或用户", text: $workspace.query).textFieldStyle(.roundedBorder)
-                Toggle("包括区间外与日期未知", isOn: $workspace.allDates).font(.caption)
-                Text("只扩大补全队列，统计日期范围不变；同名联动始终覆盖全资料库。").font(.caption2).foregroundStyle(.secondary)
-                Text(workspace.allDates ? "全部资料日期" : workspace.from + " — " + workspace.to).font(.caption).foregroundStyle(.secondary)
-                Text("仅列已生成生命周期的消费项目；独立证据待核保留在交易证据页。").font(.caption2).foregroundStyle(.secondary)
-            }.padding(14)
-            List(selection: $workspace.selected) {
-                ForEach(workspace.visible) { entry in
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack { Text(entry.record.date).font(.caption); Spacer(); Text(entry.amountUnknown ? "金额未知" : money(entry.impact)).monospacedDigit().font(.callout) }
-                        Text(entry.component?.title ?? entry.record.title).lineLimit(2)
-                        Text(entry.issueSummaries.joined(separator: " · ")).font(.caption).foregroundStyle(entry.factsPending ? Color.orange : Color.secondary).lineLimit(3)
-                        if workspace.isDirty(entry) { Text("未保存草稿").font(.caption2).foregroundStyle(.blue) }
-                    }.padding(.vertical, 6).tag(entry.id)
-                }
-            }.listStyle(.inset).disabled(busy)
-                .overlay { if workspace.visible.isEmpty { Text("没有匹配项").foregroundStyle(.secondary) } }
-        }.disabled(busy)
-    }
-    private func evidencePanel(_ entry: CompletionEntry) -> some View {
-        ScrollView { CompletionEvidence(entry: entry, store: store, evidence: evidence, workspace: workspace, busy: busy, dirty: workspace.isDirty(entry)).padding(18) }.id(entry.id)
-            .frame(maxWidth: .infinity)
-    }
-    private var footer: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 3) {
-                if let failure = workspace.workflowError { Text(failure).font(.caption).foregroundStyle(.red) }
-                if !workspace.message.isEmpty { Text(workspace.message).font(.caption).foregroundStyle(.secondary) }
-                if let entry = workspace.current, workspace.isDirty(entry) { Text("有未保存选项；切换交易会保留本次草稿。").font(.caption).foregroundStyle(.blue) }
-            }.frame(maxWidth: .infinity, alignment: .leading)
-            if busy { ProgressView().controlSize(.small) }
-            Button("撤销上一笔") { Task { await store.undoCompletion(); workspace.refresh(store, evidence) } }.disabled(busy || workspace.undo == nil)
-            if let entry = workspace.current {
-                Button(workspace.deferred.contains(entry.id) ? "放回队列" : "暂放并下一笔") {
-                    let previous = workspace.visible.map(\.id)
-                    Task { await workspace.setDeferred(entry.id, value: !workspace.deferred.contains(entry.id), store: store); workspace.next(after: entry.id, previous: previous) }
-                }.disabled(busy || workspace.workflowError != nil)
-                Button(entry.component == nil ? "下一笔" : "保存并下一笔") {
-                    let previous = workspace.visible.map(\.id)
-                    Task {
-                        let success = entry.component == nil ? true : await store.saveCompletion(entry)
-                        if success {
-                            workspace.refresh(store, evidence); workspace.next(after: entry.id, previous: previous)
-                        }
-                    }
-                }.buttonStyle(.borderedProminent).keyboardShortcut(.return, modifiers: .command).disabled(busy)
-            }
-        }.padding(.horizontal, 20).padding(.vertical, 14)
-    }
-}
-
-#endif
 struct CompletionEditor: View {
     let entry: CompletionEntry
     @Bindable var store: FinancialStore
@@ -360,6 +234,9 @@ struct CompletionEditor: View {
             }
         }.disabled(disabled)
             .onAppear { choosingPrimary = entry.missingCategory }
+            .onReceive(NotificationCenter.default.publisher(for: .adoptCategorySuggestion)) { note in
+                if note.object as? String == entry.id, !disabled, entry.missingCategory, let suggestion = categorySuggestion { adopt(suggestion) }
+            }
             .task(id: "\(entry.id)|\(store.revision)") {
             guard let component = entry.component, let report = store.report else { categorySuggestion = nil; return }
             let result = await Task.detached(priority: .userInitiated) {
@@ -411,14 +288,16 @@ struct CompletionEditor: View {
                     if suggestion.score < 60 && (suggestion.platform || suggestion.ambiguous) {
                         Text("匹配较弱，请核对用途后决定。").font(.caption).foregroundStyle(.orange)
                     }
-                    Button("采用候选分类") {
-                        guard var next = workspace.draft(entry) else { return }
-                        next.primary = suggestion.source.primary; next.secondary = suggestion.source.secondary
-                        workspace.edit(entry, next); choosingPrimary = false
-                    }.buttonStyle(.bordered).accessibilityIdentifier("completion-adopt-suggestion")
+                    Button("采用候选分类") { adopt(suggestion) }
+                        .buttonStyle(.bordered).accessibilityIdentifier("completion-adopt-suggestion").help("⌘1")
                 }
             }
         }
+    }
+    private func adopt(_ suggestion: CategorySuggestion) {
+        guard var next = workspace.draft(entry) else { return }
+        next.primary = suggestion.source.primary; next.secondary = suggestion.source.secondary
+        workspace.edit(entry, next); choosingPrimary = false
     }
     private func fields(_ component: FinancialComponent, _ draft: CompletionDraft) -> some View {
         VStack(alignment: .leading, spacing: 20) {

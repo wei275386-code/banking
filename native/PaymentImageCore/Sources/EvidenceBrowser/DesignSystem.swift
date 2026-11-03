@@ -152,6 +152,11 @@ struct ToastOverlay: ViewModifier {
     }
 }
 
+extension Notification.Name {
+    /// Posted with a completion entry id to adopt its category suggestion from a keyboard command.
+    static let adoptCategorySuggestion = Notification.Name("AdoptCategorySuggestion")
+}
+
 extension View {
     func toastOverlay(bottomPadding: CGFloat = DS.xl) -> some View { modifier(ToastOverlay(bottomPadding: bottomPadding)) }
     /// Card container shared by both platforms.

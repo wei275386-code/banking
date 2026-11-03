@@ -576,6 +576,10 @@ import UniformTypeIdentifiers
         case "全部": from = report.records.map(\.date).min() ?? to
         case "近30天": from = day(Calendar.current.date(byAdding: .day, value: -29, to: date)!)
         case "近90天": from = day(Calendar.current.date(byAdding: .day, value: -89, to: date)!)
+        case "本月": from = String(to.prefix(7)) + "-01"
+        case "上月":
+            let start = Calendar.current.date(byAdding: .month, value: -1, to: parseDay(String(to.prefix(7)) + "-01"))!
+            from = day(start); to = day(Calendar.current.date(byAdding: .day, value: -1, to: parseDay(String(to.prefix(7)) + "-01"))!)
         default: from = String(to.prefix(4)) + "-01-01"
         }
     }
@@ -663,171 +667,11 @@ struct ReviewCard<Content: View>: View {
     var body: some View { VStack(alignment: .leading, spacing: DS.m) { SectionHeader(title: title, info: info); content }.cardStyle(padding: DS.l + 2) }
 }
 
-#if os(macOS)
-struct FinanceRootView: View {
-    @Bindable var store: FinancialStore
-    @Bindable var evidence: BrowserStore
-    var body: some View {
-        NavigationSplitView {
-            VStack(spacing: 0) {
-            List(selection: $store.section) {
-                Section("家庭财务") {
-                    Label("复盘总览", systemImage: "chart.bar.xaxis").tag("overview")
-                    Label("补全", systemImage: "checklist").tag("completion")
-                    Label("支出明细", systemImage: "list.bullet.rectangle").tag("details")
-                    Label("分类修改", systemImage: "folder.badge.gearshape").tag("categories")
-                    Label("标签与 Patterns", systemImage: "tag").tag("tags")
-                    Label("关注与调整", systemImage: "slider.horizontal.3").tag("focus")
-                }
-                Section("FIRE 规划") {
-                    Label("目标与情景", systemImage: "flag.checkered").tag("fire")
-                    Label("买房与子女", systemImage: "house").tag("branches")
-                    Label("模型参数", systemImage: "gearshape").tag("params")
-                }
-                Section("资料") { Label("数据与待处理", systemImage: "tray.full").tag("data") }
-            }.navigationTitle("家庭财务复盘")
-            FinanceSidebarActions(store: store, evidence: evidence)
-            }.navigationSplitViewColumnWidth(min: 190, ideal: 210, max: 260)
-        } detail: {
-            VStack(spacing: 0) {
-                if let error = store.error { Text(error).foregroundStyle(.red).padding() }
-                if store.report != nil {
-                    if store.report?.cutoff != nil && ["overview", "details", "tags", "focus", "data"].contains(store.section) { FinanceFilters(store: store) }
-                    if store.report?.coverage?.mode == "empty" { Text("暂无可靠日期，尚未建立统计范围。可导入账单和素材。").foregroundStyle(.secondary).padding() }
-                    if store.section == "completion" { CompletionPage(store: store, evidence: evidence, workspace: store.completion).disabled(!store.editingAvailable) }
-                    else if store.section == "details" { FinanceDetailsPage(store: store, evidence: evidence) }
-                    else if store.section == "categories" { NavigationStack { CategoryManagementPage(store: store) } }
-                    else { ScrollView {
-                        VStack(alignment: .leading, spacing: 20) {
-                            switch store.section {
-                            case "overview": FinanceOverviewPage(store: store)
-                            case "tags": FinanceTagsPage(store: store)
-                            case "focus": FinanceFocusPage(store: store)
-                            case "fire":
-                                if store.report?.fire_parameters.needsBaseInput == true { Text("请先填写必需的模型参数，再查看 FIRE 情景。") }
-                                else { FinanceFirePage(store: store) }
-                            case "params": FinanceParametersPage(store: store).disabled(!store.editingAvailable)
-                            case "branches":
-                                if store.report?.fire_parameters.needsBaseInput == true { Text("请先填写基础模型参数，再启用买房与子女情景。") }
-                                else { FinanceBranchesPage(store: store).disabled(!store.editingAvailable) }
-                            default: FinanceDataPage(store: store, evidence: evidence)
-                            }
-                        }.padding(28).frame(maxWidth: 1300).frame(maxWidth: .infinity)
-                    }.id(store.section).background(Color(nsColor: .windowBackgroundColor)) }
-                } else { ContentUnavailableView("正在读取家庭复盘", systemImage: "chart.bar", description: Text("读取已导入资料和生命周期统计。")) }
-            }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading).navigationTitle(["categories":"分类修改", "completion":"补全", "overview":"家庭复盘", "details":"支出明细", "tags":"标签与 Patterns", "focus":"关注与调整", "fire":"FIRE 目标与情景", "params":"模型参数", "branches":"买房与子女", "data":"数据与待处理"][store.section] ?? "家庭复盘")
-        }.frame(minWidth: 1180, minHeight: 800)
-            .onChange(of: store.section) { _, _ in ReviewLatency.finish("navigate") }
-            .onChange(of: store.report?.dataset_id) { _, _ in ReviewLatency.finish("startup-overview") }
-            .fileImporter(isPresented: $store.showingPicker,
-                          allowedContentTypes: store.pickerMode == "folder" ? [.folder] : [.pdf, .commaSeparatedText, .spreadsheet, .movie, .data],
-                          allowsMultipleSelection: store.pickerMode != "folder") { result in
-                if case .success(let urls) = result, !store.completionSaving, !store.importing, !store.loading, !evidence.loading, !store.completion.persisting {
-                    if store.pickerMode == "folder", let url = urls.first { _ = url.startAccessingSecurityScopedResource(); Task { await store.load(url); await evidence.load(url, finance: store.report) } }
-                    else { Task { await store.importMaterials(urls); if let root = store.root { await evidence.load(root, finance: store.report) } } }
-                }
-            }
-            .task(id: store.root) {
-                guard let root = store.root else { return }
-                if store.clientWorkspacePaths != nil {
-                    store.familyClientSyncController?.evidence = evidence
-                    if evidence.root != root { await evidence.load(root, finance: store.report) }
-                    return
-                }
-                store.familyClientSyncController?.evidence = evidence
-                if let paths = store.workspacePaths {
-                    if evidence.root != root { await evidence.load(root, finance: store.report) }
-                    while !Task.isCancelled {
-                        await store.reloadWorkspaceIfChanged(paths, evidence: evidence)
-                        try? await Task.sleep(for: .seconds(5))
-                    }
-                    return
-                }
-                var previous = ""
-                while !Task.isCancelled {
-                    let names = ReviewFileVersion.names
-                    let stamp = names.map { name in
-                        let value = try? root.appendingPathComponent(name).resourceValues(forKeys: [.contentModificationDateKey])
-                        return String(value?.contentModificationDate?.timeIntervalSince1970 ?? 0)
-                    }.joined(separator: "|")
-                    if stamp != previous, await store.refreshLocalFilesIfNeeded(evidence) {
-                        previous = stamp
-                    }
-                    try? await Task.sleep(for: .seconds(5))
-                }
-            }
-            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("FinancialDataChanged"))) { _ in Task { _ = await store.refreshLocalFilesIfNeeded(evidence) } }
-
-    }
-
-}
-
-struct FinanceSidebarActions: View {
-    @Bindable var store: FinancialStore
-    @Bindable var evidence: BrowserStore
-    var body: some View {
-            VStack(alignment: .leading, spacing: 8) {
-                if store.workspacePaths != nil || store.familyClientPaths != nil { WorkspaceMaintenanceActions(store: store) }
-                WorkspaceSyncActions(store: store, evidence: evidence)
-                if !store.workspaceNotice.isEmpty { Text(store.workspaceNotice).font(.caption).foregroundStyle(.secondary) }
-                if !store.workspaceRuntimeNotice.isEmpty { Text(store.workspaceRuntimeNotice).font(.caption).foregroundStyle(.secondary) }
-                if store.workspaceRuntimeFailure != nil {
-                    Button("重新检查处理器") { Task { await store.retryWorkspaceRuntimeQualification() } }
-                        .disabled(store.importing || store.loading || store.completionSaving || store.completion.persisting || store.editorPauseReason != nil)
-                }
-                if let reason = store.editorPauseReason { Text(reason).font(.caption).foregroundStyle(.secondary) }
-                if !store.syncStatus.isEmpty { Label(store.syncStatus, systemImage: "icloud").font(.caption).foregroundStyle(.secondary) }
-                Text("统计单位：交易生命周期").font(.caption)
-                Text("账户用于切换 View").font(.caption).foregroundStyle(.secondary)
-                Button("刷新数据") { Task { if store.root != nil { await store.reloadCurrent(); if let current = store.root { await evidence.load(current, finance: store.report) } } } }.disabled(store.importing || evidence.loading || store.completionSaving || store.loading || store.completion.persisting)
-                Button(store.clientWorkspacePaths == nil ? "导入账单与素材" : "发送素材到家庭 Mac") { store.pickerMode = "materials"; store.showingPicker = true }.disabled(!store.materialImportAvailable || store.importing || store.completionSaving || store.loading || store.completion.persisting)
-                if store.importing { ProgressView().controlSize(.small) }
-                if store.processorTask != nil { Button("取消处理") { store.processorTask?.cancel(); store.importState = "正在停止处理，并核对已保存状态…" } }
-                if !store.importState.isEmpty { Text(store.importState).font(.caption).foregroundStyle(.secondary) }
-                Button("选择复盘文件夹") { store.pickerMode = "folder"; store.showingPicker = true }.disabled(store.workspacePaths != nil || store.clientWorkspacePaths != nil || store.importing || evidence.loading || store.completionSaving || store.loading || store.completion.persisting)
-            }.padding()
-    }
-}
-
-struct FinanceFilters: View {
-    @Bindable var store: FinancialStore
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Menu("统计区间") { ForEach(["今年", "近30天", "近90天", "全部"], id: \.self) { s in Button(s) { store.selectRange(s) } } }
-                DatePicker("从", selection: Binding(get: { parseDay(store.from) }, set: { store.from = day($0) }), displayedComponents: .date).labelsHidden().frame(width: 130)
-                Text("至").foregroundStyle(.secondary)
-                DatePicker("至", selection: Binding(get: { parseDay(store.to) }, set: { store.to = min(day($0), store.report?.cutoff ?? day($0)) }), displayedComponents: .date).labelsHidden().frame(width: 130)
-                Picker("账户 View", selection: $store.account) { Text("全部账户").tag("全部账户"); ForEach(store.accounts, id: \.self) { Text($0).tag($0) } }.frame(maxWidth: 260)
-                Picker("分类", selection: $store.primary) { Text("全部分类").tag("全部分类"); ForEach(store.report?.taxonomy ?? []) { Text($0.primary).tag($0.primary) } }.frame(width: 190)
-                Spacer()
-            }
-            HStack {
-                Menu(store.selectedTags.isEmpty ? "筛选标签" : "已选 \(store.selectedTags.count) 个标签") {
-                    ForEach(store.tags, id: \.self) { tag in
-                        Toggle(tag, isOn: Binding(get: { store.selectedTags.contains(tag) }, set: { checked in
-                            if checked { store.selectedTags.append(tag) } else { store.selectedTags.removeAll { $0 == tag } }
-                        }))
-                    }
-                }
-                Picker("匹配", selection: $store.tagMatch) { Text("全部所选标签").tag("all"); Text("任一所选标签").tag("any") }.frame(width: 240)
-                ScrollView(.horizontal, showsIndicators: false) { HStack {
-                    ForEach(store.selectedTags, id: \.self) { tag in Button(tag + " ×") { store.selectedTags.removeAll { $0 == tag } }.buttonStyle(.bordered).controlSize(.small) }
-                } }
-                if !store.selectedTags.isEmpty { Button("清空标签") { store.selectedTags = [] } }
-            }
-            Text(store.report?.coverage?.label ?? "截止 \(store.report?.cutoff ?? "未建立范围") · 已提供来源的家庭交易 · 覆盖范围尚未确认完整").font(.caption).foregroundStyle(.secondary)
-        }.padding(16).background(.bar)
-            .onChange(of: store.account) { _, _ in ReviewLatency.finish("account") }
-            .onChange(of: store.primary) { _, _ in ReviewLatency.finish("category") }
-            .onChange(of: store.from) { _, _ in ReviewLatency.finish("date.from") }
-            .onChange(of: store.to) { _, _ in ReviewLatency.finish("date.to") }
-    }
-}
-
-#endif
 struct FinanceOverviewPage: View {
     @Bindable var store: FinancialStore
+    var inbox: InboxModel? = nil
+    /// Opens 待办 preselecting a type; nil hides the inbox summary.
+    var openInbox: ((InboxKind) -> Void)? = nil
     var body: some View {
         if let report = store.report {
             content(report)
@@ -837,15 +681,18 @@ struct FinanceOverviewPage: View {
     }
     private func content(_ report: FinancialReport) -> some View {
         let s = store.stats
-        return VStack(alignment: .leading, spacing: 20) {
-            ReviewStack { ReviewMetric(title: "已记录净消费", value: money(s.net), note: "支付减已关联退款，\(s.count) 个购买项目"); ReviewMetric(title: "原支付／退款", value: money(s.gross), note: "已关联退款 " + money(s.refunds)); ReviewMetric(title: "待关联消费", value: money(s.pending), note: "\(s.pendingCount) 个项目，单独保留") }
-            ReviewStack { ReviewMetric(title: "完整月份月均", value: store.fullMonths.isEmpty ? "暂无完整月份" : money(store.monthlyStats.net / store.fullMonths.count), note: "\(store.fullMonths.count) 个完整日历月；不是家庭全量结论"); ReviewMetric(title: "待分类净消费", value: money(s.byPrimary["待分类"] ?? 0), note: "未将未知项目归入杂项"); ReviewMetric(title: "未分配贷记", value: money(s.unallocatedCredits), note: "保留资金流，尚未抵扣某笔消费") }
-            ReviewCard(title: "月度消费趋势") {
-                ReviewMonthlyChart(byMonth: s.byMonth, cutoffMonth: String((report.cutoff ?? "").prefix(7))).equatable()
-                Text("橙色为截止日所在的不完整月份。退款修正原交易，不按退款日期另算消费。").font(.caption).foregroundStyle(.secondary)
+        return VStack(alignment: .leading, spacing: DS.l + 4) {
+            if report.coverage?.mode == "empty" { NoticeText(text: "暂无可靠日期，尚未建立统计范围。可导入账单和素材。", tone: .pending) }
+            ReviewStack {
+                ReviewMetric(title: "净消费", value: money(s.net), note: "\(s.count) 个购买项目 · 已扣除关联退款 " + money(s.refunds))
+                ReviewMetric(title: "待关联消费", value: money(s.pending), note: "\(s.pendingCount) 个项目，单独保留", tone: s.pending > 0 ? .pending : .neutral)
+                ReviewMetric(title: "完整月份月均", value: store.fullMonths.isEmpty ? "暂无完整月份" : money(store.monthlyStats.net / store.fullMonths.count), note: "\(store.fullMonths.count) 个完整日历月")
             }
-            ReviewCard(title: "最多两级的支出结构") {
-                Text("展开二级分类查看交易；金额为该分类计入统计的净消费，点击交易查看完整详情与证据。").font(.caption).foregroundStyle(.secondary)
+            if let inbox, let openInbox { inboxCard(inbox, open: openInbox) }
+            ReviewCard(title: "月度趋势", info: "橙色为截止日所在的不完整月份。退款修正原交易，不按退款日期另算消费。") {
+                ReviewMonthlyChart(byMonth: s.byMonth, cutoffMonth: String((report.cutoff ?? "").prefix(7))).equatable()
+            }
+            ReviewCard(title: "支出结构", info: "最多两级分类。金额为计入统计的净消费；展开二级分类查看交易，点击交易查看详情与证据。") {
                 ForEach(report.taxonomy) { category in
                     let amount = s.byPrimary[category.primary] ?? 0
                     if amount > 0 {
@@ -853,12 +700,35 @@ struct FinanceOverviewPage: View {
                     }
                 }
             }
-            ReviewCard(title: "标签视角") {
-                Text("平台、目的地与消费场景可以重叠；标签金额不可相加作为总消费。").font(.caption).foregroundStyle(.secondary)
+            ReviewCard(title: "标签视角", info: "平台、目的地与消费场景可以重叠，标签金额不可相加作为总消费。") {
                 ForEach(s.byTag.keys.sorted { s.byTag[$0, default: 0] > s.byTag[$1, default: 0] }.prefix(6), id: \.self) { tag in
-                    HStack { Button(tag) { store.inspectTag(tag) }; Spacer(); Text(money(s.byTag[tag] ?? 0)).monospacedDigit() }
+                    HStack { Button("#" + tag) { store.inspectTag(tag) }.buttonStyle(.borderless); Spacer(); Text(money(s.byTag[tag] ?? 0)).monospacedDigit() }
                 }
-                Button("查看标签与 Patterns") { store.section = "tags" }
+                if s.byTag.isEmpty { Text("当前区间没有带标签的消费。").font(.callout).foregroundStyle(.secondary) }
+                #if os(macOS)
+                Button("查看全部标签") { store.section = "tags" }.buttonStyle(.borderless)
+                #endif
+            }
+        }
+    }
+    private func inboxCard(_ inbox: InboxModel, open: @escaping (InboxKind) -> Void) -> some View {
+        let total = inbox.count(.all)
+        return ReviewCard(title: "待办") {
+            if total == 0 {
+                Label("全部处理完了", systemImage: "checkmark.circle.fill").foregroundStyle(DS.confirmed)
+            } else {
+                HStack(alignment: .firstTextBaseline) {
+                    Text("还有 \(total) 项待处理").font(.title3.weight(.semibold))
+                    Text("涉及 " + money(inbox.openImpact)).foregroundStyle(.secondary).monospacedDigit()
+                    Spacer()
+                    Button("开始处理") { open(.all) }.buttonStyle(.borderedProminent)
+                }
+                TagFlowLayout {
+                    ForEach(InboxKind.allCases.filter { $0 != .all }) { kind in
+                        let count = inbox.count(kind)
+                        if count > 0 { FilterChip(title: kind.rawValue, count: count, selected: false) { open(kind) } }
+                    }
+                }
             }
         }
     }
@@ -924,24 +794,16 @@ struct ReviewSecondaryTransactions: View {
 }
 
 #if os(macOS)
-struct FinanceDetailsPage: View {
-    let store: FinancialStore; let evidence: BrowserStore
-    var body: some View {
-        GeometryReader { geometry in
-            HStack(spacing: 0) {
-                FinanceTransactionList(store: store).frame(width: min(360, geometry.size.width * 0.36), height: geometry.size.height)
-                Divider()
-                FinanceSelectedTransaction(store: store, evidence: evidence, recordID: store.directDetailID)
-            }.frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)
-        }
-    }
-}
 struct FinanceTransactionList: View {
     @Bindable var store: FinancialStore
     var body: some View {
             VStack(spacing: 0) {
-                TextField("搜索日期、商户或商品", text: $store.query).textFieldStyle(.roundedBorder).padding()
-                Picker("显示", selection: $store.recordView) { ForEach(["全部消费", "待处理", "账户待关联", "资金流"], id: \.self) { Text($0).tag($0) } }.pickerStyle(.segmented).padding(.horizontal)
+                HStack(spacing: DS.s) {
+                    TextField("搜索日期、商户或商品", text: $store.query).textFieldStyle(.roundedBorder)
+                    TransactionFilterMenu(store: store)
+                }.padding(.horizontal, DS.m).padding(.top, DS.s)
+                Picker("显示", selection: $store.recordView) { ForEach(["全部消费", "待处理", "账户待关联", "资金流"], id: \.self) { Text($0).tag($0) } }.pickerStyle(.segmented).labelsHidden().padding(.horizontal, DS.m).padding(.vertical, DS.s)
+                ActiveFilterBar(store: store).padding(.horizontal, DS.m)
                 ScrollViewReader { proxy in
                 List(selection: $store.selected) {
                     ForEach(store.visibleRecords) { r in

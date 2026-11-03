@@ -322,76 +322,6 @@ struct RecordPane: View {
 }
 
 #if os(macOS)
-struct BrowserView: View {
-    @Bindable var store: BrowserStore
-    let financial: FinancialStore
-    @State private var choosingFolder = false
-    var body: some View {
-        NavigationSplitView {
-            VStack(spacing: 0) {
-            List(selection: $store.section) {
-                Label("需要处理", systemImage: "checklist").tag("needs_review")
-                Label("所有关联", systemImage: "link").tag("all_links")
-                Label("原始记录", systemImage: "doc.text.magnifyingglass").tag("records")
-                Label("订单卡片", systemImage: "photo.on.rectangle").tag("cards")
-            }.navigationTitle("支付证据")
-            VStack(alignment: .leading, spacing: 6) {
-                if let report = store.report {
-                    Text(report.backfill_cutoff_date.map { "补录截止 " + $0 } ?? "暂无可靠日期")
-                    Text("人工支持 \(report.review_summary["human_supported"] ?? 0) · 规则通过 \(report.review_summary["rule_supported"] ?? 0)")
-                }
-                Button("选择证据文件夹") { choosingFolder = true }.disabled(financial.workspacePaths != nil || financial.importing || store.loading || financial.completionSaving || financial.loading || financial.completion.persisting)
-            }.font(.caption).padding()
-            }.navigationSplitViewColumnWidth(min: 180, ideal: 200, max: 250)
-        } content: {
-            VStack {
-                if store.loading { ProgressView("读取记录…").padding() }
-                if let error = store.error { Text(error).foregroundStyle(.red).padding() }
-                if !store.reviewMessage.isEmpty { Text(store.reviewMessage).font(.caption).foregroundStyle(.secondary).padding() }
-                List(selection: $store.selected) {
-                    if ["needs_review", "all_links"].contains(store.section) {
-                        ForEach(store.candidates) { c in
-                            VStack(alignment: .leading) {
-                                Text(["wallet_bank":"钱包与银行", "grouped_wallet_bank":"组合支付与银行", "meituan_wechat":"美团与微信", "meituan_bank":"美团 ApplePay 与银行"][c.kind] ?? c.kind)
-                                Text(store.deferredCandidates.contains(c.id) ? "已暂挂 · 设备尾号待确认" : c.association_status == "supported_by_user" ? (c.review_required ? "支持已保存 · 扣款分配待核" : "人工支持已保存") : c.association_status == "rule_supported" ? "规则通过" : c.association_status == "rejected_by_user" ? "人工已排除" : "待核").font(.caption).foregroundStyle(.secondary)
-                                if let r = store.records.first(where: { c.record_ids.contains($0.id) }) { Text(r.date + " · " + money(r.amount)).font(.caption); Text(r.title).lineLimit(2).font(.caption) }
-                                ForEach(store.records.filter { c.bank_ids.contains($0.id) }) { b in Text(b.title).lineLimit(2).font(.caption).foregroundStyle(.secondary) }
-                            }.padding(.vertical, 5).tag(c.id)
-                        }
-                    } else {
-                        ForEach(store.visibleRecords) { r in
-                            VStack(alignment: .leading) { Text(platformName(r.platform) + " · " + money(r.amount)); Text(r.date).font(.caption).foregroundStyle(.secondary); Text(r.title).lineLimit(2).font(.caption) }.padding(.vertical, 5).tag(r.id)
-                        }
-                    }
-                }
-                .overlay { if (["needs_review", "all_links"].contains(store.section) ? store.candidates.isEmpty : store.visibleRecords.isEmpty) { ContentUnavailableView("没有匹配记录", systemImage: "magnifyingglass", description: Text("试试清空搜索条件。")) } }
-            }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading).navigationSplitViewColumnWidth(min: 260, ideal: 320, max: 400).navigationTitle(["needs_review":"需要处理", "all_links":"所有关联", "records":"原始记录", "cards":"订单卡片"][store.section] ?? "记录")
-                .searchable(text: $store.query, prompt: "时间、商户或金额")
-        } detail: {
-            if store.selectedRecords.isEmpty {
-                ContentUnavailableView("选择一条记录", systemImage: "doc.text.viewfinder", description: Text("查看原始文字、银行裁剪行或订单卡片。需要处理的关联可在此保存复核结果。"))
-            } else {
-                ScrollView { LazyVStack(spacing: 16) {
-                    if let candidate = store.report?.candidates.first(where: { $0.id == store.selected }) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("这项判断只改变证据关联，不删除其他银行消费，也不确认用户身份。").font(.caption).foregroundStyle(.secondary)
-                            HStack {
-                                Button((candidate.active_competing_candidate_ids ?? []).isEmpty ? "支持关联" : "支持此关联并排除竞争关联") { Task { await store.decide(candidate, judgment: "supports", finance: financial) } }
-                                Button("排除此关联") { Task { await store.decide(candidate, judgment: "rejects", finance: financial) } }
-                                Button("仍需资料") { Task { await store.decide(candidate, judgment: "needs_evidence", finance: financial) } }
-                            }.disabled(store.loading || financial.categoryBusy || !financial.evidenceReviewAvailable)
-                        }
-                    }
-                    ForEach(store.selectedRecords) { RecordPane(record: $0, store: store) } }.padding() }
-            }
-        }.frame(minWidth: 1180, minHeight: 800)
-            .fileImporter(isPresented: $choosingFolder, allowedContentTypes: [.folder]) { result in
-                if case .success(let url) = result, !financial.completionSaving, !financial.importing, !financial.loading, !store.loading, !financial.completion.persisting { Task { await financial.load(url); await store.load(url, finance: financial.report) } }
-            }
-
-    }
-}
-
 @main struct EvidenceBrowserApp: App {
     init() {
         ReviewLatency.begin("startup-overview")
@@ -401,24 +331,51 @@ struct BrowserView: View {
     }
     @State private var finance = FinancialStore()
     @State private var evidence = BrowserStore()
-    @State private var activeTab = 0
-    var body: some Scene { WindowGroup("家庭财务复盘") {
-        Group {
-        if finance.root == nil { WorkspaceWelcomeView(finance: finance, evidence: evidence) }
-        else { TabView(selection: $activeTab) {
-            FinanceRootView(store: finance, evidence: evidence).tabItem { Label("财务复盘", systemImage: "chart.bar") }.tag(0)
+    @State private var inbox = InboxModel()
+    var body: some Scene {
+        WindowGroup("家庭财务复盘") {
             Group {
-                if activeTab == 1 { BrowserView(store: evidence, financial: finance) }
-                else { Color.clear }
-            }.tabItem { Label("交易证据", systemImage: "doc.text.viewfinder") }.tag(1)
-            HouseholdSettingsView(store: finance).tabItem { Label("家庭设置", systemImage: "person.2.badge.gearshape") }.tag(2)
-        }.task(id: finance.root) {
-            guard let root = finance.root else { return }
-            await finance.resumeDisplayedWorkspace(root, evidence: evidence)
+                if finance.root == nil {
+                    WorkspaceWelcomeView(finance: finance, evidence: evidence)
+                    #if DEBUG
+                        .task { await openDevelopmentReview() }
+                    #endif
+                }
+                else {
+                    MacRootView(store: finance, evidence: evidence, inbox: inbox)
+                        .task(id: finance.root) {
+                            guard let root = finance.root else { return }
+                            await finance.resumeDisplayedWorkspace(root, evidence: evidence)
+                        }
+                }
+            }
         }
+        .defaultSize(width: 1320, height: 860).windowResizability(.contentMinSize)
+        .commands {
+            InboxCommands()
+            CommandGroup(after: .newItem) {
+                Button("导入账单与素材…") { finance.pickerMode = "materials"; finance.showingPicker = true }
+                    .keyboardShortcut("i", modifiers: .command)
+                    .disabled(finance.root == nil || !finance.materialImportAvailable || finance.importing || finance.loading || finance.completionSaving)
+            }
+            CommandGroup(before: .sidebar) {
+                ForEach(Array(MacRootView.shortcuts.enumerated()), id: \.offset) { index, item in
+                    Button(item.1) { finance.section = item.0 }.keyboardShortcut(KeyEquivalent(Character(String(index + 1))), modifiers: .command).disabled(finance.report == nil)
+                }
+                Divider()
+            }
         }
-        }
-    }.defaultSize(width: 1280, height: 860).windowResizability(.contentMinSize) }
+        Settings { MacSettingsView(store: finance, evidence: evidence) }
+    }
+    #if DEBUG
+    /// Development-only: `--open-review <folder>` opens a review folder directly for UI acceptance runs.
+    private func openDevelopmentReview() async {
+        let args = CommandLine.arguments
+        guard let index = args.firstIndex(of: "--open-review"), args.count > index + 1 else { return }
+        let folder = URL(fileURLWithPath: args[index + 1])
+        await finance.load(folder); await evidence.load(folder, finance: finance.report)
+    }
+    #endif
 }
 #endif
 #else

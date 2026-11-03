@@ -190,14 +190,23 @@ func periodTitle(from: String, to: String) -> String {
     return from.replacingOccurrences(of: "-", with: ".") + " – " + to.replacingOccurrences(of: "-", with: ".")
 }
 
-/// Runs a material import and reports its real outcome: the store reports
-/// through `error` / `importState` and silently skips when busy.
+/// Runs a material import and reports its real outcome. Whether the import actually
+/// started is read from the store's `importing` flag flipping, not inferred from
+/// messages, so a repeated identical failure is still reported as that failure.
 @MainActor func importReporting(_ store: FinancialStore, _ urls: [URL], success: String) async {
-    store.importState = ""
+    final class Started: @unchecked Sendable { var value = false }
+    let started = Started()
+    withObservationTracking { _ = store.importing } onChange: { started.value = true }
     let previousError = store.error
     await store.importMaterials(urls)
-    if let error = store.error, error != previousError || !store.importState.isEmpty { ToastCenter.shared.show(error) }
-    else if store.importState.isEmpty { ToastCenter.shared.show("正在处理其他操作，素材未导入，请稍后重试。") }
+    #if os(macOS)
+    // The family-client path never skips silently: it either starts or sets an error.
+    let reportsError = started.value || store.clientWorkspacePaths != nil || store.error != previousError
+    #else
+    let reportsError = started.value || store.error != previousError
+    #endif
+    if reportsError, let error = store.error { ToastCenter.shared.show(error) }
+    else if !started.value { ToastCenter.shared.show("素材未导入：正在处理其他操作或暂时无法开始，请稍后重试。") }
     else { ToastCenter.shared.show(store.importState.hasPrefix("素材已保存") ? success : store.importState) }
 }
 

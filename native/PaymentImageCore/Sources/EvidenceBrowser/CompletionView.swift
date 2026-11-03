@@ -94,12 +94,17 @@ import PaymentImageCore
         default: return !deferred.contains(entry.id) && !saved.contains(entry.id) && entry.component?.completionConfirmed != true && !(entry.record.factReviewConfirmed && !entry.factsPending && !entry.missingCategory)
         }
     }
+    func matchesQuery(_ entry: CompletionEntry) -> Bool {
+        query.isEmpty || (entry.record.traceSearchText + " " + entry.record.date + " " + entry.record.title + " " + (entry.component?.title ?? "") + " " + entry.record.userDisplayName + " " + (entry.record.user_id ?? "") + " " + money(entry.impact)).localizedCaseInsensitiveContains(query)
+    }
+    /// Open work of any type: the union behind the inbox's 全部 view.
+    func isOpen(_ entry: CompletionEntry) -> Bool {
+        ["优先补全", "待分类", "待核事实", "退款候选"].contains { matches(entry, mode: $0) }
+    }
     /// Unfiltered by search, so type counts stay stable while the user types.
     func count(_ mode: String) -> Int { entries.reduce(0) { $0 + (matches($1, mode: mode) ? 1 : 0) } }
     func filter() {
-        visible = entries.filter { entry in
-            matches(entry, mode: mode) && (query.isEmpty || (entry.record.traceSearchText + " " + entry.record.date + " " + entry.record.title + " " + (entry.component?.title ?? "") + " " + entry.record.userDisplayName + " " + (entry.record.user_id ?? "") + " " + money(entry.impact)).localizedCaseInsensitiveContains(query))
-        }
+        visible = entries.filter { matches($0, mode: mode) && matchesQuery($0) }
         if !visible.contains(where: { $0.id == selected }) { selected = visible.first?.id }
     }
     func draft(_ entry: CompletionEntry) -> CompletionDraft? {
@@ -289,7 +294,10 @@ struct CompletionEditor: View {
                         Text("匹配较弱，请核对用途后决定。").font(.caption).foregroundStyle(.orange)
                     }
                     Button("采用候选分类") { adopt(suggestion) }
-                        .buttonStyle(.bordered).accessibilityIdentifier("completion-adopt-suggestion").help("⌘1")
+                        .buttonStyle(.bordered).accessibilityIdentifier("completion-adopt-suggestion")
+                        #if os(macOS)
+                        .help("快捷键 1 或 ⌥⌘1")
+                        #endif
                 }
             }
         }

@@ -82,6 +82,8 @@ import UniformTypeIdentifiers
     var recordView = "全部消费" { didSet { ReviewLatency.begin("record-mode") } }
     var parameterStatus = ""
     var syncStatus = ""
+    /// View state: received concurrent versions await a user decision.
+    var syncConflictsPending = false
     let completion = CompletionWorkspace()
     var completionSaving = false
     var loading = false

@@ -13,6 +13,7 @@ struct InboxActions {
     var adopt: (() -> Void)?
     var move: (Int) -> Void
     var search: () -> Void
+    var shortcuts: () -> Void
 }
 private struct InboxActionsKey: FocusedValueKey { typealias Value = InboxActions }
 extension FocusedValues {
@@ -32,6 +33,7 @@ struct InboxCommands: Commands {
             Button("上一项") { actions?.move(-1) }.keyboardShortcut("[", modifiers: .command).disabled(actions == nil)
             Button("下一项") { actions?.move(1) }.keyboardShortcut("]", modifiers: .command).disabled(actions == nil)
             Button("搜索待办") { actions?.search() }.keyboardShortcut("f", modifiers: .command).disabled(actions == nil)
+            Button("键盘快捷键…") { actions?.shortcuts() }.keyboardShortcut("/", modifiers: .command).disabled(actions == nil)
         }
     }
 }
@@ -208,7 +210,8 @@ struct MacInboxPage: View {
             undo: ready && workspace.undo != nil ? { undo() } : nil,
             adopt: entry?.missingCategory == true && ready ? { NotificationCenter.default.post(name: .adoptCategorySuggestion, object: entry?.id) } : nil,
             move: { inbox.move($0) },
-            search: { searchFocused = true })
+            search: { searchFocused = true },
+            shortcuts: { showingShortcuts = true })
     }
     private func save(_ entry: CompletionEntry) {
         let previous = inbox.items.map(\.id), id = "c:" + entry.id
@@ -295,7 +298,7 @@ struct InboxAssociationDetail: View {
 private struct InboxShortcutSheet: View {
     @Environment(\.dismiss) private var dismiss
     private let rows = [("j / ↓", "下一项"), ("k / ↑", "上一项"), ("⌘] / ⌘[", "下一项 / 上一项（任意位置）"), ("⌘↩", "保存并下一笔"), ("⌘D", "暂放 / 放回队列"),
-                        ("⌥⌘Z", "撤销上一笔保存"), ("1 或 ⌥⌘1", "采用分类候选"), ("⌘1 – ⌘3", "概览 / 待办 / 交易"), ("⌘F 或 /", "搜索"), ("?", "显示本面板")]
+                        ("⌥⌘Z", "撤销上一笔保存"), ("1 或 ⌥⌘1", "采用分类候选"), ("⌘1 – ⌘3", "概览 / 待办 / 交易"), ("⌘F 或 /", "搜索"), ("? 或 ⌘/", "显示本面板")]
     var body: some View {
         VStack(alignment: .leading, spacing: DS.l) {
             Text("待办快捷键").font(.title3.bold())

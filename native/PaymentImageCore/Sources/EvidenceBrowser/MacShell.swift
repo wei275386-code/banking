@@ -46,7 +46,9 @@ struct MacRootView: View {
         .onDrop(of: [.fileURL], isTargeted: $dropTargeted) { providers in importDropped(providers); return true }
         .overlay { if dropTargeted { MacDropOverlay(store: store) } }
         .onAppear { inbox.bind(store, evidence); prepareInbox() }
-        .task(id: store.revision) { await store.reconcileCompletion(); prepareInbox() }
+        .task(id: store.revision) { await store.reconcileCompletion(); prepareInbox(); await store.refreshSyncConflictFlag() }
+        .onChange(of: store.from) { _, _ in followPeriod() }
+        .onChange(of: store.to) { _, _ in followPeriod() }
         .onChange(of: evidence.previewGeneration) { _, _ in prepareInbox() }
         .onChange(of: store.completion.allDates) { _, _ in prepareInbox() }
         .onChange(of: store.section) { _, _ in ReviewLatency.finish("navigate") }
@@ -73,6 +75,13 @@ struct MacRootView: View {
         if workspace.from.isEmpty { workspace.from = store.from; workspace.to = store.to }
         workspace.refresh(store, evidence)
     }
+    /// 待办 follows the toolbar period; drafts live in the workspace and survive the refresh.
+    private func followPeriod() {
+        let workspace = store.completion
+        guard workspace.from != store.from || workspace.to != store.to else { return }
+        workspace.from = store.from; workspace.to = store.to
+        workspace.refresh(store, evidence)
+    }
     private var busy: Bool { store.completionSaving || store.importing || store.loading || evidence.loading || store.completion.persisting }
 
     @ViewBuilder private var detail: some View {
@@ -83,8 +92,8 @@ struct MacRootView: View {
             }
         } else {
             switch store.section {
-            case "completion": MacInboxPage(store: store, evidence: evidence, inbox: inbox)
-            case "details": MacTransactionsPage(store: store, evidence: evidence)
+            case "completion": MacPageError(store: store) { MacInboxPage(store: store, evidence: evidence, inbox: inbox) }
+            case "details": MacPageError(store: store) { MacTransactionsPage(store: store, evidence: evidence) }
             case "categories": NavigationStack { CategoryManagementPage(store: store) }
             default: MacScrollPage(store: store) { scrollContent }
             }
@@ -104,7 +113,7 @@ struct MacRootView: View {
         default:
             MacStatusBanner(store: store)
             ActiveFilterBar(store: store)
-            FinanceOverviewPage(store: store, inbox: inbox) { kind in inbox.kind = kind; store.section = "completion" }
+            FinanceOverviewPage(store: store, inbox: inbox) { kind in inbox.openPending(kind); store.section = "completion" }
         }
     }
 
@@ -153,6 +162,25 @@ struct MacRootView: View {
             }.joined(separator: "|")
             if stamp != previous, await store.refreshLocalFilesIfNeeded(evidence) { previous = stamp }
             try? await Task.sleep(for: .seconds(5))
+        }
+    }
+}
+
+/// Store-level failures (save, undo, file writes) stay visible on split pages too.
+struct MacPageError<Content: View>: View {
+    let store: FinancialStore
+    @ViewBuilder var content: Content
+    var body: some View {
+        VStack(spacing: 0) {
+            if let error = store.error {
+                HStack {
+                    NoticeText(text: error, tone: .failure)
+                    Spacer()
+                    Button("关闭") { store.error = nil }.buttonStyle(.borderless)
+                }.padding(.horizontal, DS.l).padding(.vertical, DS.s).background(DS.failure.opacity(0.08))
+                Divider()
+            }
+            content
         }
     }
 }
@@ -228,7 +256,9 @@ struct PeriodMenu: View {
     @State private var custom = false
     var body: some View {
         Menu {
-            ForEach(["本月", "上月", "今年", "近90天", "全部"], id: \.self) { name in Button(name) { store.selectRange(name) } }
+            Section("以资料截止日 \(store.report?.cutoff ?? "") 为基准") {
+                ForEach(["本月", "上月", "今年", "近90天", "全部"], id: \.self) { name in Button(name) { store.selectRange(name) } }
+            }
             Divider()
             Button("自定义…") { custom = true }
         } label: {
@@ -256,7 +286,7 @@ struct StatusCenterButton: View {
     @State private var shown = false
     private var attention: Bool {
         store.workspaceRuntimeFailure != nil || store.pendingVideoCount > 0
-            || store.workspaceRequestStatuses.values.contains("needsReview") || store.syncStatus.contains("未")
+            || store.workspaceRequestStatuses.values.contains("needsReview") || store.syncConflictsPending
     }
     private var symbol: String {
         if store.importing { return "arrow.triangle.2.circlepath" }
@@ -339,7 +369,9 @@ struct StatusCenterContent: View {
 struct MacStatusBanner: View {
     let store: FinancialStore
     var body: some View {
-        if let failure = store.workspaceRuntimeFailure {
+        if store.syncConflictsPending {
+            banner("家庭同步收到并发修改，需要选择保留的版本。可在工具栏「状态」或「设置 › 同步」中处理。")
+        } else if let failure = store.workspaceRuntimeFailure {
             banner("处理器需要检查：" + failure)
         } else if store.pendingVideoCount > 0 {
             banner("有 \(store.pendingVideoCount) 个录屏等待解析，可在工具栏「状态」中重试。")

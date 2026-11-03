@@ -4,6 +4,20 @@ import CoreFoundation
 import PaymentImageCore
 
 #if os(macOS)
+extension FinancialStore {
+    /// Re-reads whether received concurrent versions still await a decision, so
+    /// the toolbar and overview can flag them without opening the status center.
+    func refreshSyncConflictFlag() async {
+        guard let paths = familyClientPaths ?? workspacePaths,
+              FileManager.default.fileExists(atPath: paths.device.appendingPathComponent("family-connection.json").path) else { syncConflictsPending = false; return }
+        let client = familyClientPaths != nil, generation = workspaceSelectionGeneration
+        let pending = try? await ReviewSyncDetached.run { () -> Bool in
+            if client { return !(try ReviewFamilyClientSession.read(paths: paths)?.conflicts.isEmpty ?? true) }
+            return !(try ReviewFamilyHost.conflictState(paths: paths).options.isEmpty)
+        }
+        if isWorkspaceSelectionCurrent(paths: paths, generation: generation), let pending { syncConflictsPending = pending }
+    }
+}
 struct MacSyncConflicts: View {
     @Bindable var store: FinancialStore
     @Bindable var evidence: BrowserStore
@@ -68,6 +82,7 @@ private struct FamilySyncConflictChoices: View {
             guard store.isWorkspaceSelectionCurrent(paths: paths, generation: generation) else { return }
             hostChoice = host; clientChoice = client; options = host?.options ?? client?.conflicts ?? [:]; selected = [:]
             notice = options.isEmpty ? "未发现已接收的并发版本。可先刷新或发布家庭同步，再核对。" : ""
+            store.syncConflictsPending = !options.isEmpty
         } catch {
             guard store.isWorkspaceSelectionCurrent(paths: paths, generation: generation) else { return }
             hostChoice = nil; clientChoice = nil; options = [:]; selected = [:]; notice = error.localizedDescription
@@ -93,6 +108,7 @@ private struct FamilySyncConflictChoices: View {
             await evidence.load(root, finance: store.report)
             guard store.isWorkspaceSelectionCurrent(paths: paths, generation: generation) else { return }
             options = [:]; selected = [:]; hostChoice = nil; clientChoice = nil
+            store.syncConflictsPending = false
             notice = store.familyClientPaths == nil ? "决定已保存在本机；点击发布家庭同步，将核对结果发送到其他端。" : "决定已保存在本机；下一次刷新会发送此决定。"
             store.syncStatus = notice
         } catch { if store.isWorkspaceSelectionCurrent(paths: paths, generation: generation) { notice = "版本未保存，请重新读取并核对：" + error.localizedDescription } }

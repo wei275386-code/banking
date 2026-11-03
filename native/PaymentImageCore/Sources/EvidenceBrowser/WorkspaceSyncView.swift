@@ -192,6 +192,7 @@ import PaymentImageCore
             if let evidence { await evidence.load(handle.review, finance: store.report) }
             guard !Task.isCancelled, isCurrent(store) else { return }
             store.syncStatus = handle.conflicts.isEmpty ? "已核对家庭快照；本机修改会保留至真实纳入。" : "并发修改已保留，请核对字段版本。"
+            store.syncConflictsPending = !handle.conflicts.isEmpty
         } catch is CancellationError {
         } catch {
             if isCurrent(store), !Task.isCancelled { store.syncStatus = "等待同步：" + error.localizedDescription }

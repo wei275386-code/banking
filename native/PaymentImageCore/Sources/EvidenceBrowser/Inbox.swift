@@ -63,6 +63,12 @@ struct InboxRowInfo {
     @ObservationIgnored weak var evidence: BrowserStore?
     @ObservationIgnored private weak var workspace: CompletionWorkspace?
 
+    /// Navigation entry from elsewhere (overview, menus): always shows open work
+    /// of the given type, never a leftover history view or search.
+    func openPending(_ kind: InboxKind) {
+        history = nil; query = ""
+        if self.kind != kind { self.kind = kind } else { syncWorkspaceMode() }
+    }
     /// Observed so views that rendered before `bind` re-read counts afterwards.
     private var bound = false
     func bind(_ finance: FinancialStore, _ evidence: BrowserStore) {
@@ -84,14 +90,15 @@ struct InboxRowInfo {
         guard bound, let finance, let evidence else { return [] }
         let workspace = finance.completion
         var result = [InboxItem]()
-        if showsCompletion { result += workspace.visible.map(InboxItem.completion) }
+        let completions = completionEntries(workspace)
+        if showsCompletion { result += completions.map(InboxItem.completion) }
         let wantsAssociations = history == .associations || (history == nil && (kind == .all || kind == .association))
         if wantsAssociations {
             let pending = history == nil
-            var candidates = evidence.orderedCandidates.filter { (!pending || $0.review_required) && matches($0, evidence) }
+            var candidates = evidence.orderedCandidates.filter { (!pending || $0.review_required) && matches($0, evidence) && inRange(candidateDate($0, evidence)) }
             if kind == .all && pending {
                 // Associations already reviewable inside a listed completion entry stay there.
-                let covered = Set(workspace.visible.flatMap(\.record.evidence_keys))
+                let covered = Set(completions.flatMap(\.record.evidence_keys))
                 candidates.removeAll { !Set($0.record_ids + $0.bank_ids).isDisjoint(with: covered) }
             }
             result += candidates.map(InboxItem.association)
@@ -99,12 +106,28 @@ struct InboxRowInfo {
         let wantsSets = history == .sourceSets || (history == nil && (kind == .all || kind == .sourceSet))
         if wantsSets {
             let pending = history == nil
-            result += finance.sourceRecordGroups.filter { (!pending || Self.sourceSetPending($0)) && matches($0) }.map(InboxItem.sourceSet)
+            result += finance.sourceRecordGroups.filter { (!pending || Self.sourceSetPending($0)) && matches($0) && inRange($0.date) }.map(InboxItem.sourceSet)
         }
         if kind == .all || history != nil, result.count > 1 {
             return TransactionListOrder.sorted(result, amount: { self.row($0).amount }, date: { self.row($0).date }, id: \.id)
         }
         return result
+    }
+    /// 全部 shows the union of open completion types; other views follow the workspace mode.
+    private func completionEntries(_ workspace: CompletionWorkspace) -> [CompletionEntry] {
+        guard history == nil, kind == .all else { return workspace.visible }
+        return workspace.entries.filter { workspace.isOpen($0) && workspace.matchesQuery($0) }
+    }
+    /// Associations and source sets follow the same date scope as completion entries.
+    private func inRange(_ date: String) -> Bool {
+        guard let workspace, !workspace.allDates else { return true }
+        let day = String(date.prefix(10))
+        return !day.isEmpty && day >= workspace.from && day <= workspace.to
+    }
+    private func candidateDate(_ candidate: Candidate, _ evidence: BrowserStore) -> String {
+        let ids = Set(candidate.record_ids + candidate.bank_ids)
+        let records = evidence.records.filter { ids.contains($0.id) }
+        return (records.first { !candidate.bank_ids.contains($0.id) } ?? records.first)?.date ?? ""
     }
     static func sourceSetPending(_ group: SourceRecordSet) -> Bool { group.status != "confirmed" && group.status != "rejected" }
     private func matches(_ candidate: Candidate, _ evidence: BrowserStore) -> Bool {
@@ -119,22 +142,31 @@ struct InboxRowInfo {
     func count(_ kind: InboxKind) -> Int {
         guard bound, let finance, let evidence else { return 0 }
         let workspace = finance.completion
-        let candidates = evidence.orderedCandidates.filter(\.review_required)
-        let sets = finance.sourceRecordGroups.filter(Self.sourceSetPending).count
+        let candidates = evidence.orderedCandidates.filter { $0.review_required && inRange(candidateDate($0, evidence)) }
+        let sets = finance.sourceRecordGroups.filter { Self.sourceSetPending($0) && inRange($0.date) }.count
         switch kind {
         case .all:
-            let covered = Set(workspace.entries.filter { workspace.matches($0, mode: "优先补全") }.flatMap(\.record.evidence_keys))
-            return workspace.count("优先补全") + candidates.filter { Set($0.record_ids + $0.bank_ids).isDisjoint(with: covered) }.count + sets
+            let open = workspace.entries.filter(workspace.isOpen)
+            let covered = Set(open.flatMap(\.record.evidence_keys))
+            return open.count + candidates.filter { Set($0.record_ids + $0.bank_ids).isDisjoint(with: covered) }.count + sets
         case .category, .facts, .refund: return workspace.count(kind.rawValue)
         case .association: return candidates.count
         case .sourceSet: return sets
         }
     }
-    /// Total amount of open work, for summary cards.
+    /// Total amount of open work (all types, same items as `count(.all)`), for summary cards.
     var openImpact: Int {
-        guard let finance else { return 0 }
+        guard bound, let finance, let evidence else { return 0 }
         let workspace = finance.completion
-        return workspace.entries.filter { workspace.matches($0, mode: "优先补全") && !$0.amountUnknown }.reduce(0) { $0 + abs($1.impact) }
+        let open = workspace.entries.filter(workspace.isOpen)
+        let covered = Set(open.flatMap(\.record.evidence_keys))
+        var total = open.filter { !$0.amountUnknown }.reduce(0) { $0 + abs($1.impact) }
+        for candidate in evidence.orderedCandidates where candidate.review_required && inRange(candidateDate(candidate, evidence))
+            && Set(candidate.record_ids + candidate.bank_ids).isDisjoint(with: covered) {
+            total += abs(row(.association(candidate)).amount ?? 0)
+        }
+        for group in finance.sourceRecordGroups where Self.sourceSetPending(group) && inRange(group.date) { total += abs(group.amount_cents) }
+        return total
     }
 
     var selectedItem: InboxItem? {

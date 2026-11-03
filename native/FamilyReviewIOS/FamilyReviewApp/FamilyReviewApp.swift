@@ -29,7 +29,7 @@ struct MobileRoot: View {
         TabView(selection: $tab) {
             NavigationStack(path: $overviewPath) {
                 MobilePage(title: "概览", finance: finance) {
-                    FinanceOverviewPage(store: finance, inbox: inbox) { kind in inbox.kind = kind; tab = "completion" }
+                    FinanceOverviewPage(store: finance, inbox: inbox) { kind in inbox.openPending(kind); tab = "completion" }
                     MobileFireSummary(finance: finance)
                 }
                 .navigationBarTitleDisplayMode(.large)
@@ -76,6 +76,8 @@ struct MobileRoot: View {
         .onAppear { inbox.bind(finance, evidence); prepareInbox() }
         .task(id: finance.revision) { await finance.reconcileCompletion(); prepareInbox() }
         .onChange(of: evidence.previewGeneration) { _, _ in prepareInbox() }
+        .onChange(of: finance.from) { _, _ in followPeriod() }
+        .onChange(of: finance.to) { _, _ in followPeriod() }
         .onChange(of: tab) { _, value in if value != "me" { finance.section = value } }
         .onChange(of: finance.section) { _, value in route(value) }
         .onChange(of: finance.selected) { _, id in
@@ -98,6 +100,12 @@ struct MobileRoot: View {
             tab = "me"; if mePath.last != "data" { mePath.append("data") }
         default: break
         }
+    }
+    private func followPeriod() {
+        let workspace = finance.completion
+        guard workspace.from != finance.from || workspace.to != finance.to else { return }
+        workspace.from = finance.from; workspace.to = finance.to
+        workspace.refresh(finance, evidence)
     }
     private func prepareInbox() {
         let workspace = finance.completion

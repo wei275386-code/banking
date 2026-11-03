@@ -132,8 +132,11 @@ struct MacRootView: View {
         }
     }
     private func importMaterials(_ urls: [URL]) {
-        ToastCenter.shared.show("已加入处理队列：\(urls.count) 个文件")
-        Task { await store.importMaterials(urls); if let root = store.root { await evidence.load(root, finance: store.report) } }
+        ToastCenter.shared.show("正在处理 \(urls.count) 个文件…")
+        Task {
+            await importReporting(store, urls, success: "已发送 \(urls.count) 个文件到家庭 Mac")
+            if let root = store.root { await evidence.load(root, finance: store.report) }
+        }
     }
 
     /// Unchanged from the previous root view: keep displayed files and the

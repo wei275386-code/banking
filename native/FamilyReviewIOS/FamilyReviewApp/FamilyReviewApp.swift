@@ -78,7 +78,8 @@ struct MobileRoot: View {
         .onChange(of: evidence.previewGeneration) { _, _ in prepareInbox() }
         .onChange(of: finance.from) { _, _ in followPeriod() }
         .onChange(of: finance.to) { _, _ in followPeriod() }
-        .onChange(of: tab) { _, value in if value != "me" { finance.section = value } }
+        // "me" has no Mac counterpart; recording it keeps later same-value jumps (e.g. back to "details") observable.
+        .onChange(of: tab) { _, value in finance.section = value }
         .onChange(of: finance.section) { _, value in route(value) }
         .onChange(of: finance.selected) { _, id in
             if finance.section == "details", let id, detailPath.last != id { detailPath.append(id) }
@@ -269,12 +270,24 @@ struct MobileActiveFilters: View {
 struct MobileFireSummary: View {
     let finance: FinancialStore
     var body: some View {
-        if finance.report?.fire_parameters.needsBaseInput == false {
+        if let p = finance.report?.fire_parameters, !p.needsBaseInput {
+            let target = FinancialMath.target(p)
+            let age = p.baseYear - p.birthYear
+            let realReturn = FinancialMath.realReturn(nominal: p.investing.annualReturn, inflation: p.investing.inflation)
+            let reach = FinancialMath.reachYears(assets: p.currentFireAssets, target: target, annualContribution: p.annualContribution, annualReturn: realReturn)
             NavigationLink(value: "fire") {
-                HStack {
-                    Label("FIRE 目标与情景", systemImage: "flag.checkered").font(.headline)
-                    Spacer()
-                    Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                VStack(alignment: .leading, spacing: DS.s) {
+                    HStack {
+                        Text("FIRE 目标").font(.headline)
+                        Spacer()
+                        Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                    }
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(wan(p.currentFireAssets)).font(.title3.weight(.semibold)).monospacedDigit()
+                        Text("/ " + wan(target)).foregroundStyle(.secondary).monospacedDigit()
+                    }
+                    ProgressView(value: target > 0 ? min(1, max(0, p.currentFireAssets / target)) : 0).tint(DS.accent)
+                    Text(reach.map { String(format: "按当前投入预计 %.1f 岁达到", Double(age) + $0) } ?? "按当前投入 100 年内未达到").font(.caption).foregroundStyle(.secondary)
                 }.cardStyle()
             }.buttonStyle(.plain)
         }

@@ -72,7 +72,7 @@ struct MobileInboxList: View {
         }
         .fileImporter(isPresented: $sending, allowedContentTypes: [.pdf, .commaSeparatedText, .spreadsheet, .movie, .image, .data], allowsMultipleSelection: true) { result in
             guard case .success(let urls) = result, !urls.isEmpty else { return }
-            Task { await finance.importMaterials(urls); ToastCenter.shared.show("已发送 \(urls.count) 个文件，Mac 处理后自动同步") }
+            Task { await importReporting(finance, urls, success: "已发送 \(urls.count) 个文件，Mac 处理后自动同步") }
         }
         .onChange(of: inbox.includeAllDates) { _, _ in workspace.refresh(finance, evidence) }
     }

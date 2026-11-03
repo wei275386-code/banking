@@ -190,6 +190,17 @@ func periodTitle(from: String, to: String) -> String {
     return from.replacingOccurrences(of: "-", with: ".") + " – " + to.replacingOccurrences(of: "-", with: ".")
 }
 
+/// Runs a material import and reports its real outcome: the store reports
+/// through `error` / `importState` and silently skips when busy.
+@MainActor func importReporting(_ store: FinancialStore, _ urls: [URL], success: String) async {
+    store.importState = ""
+    let previousError = store.error
+    await store.importMaterials(urls)
+    if let error = store.error, error != previousError || !store.importState.isEmpty { ToastCenter.shared.show(error) }
+    else if store.importState.isEmpty { ToastCenter.shared.show("正在处理其他操作，素材未导入，请稍后重试。") }
+    else { ToastCenter.shared.show(store.importState.hasPrefix("素材已保存") ? success : store.importState) }
+}
+
 extension Notification.Name {
     /// Posted with a completion entry id to adopt its category suggestion from a keyboard command.
     static let adoptCategorySuggestion = Notification.Name("AdoptCategorySuggestion")

@@ -1045,16 +1045,16 @@ function boot() {
   if (h.get('scope') === 'raw') S.scope = 'raw';
   if (h.get('month')) S.f.month = h.get('month');
   if (h.get('q')) S.q = h.get('q');
-  window._instant = true;
+  window._instant = true; $('#tabbar').style.transition = 'none';
   if (h.get('tab')) switchTab(h.get('tab'));
   (h.get('push') || '').split(',').filter(Boolean).forEach(x => {
-    const [n, a, b] = x.split(':'); const pm = { complete: { id: a }, txndetail: { id: a }, rawdetail: { id: a }, catlist: { p: a }, sub: { id: a, p: b }, fire: {}, pick: { kind: a, key: b } }[n] || {};
+    let [n, a, b] = x.split(':'); n = { detail: 'txndetail', raw: 'rawdetail', cat: 'catlist' }[n] || n; const pm = { complete: { id: a }, txndetail: { id: a }, rawdetail: { id: a }, catlist: { p: a }, sub: { id: a, p: b }, fire: {}, pick: { kind: a, key: b } }[n] || {};
     push(n, pm, false);
   });
   const sh = h.get('sheet');
   if (sh) { const [n, a] = sh.split(':'); if (n === 'edit') A['txn-edit']({ dataset: { id: a } }); else if (n === 'filter') A['filter-open'](); else if (n === 'custom') A['custom-sheet'](); }
   window._instant = false;
-  refresh();
+  refresh(); void $('#tabbar').offsetWidth; $('#tabbar').style.transition = '';
 }
 $('#resetBtn').addEventListener('click', () => { closeSheet(true); closeAction(true); boot(); toast('演示数据已重置'); });
 boot();
